@@ -21,3 +21,4 @@ node_modules/
 # Python bytecode (in case anyone adds scripts)
 __pycache__/
 *.pyc
+.clinerules
