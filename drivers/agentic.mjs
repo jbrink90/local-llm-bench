@@ -1,0 +1,260 @@
+#!/usr/bin/env node
+// Agentic loop driver — runs a local model as a coding agent over a tool surface.
+//
+// Unlike the one-shot drivers, this holds multi-turn state: the model calls
+// tools, sees results, and iterates until it declares done or hits the guard.
+// Artifact correctness is judged separately by the variant's validator; this
+// driver only produces the loop transcript and its metrics.
+//
+// Usage: agentic.mjs <workdir> <model> <results-dir> <safe-name> <prompt-file>
+
+import { readFileSync, writeFileSync, existsSync, statSync, readdirSync, mkdirSync } from 'fs';
+import { resolve, join, relative, dirname } from 'path';
+import { execFileSync } from 'child_process';
+
+const [, , workdirArg, model, resultsDir, safeName, promptFile] = process.argv;
+const WORKDIR = resolve(workdirArg);
+const OLLAMA = process.env.OLLAMA_URL || 'http://localhost:11434';
+
+// A guard against runaway loops, NOT a work budget. A model that reads several
+// files before editing is being careful; the spec is explicit that turns are
+// reported, never penalized. Only a true runaway should trip this.
+const MAX_TURNS = Number(process.env.AGENTIC_MAX_TURNS || 500);
+const CMD_TIMEOUT_MS = 120_000;
+
+const TOOLS = [
+  {
+    type: 'function',
+    function: {
+      name: 'list_dir',
+      description: 'List files and directories at a path relative to the project root.',
+      parameters: {
+        type: 'object',
+        properties: { path: { type: 'string', description: 'Relative path. Use "." for the project root.' } },
+        required: ['path'],
+      },
+    },
+  },
+  {
+    type: 'function',
+    function: {
+      name: 'read_file',
+      description: 'Read a file relative to the project root.',
+      parameters: {
+        type: 'object',
+        properties: { path: { type: 'string', description: 'Relative path to the file.' } },
+        required: ['path'],
+      },
+    },
+  },
+  {
+    type: 'function',
+    function: {
+      name: 'write_file',
+      description: 'Write full content to a file relative to the project root, replacing it.',
+      parameters: {
+        type: 'object',
+        properties: {
+          path: { type: 'string', description: 'Relative path to the file.' },
+          content: { type: 'string', description: 'Complete new file content.' },
+        },
+        required: ['path', 'content'],
+      },
+    },
+  },
+  {
+    type: 'function',
+    function: {
+      name: 'run_command',
+      description: 'Run a shell command in the project root and return stdout/stderr and exit code.',
+      parameters: {
+        type: 'object',
+        properties: { command: { type: 'string', description: 'The shell command to run.' } },
+        required: ['command'],
+      },
+    },
+  },
+  {
+    type: 'function',
+    function: {
+      name: 'done',
+      description: 'Declare the task finished. Call this only when the work is complete and verified.',
+      parameters: {
+        type: 'object',
+        properties: { summary: { type: 'string', description: 'What was changed and why.' } },
+        required: ['summary'],
+      },
+    },
+  },
+];
+
+const metrics = {
+  benchmark: 'agentic',
+  model,
+  turns: 0,
+  tool_calls: 0,
+  malformed_calls: 0,      // unknown tool, or missing required args
+  wasted_calls: 0,         // re-reading a file already read with no intervening write
+  failed_commands: 0,
+  repeated_failures: 0,    // same command re-run after it already failed: flailing, not care
+  recovered: null,         // did it adapt after a command failed
+  declared_done: false,
+  hit_guard: false,
+  tokens: { prompt: 0, completion: 0 },
+  wall_ms: 0,
+  errors: [],
+};
+
+// Sandbox: a path escaping the workdir is a malformed call, not a filesystem op.
+function safePath(p) {
+  const abs = resolve(WORKDIR, p ?? '');
+  const rel = relative(WORKDIR, abs);
+  if (rel.startsWith('..') || resolve(abs) === resolve(WORKDIR, '..')) {
+    throw new Error(`path escapes the project root: ${p}`);
+  }
+  return abs;
+}
+
+const readFiles = new Set();      // for wasted-call detection
+const failedCommands = new Map(); // command -> times it has failed
+
+function dispatch(name, args) {
+  switch (name) {
+    case 'list_dir': {
+      const dir = safePath(args.path);
+      if (!existsSync(dir)) return `error: no such directory: ${args.path}`;
+      return readdirSync(dir, { withFileTypes: true })
+        .map((e) => (e.isDirectory() ? `${e.name}/` : e.name))
+        .join('\n') || '(empty)';
+    }
+    case 'read_file': {
+      const file = safePath(args.path);
+      if (!existsSync(file) || statSync(file).isDirectory()) {
+        return `error: no such file: ${args.path}`;
+      }
+      if (readFiles.has(file)) metrics.wasted_calls++;
+      readFiles.add(file);
+      return readFileSync(file, 'utf8');
+    }
+    case 'write_file': {
+      const file = safePath(args.path);
+      mkdirSync(dirname(file), { recursive: true });
+      writeFileSync(file, args.content ?? '');
+      readFiles.delete(file); // content changed, so re-reading is legitimate again
+      return `wrote ${args.path} (${(args.content ?? '').length} bytes)`;
+    }
+    case 'run_command': {
+      const cmd = args.command;
+      try {
+        const out = execFileSync('/bin/sh', ['-c', cmd], {
+          cwd: WORKDIR,
+          timeout: CMD_TIMEOUT_MS,
+          encoding: 'utf8',
+          stdio: ['ignore', 'pipe', 'pipe'],
+        });
+        return `exit 0\n${out}`;
+      } catch (e) {
+        metrics.failed_commands++;
+        const prior = failedCommands.get(cmd) || 0;
+        if (prior > 0) metrics.repeated_failures++;
+        failedCommands.set(cmd, prior + 1);
+        const stdout = e.stdout || '';
+        const stderr = e.stderr || e.message;
+        return `exit ${e.status ?? 1}\n${stdout}\n${stderr}`;
+      }
+    }
+    default:
+      throw new Error(`unknown tool: ${name}`);
+  }
+}
+
+async function chat(messages) {
+  const res = await fetch(`${OLLAMA}/api/chat`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ model, stream: false, messages, tools: TOOLS }),
+  });
+  if (!res.ok) throw new Error(`ollama ${res.status}: ${await res.text()}`);
+  return res.json();
+}
+
+const prompt = readFileSync(resolve(promptFile), 'utf8');
+const messages = [{ role: 'user', content: prompt }];
+const transcript = [];
+const started = Date.now();
+
+try {
+  while (metrics.turns < MAX_TURNS) {
+    metrics.turns++;
+    const res = await chat(messages);
+    metrics.tokens.prompt += res.prompt_eval_count || 0;
+    metrics.tokens.completion += res.eval_count || 0;
+
+    const msg = res.message || {};
+    messages.push(msg);
+    const calls = msg.tool_calls || [];
+
+    if (calls.length === 0) {
+      // No tool call and no done() — the model is talking, not working. One nudge,
+      // then stop: an unprompted prose reply twice over is not a loop making progress.
+      transcript.push({ turn: metrics.turns, text: (msg.content || '').slice(0, 2000) });
+      if (messages.filter((m) => m.role === 'user').length > 1) break;
+      messages.push({
+        role: 'user',
+        content: 'Continue using the tools. Call done() when the task is complete.',
+      });
+      continue;
+    }
+
+    for (const call of calls) {
+      const name = call.function?.name;
+      // Ollama returns arguments pre-parsed as an object; tolerate a JSON string too.
+      let args = call.function?.arguments ?? {};
+      if (typeof args === 'string') {
+        try { args = JSON.parse(args); } catch { args = {}; }
+      }
+      metrics.tool_calls++;
+
+      if (name === 'done') {
+        metrics.declared_done = true;
+        transcript.push({ turn: metrics.turns, tool: 'done', summary: args.summary });
+        break;
+      }
+
+      let result;
+      try {
+        result = dispatch(name, args);
+      } catch (e) {
+        metrics.malformed_calls++;
+        result = `error: ${e.message}`;
+      }
+      transcript.push({
+        turn: metrics.turns,
+        tool: name,
+        args: name === 'write_file' ? { path: args.path, bytes: (args.content ?? '').length } : args,
+        result: String(result).slice(0, 4000),
+      });
+      messages.push({ role: 'tool', content: String(result).slice(0, 20_000) });
+    }
+
+    if (metrics.declared_done) break;
+  }
+  if (metrics.turns >= MAX_TURNS) metrics.hit_guard = true;
+} catch (e) {
+  metrics.errors.push(e.message);
+}
+
+metrics.wall_ms = Date.now() - started;
+
+// Recovery is only meaningful once something actually failed. A model that hit no
+// failure gets null, never false — an unmeasured signal is not a failed one.
+if (metrics.failed_commands > 0) {
+  metrics.recovered = metrics.repeated_failures < metrics.failed_commands;
+}
+
+mkdirSync(resultsDir, { recursive: true });
+writeFileSync(
+  join(resultsDir, `agentic-${safeName}.json`),
+  JSON.stringify({ ...metrics, transcript }, null, 2),
+);
+console.log(JSON.stringify(metrics));
