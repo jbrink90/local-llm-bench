@@ -12,6 +12,7 @@ import { readFileSync, writeFileSync, existsSync, statSync, readdirSync, mkdirSy
 import { resolve, join, relative, dirname } from 'path';
 import { execFileSync } from 'child_process';
 import { screenshot, describeViaSidecar, imageForNative } from './vision.mjs';
+import { ollamaPost } from './ollama.mjs';
 
 const [, , workdirArg, model, resultsDir, safeName, promptFile] = process.argv;
 const WORKDIR = resolve(workdirArg);
@@ -202,26 +203,14 @@ function dispatch(name, args) {
 }
 
 async function chat(messages) {
-  const res = await fetch(`${OLLAMA}/api/chat`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ model, stream: false, messages, tools: TOOLS }),
-  });
-  if (!res.ok) throw new Error(`ollama ${res.status}: ${await res.text()}`);
-  return res.json();
+  return ollamaPost(OLLAMA, '/api/chat', { model, stream: false, messages, tools: TOOLS });
 }
 
 // Ask Ollama what the model can do rather than maintaining a hand-written list
 // that silently rots when a tag is repulled.
 async function resolveVisionMode() {
   if (!VISION_ENABLED) return null;
-  const res = await fetch(`${OLLAMA}/api/show`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ model }),
-  });
-  if (!res.ok) throw new Error(`ollama /api/show ${res.status} for ${model}`);
-  const caps = (await res.json()).capabilities || [];
+  const caps = (await ollamaPost(OLLAMA, '/api/show', { model })).capabilities || [];
   return caps.includes('vision') ? 'native' : 'sidecar';
 }
 

@@ -20,10 +20,28 @@ emit_fail() {
   exit 1
 }
 
+# A harness failure is not a model failure. Recording one as pass=false puts a
+# false zero in the table — six legs of the 2026-08-14 run died on an HTTP
+# timeout and were scored as if the models had produced nothing.
+emit_invalid() {
+  jq -n --arg m "$MODEL" --arg r "$1" \
+    '{model:$m, benchmark:"agentic-greenfield", pass:null, invalid:true, reason:$r}' > "$OUT"
+  echo "INVALID reason=$1"
+  exit 2
+}
+
 [ -d "$WORKDIR" ] || emit_fail "no workdir"
-# The model was told to produce tetris.html. A missing artifact is a failed run,
-# not a driver error.
-[ -s "$ARTIFACT" ] || emit_fail "no tetris.html produced"
+
+# A missing artifact is a model failure ONLY when the loop actually ran. If the
+# driver recorded an error, the run never got a fair attempt and must not be
+# scored — check that before blaming the model.
+LOOP_PRECHECK="$RESULTS/agentic-$SAFE.json"
+if [ ! -s "$ARTIFACT" ]; then
+  if [ -s "$LOOP_PRECHECK" ] && [ "$(jq -r '(.errors // []) | length' "$LOOP_PRECHECK")" -gt 0 ]; then
+    emit_invalid "driver error: $(jq -r '.errors[0]' "$LOOP_PRECHECK")"
+  fi
+  emit_fail "no tetris.html produced"
+fi
 
 source "$HOME/.nvm/nvm.sh" >/dev/null 2>&1 || true
 FUNC=$(gtimeout 120 node "$DRIVER" "$ARTIFACT" "$RESULTS" "agentic-$SAFE" 2>/dev/null)

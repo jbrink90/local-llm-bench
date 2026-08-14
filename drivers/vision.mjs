@@ -13,6 +13,7 @@
 
 import { chromium } from 'playwright';
 import { readFileSync } from 'fs';
+import { ollamaPost } from './ollama.mjs';
 
 const OLLAMA = process.env.OLLAMA_URL || 'http://localhost:11434';
 const SIDECAR_MODEL = process.env.AGENTIC_SIDECAR_MODEL || 'qwen3-vl:30b';
@@ -47,17 +48,11 @@ export async function screenshot(htmlPath, pngPath) {
 
 export async function describeViaSidecar(pngPath) {
   const img = readFileSync(pngPath).toString('base64');
-  const res = await fetch(`${OLLAMA}/api/chat`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      model: SIDECAR_MODEL,
-      stream: false,
-      messages: [{ role: 'user', content: DESCRIBE_PROMPT, images: [img] }],
-    }),
+  const data = await ollamaPost(OLLAMA, '/api/chat', {
+    model: SIDECAR_MODEL,
+    stream: false,
+    messages: [{ role: 'user', content: DESCRIBE_PROMPT, images: [img] }],
   });
-  if (!res.ok) throw new Error(`sidecar ${SIDECAR_MODEL} ${res.status}: ${await res.text()}`);
-  const data = await res.json();
   return {
     text: data.message?.content || '',
     tokens: {
