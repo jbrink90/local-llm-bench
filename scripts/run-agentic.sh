@@ -17,6 +17,12 @@ RESULTS="$REPO/caxi-results"
 RUNS="$REPO/output/agentic"
 OLLAMA="${OLLAMA_URL:-http://localhost:11434}"
 
+# Greenfield swung four points on identical inputs between the first two sweeps
+# (qwen3-coder-next 4->8, qwen3-coder:30b 8->5), so a single run of that leg is
+# not a measurement. Repeats let the report show a median and a spread instead of
+# a coin flip. Bug-fix was stable across both sweeps but repeats cost little.
+REPEATS="${AGENTIC_REPEATS:-3}"
+
 # Every model here must be pulled locally. Remote or LAN-hosted models are not
 # eligible: the premise is a laptop with no network.
 DEFAULT_MODELS=(
@@ -49,28 +55,34 @@ for MODEL in "${MODELS[@]}"; do
     continue
   fi
 
-  # ---- bug-fix leg (no vision: pure logic, nothing to render) ----
-  WORK="$RUNS/bugfix-$SAFE"
-  rm -rf "$WORK" && mkdir -p "$WORK"
-  cp -R "$REPO/fixtures/expr-eval/." "$WORK/"
+  for RUN in $(seq 1 "$REPEATS"); do
+    TAG="$SAFE-r$RUN"
 
-  log "START bugfix $MODEL"
-  ( cd "$WORK" && AGENTIC_VISION=0 \
-      node "$REPO/drivers/agentic.mjs" "$WORK" "$MODEL" "$RESULTS" "$SAFE" \
-        "$REPO/prompts/agentic-bugfix.txt" > /dev/null 2>&1 )
-  VERDICT=$("$REPO/validators/agentic-bugfix.sh" "$WORK" "$MODEL" "$RESULTS" 2>&1 | tail -1)
-  log "DONE  bugfix $MODEL — $VERDICT"
+    # ---- bug-fix leg (no vision: pure logic, nothing to render) ----
+    # Each repeat gets a pristine fixture: a half-fixed repo must never hand the
+    # next run a head start.
+    WORK="$RUNS/bugfix-$TAG"
+    rm -rf "$WORK" && mkdir -p "$WORK"
+    cp -R "$REPO/fixtures/expr-eval/." "$WORK/"
 
-  # ---- greenfield leg (vision applies: native or sidecar, resolved per model) ----
-  WORK="$RUNS/greenfield-$SAFE"
-  rm -rf "$WORK" && mkdir -p "$WORK"
+    log "START bugfix $MODEL run $RUN/$REPEATS"
+    ( cd "$WORK" && AGENTIC_VISION=0 \
+        node "$REPO/drivers/agentic.mjs" "$WORK" "$MODEL" "$RESULTS" "$TAG" \
+          "$REPO/prompts/agentic-bugfix.txt" > /dev/null 2>&1 )
+    VERDICT=$("$REPO/validators/agentic-bugfix.sh" "$WORK" "$MODEL" "$RESULTS" "$TAG" 2>&1 | tail -1)
+    log "DONE  bugfix $MODEL run $RUN — $VERDICT"
 
-  log "START greenfield $MODEL"
-  ( cd "$WORK" && AGENTIC_VISION=1 \
-      node "$REPO/drivers/agentic.mjs" "$WORK" "$MODEL" "$RESULTS" "$SAFE" \
-        "$REPO/prompts/agentic-greenfield.txt" > /dev/null 2>&1 )
-  VERDICT=$("$REPO/validators/agentic-greenfield.sh" "$WORK" "$MODEL" "$RESULTS" 2>&1 | tail -1)
-  log "DONE  greenfield $MODEL — $VERDICT"
+    # ---- greenfield leg (vision applies: native or sidecar, resolved per model) ----
+    WORK="$RUNS/greenfield-$TAG"
+    rm -rf "$WORK" && mkdir -p "$WORK"
+
+    log "START greenfield $MODEL run $RUN/$REPEATS"
+    ( cd "$WORK" && AGENTIC_VISION=1 \
+        node "$REPO/drivers/agentic.mjs" "$WORK" "$MODEL" "$RESULTS" "$TAG" \
+          "$REPO/prompts/agentic-greenfield.txt" > /dev/null 2>&1 )
+    VERDICT=$("$REPO/validators/agentic-greenfield.sh" "$WORK" "$MODEL" "$RESULTS" "$TAG" 2>&1 | tail -1)
+    log "DONE  greenfield $MODEL run $RUN — $VERDICT"
+  done
 
   # Free the weights before the next model loads. Two 51 GB models resident at
   # once would measure swap pressure, not the model.

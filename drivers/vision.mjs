@@ -53,6 +53,19 @@ export async function describeViaSidecar(pngPath) {
     stream: false,
     messages: [{ role: 'user', content: DESCRIBE_PROMPT, images: [img] }],
   });
+
+  // Release the sidecar immediately. Resident size is far larger than the tag's
+  // disk size (a 18.6 GB model occupies 32 GB loaded), so a coder and a
+  // co-resident sidecar can exceed this machine's memory and push it to swap.
+  // That is what killed the 2026-08-14 sweep: generation slowed under thrash
+  // until the HTTP layer timed out. Holding the sidecar between screenshots buys
+  // nothing — the coder does the thinking in between.
+  try {
+    await ollamaPost(OLLAMA, '/api/generate', { model: SIDECAR_MODEL, keep_alive: 0 });
+  } catch {
+    // An unload that fails is not a benchmark failure; the next load evicts anyway.
+  }
+
   return {
     text: data.message?.content || '',
     tokens: {

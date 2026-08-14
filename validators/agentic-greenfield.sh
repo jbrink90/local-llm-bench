@@ -8,7 +8,9 @@ set -uo pipefail
 WORKDIR="$1"
 MODEL="$2"
 RESULTS="$3"
-SAFE=$(echo "$MODEL" | tr ':/' '--')
+# A 4th argument is the run tag, so repeats of the same model write distinct rows
+# instead of overwriting each other. Falls back to the model name when absent.
+SAFE="${4:-$(echo "$MODEL" | tr ':/' '--')}"
 OUT="$RESULTS/agentic-greenfield-$SAFE.json"
 ARTIFACT="$WORKDIR/tetris.html"
 DRIVER="$(dirname "$(dirname "$(realpath "$0")")")/drivers/tetris.mjs"
