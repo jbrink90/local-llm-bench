@@ -1,0 +1,10 @@
+Build a working Tetris game as a single self-contained HTML file named tetris.html
+in the current directory. No external files, no CDN links, no network access.
+
+It must have: a visible playing field, the seven standard pieces, rotation, left
+and right movement, gravity, line clearing, and a score display.
+
+Make it look good.
+
+Use the screenshot tool to render tetris.html and check how it actually looks.
+Fix anything broken or ugly, then call done().

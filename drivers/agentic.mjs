@@ -11,6 +11,7 @@
 import { readFileSync, writeFileSync, existsSync, statSync, readdirSync, mkdirSync } from 'fs';
 import { resolve, join, relative, dirname } from 'path';
 import { execFileSync } from 'child_process';
+import { screenshot, describeViaSidecar, imageForNative } from './vision.mjs';
 
 const [, , workdirArg, model, resultsDir, safeName, promptFile] = process.argv;
 const WORKDIR = resolve(workdirArg);
@@ -21,6 +22,11 @@ const OLLAMA = process.env.OLLAMA_URL || 'http://localhost:11434';
 // reported, never penalized. Only a true runaway should trip this.
 const MAX_TURNS = Number(process.env.AGENTIC_MAX_TURNS || 500);
 const CMD_TIMEOUT_MS = 120_000;
+
+// The greenfield variant renders and inspects its own output; the bug-fix variant
+// is pure logic with nothing to look at, so the tool is absent there entirely
+// rather than present and useless. See docs/SPEC_AGENTIC.md.
+const VISION_ENABLED = process.env.AGENTIC_VISION === '1';
 
 const TOOLS = [
   {
@@ -88,6 +94,26 @@ const TOOLS = [
   },
 ];
 
+if (VISION_ENABLED) {
+  TOOLS.splice(TOOLS.length - 1, 0, {
+    type: 'function',
+    function: {
+      name: 'screenshot',
+      description:
+        'Render an HTML file in a browser and see how it actually looks. Use this to check your work visually before declaring done.',
+      parameters: {
+        type: 'object',
+        properties: { path: { type: 'string', description: 'Relative path to the HTML file to render.' } },
+        required: ['path'],
+      },
+    },
+  });
+}
+
+// Resolved at startup from Ollama, never assumed: a model either advertises vision
+// or it gets the sidecar. Guessing here would silently mislabel a whole run.
+let visionMode = null; // 'native' | 'sidecar' | null when the variant has no vision
+
 const metrics = {
   benchmark: 'agentic',
   model,
@@ -101,6 +127,13 @@ const metrics = {
   declared_done: false,
   hit_guard: false,
   tokens: { prompt: 0, completion: 0 },
+  // Sidecar cost is reported separately so a paired run's overhead is visible
+  // rather than buried in the coder's own totals.
+  vision: {
+    mode: null,            // 'native' | 'sidecar' | null (variant has no vision)
+    screenshots: 0,
+    sidecar_tokens: { prompt: 0, completion: 0 },
+  },
   wall_ms: 0,
   errors: [],
 };
@@ -178,12 +211,49 @@ async function chat(messages) {
   return res.json();
 }
 
+// Ask Ollama what the model can do rather than maintaining a hand-written list
+// that silently rots when a tag is repulled.
+async function resolveVisionMode() {
+  if (!VISION_ENABLED) return null;
+  const res = await fetch(`${OLLAMA}/api/show`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ model }),
+  });
+  if (!res.ok) throw new Error(`ollama /api/show ${res.status} for ${model}`);
+  const caps = (await res.json()).capabilities || [];
+  return caps.includes('vision') ? 'native' : 'sidecar';
+}
+
+// Returns what the model sees. Native models get the image on the next message;
+// blind models get the sidecar's description as tool text.
+async function handleScreenshot(args) {
+  const html = safePath(args.path);
+  if (!existsSync(html)) return { text: `error: no such file: ${args.path}` };
+  const png = join(resultsDir, `agentic-${safeName}-shot${metrics.vision.screenshots + 1}.png`);
+  mkdirSync(resultsDir, { recursive: true });
+  const { errors } = await screenshot(html, png);
+  metrics.vision.screenshots++;
+  const jsErr = errors.length ? `\nJavaScript errors on load:\n${errors.join('\n')}` : '';
+
+  if (visionMode === 'native') {
+    return { text: `Screenshot captured.${jsErr}`, image: imageForNative(png) };
+  }
+  const { text, tokens } = await describeViaSidecar(png);
+  metrics.vision.sidecar_tokens.prompt += tokens.prompt;
+  metrics.vision.sidecar_tokens.completion += tokens.completion;
+  return { text: `Screenshot description (via vision model):\n${text}${jsErr}` };
+}
+
 const prompt = readFileSync(resolve(promptFile), 'utf8');
 const messages = [{ role: 'user', content: prompt }];
 const transcript = [];
 const started = Date.now();
 
 try {
+  visionMode = await resolveVisionMode();
+  metrics.vision.mode = visionMode;
+
   while (metrics.turns < MAX_TURNS) {
     metrics.turns++;
     const res = await chat(messages);
@@ -222,8 +292,15 @@ try {
       }
 
       let result;
+      let image = null;
       try {
-        result = dispatch(name, args);
+        if (name === 'screenshot') {
+          const shot = await handleScreenshot(args);
+          result = shot.text;
+          image = shot.image ?? null;
+        } else {
+          result = dispatch(name, args);
+        }
       } catch (e) {
         metrics.malformed_calls++;
         result = `error: ${e.message}`;
@@ -234,7 +311,10 @@ try {
         args: name === 'write_file' ? { path: args.path, bytes: (args.content ?? '').length } : args,
         result: String(result).slice(0, 4000),
       });
-      messages.push({ role: 'tool', content: String(result).slice(0, 20_000) });
+      const toolMsg = { role: 'tool', content: String(result).slice(0, 20_000) };
+      // A native-vision model receives the pixels, not a description of them.
+      if (image) toolMsg.images = [image];
+      messages.push(toolMsg);
     }
 
     if (metrics.declared_done) break;
