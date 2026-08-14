@@ -329,7 +329,12 @@ metrics.wall_ms = Date.now() - started;
 // Recovery is only meaningful once something actually failed. A model that hit no
 // failure gets null, never false — an unmeasured signal is not a failed one.
 if (metrics.failed_commands > 0) {
-  metrics.recovered = metrics.repeated_failures < metrics.failed_commands;
+  // Recovery means adapting, so most failures must have been novel rather than the
+  // same call fired again. A run with 12 failures of which 9 were repeats is
+  // flailing, and an earlier `repeats < failures` test scored that as recovered.
+  const novel = metrics.failed_commands - metrics.repeated_failures;
+  metrics.recovered = novel > metrics.repeated_failures;
+  metrics.novel_failures = novel;
 }
 
 mkdirSync(resultsDir, { recursive: true });
