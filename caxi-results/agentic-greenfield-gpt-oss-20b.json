@@ -1,0 +1,44 @@
+{
+  "model": "gpt-oss:20b",
+  "benchmark": "agentic-greenfield",
+  "pass": true,
+  "score": 8,
+  "tiers": {
+    "loads_clean": true,
+    "has_canvas": true,
+    "game_starts": true,
+    "gravity_alive": true,
+    "left_moves": true,
+    "right_moves": true,
+    "rotate_works": true,
+    "has_score": true
+  },
+  "vision_mode": "sidecar",
+  "loop": {
+    "benchmark": "agentic",
+    "model": "gpt-oss:20b",
+    "turns": 5,
+    "tool_calls": 5,
+    "malformed_calls": 0,
+    "wasted_calls": 0,
+    "failed_commands": 0,
+    "repeated_failures": 0,
+    "recovered": null,
+    "declared_done": true,
+    "hit_guard": false,
+    "tokens": {
+      "prompt": 21817,
+      "completion": 8875
+    },
+    "vision": {
+      "mode": "sidecar",
+      "screenshots": 2,
+      "sidecar_tokens": {
+        "prompt": 2240,
+        "completion": 1026
+      }
+    },
+    "wall_ms": 191144,
+    "errors": []
+  }
+}

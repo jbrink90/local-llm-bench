@@ -1,0 +1,35 @@
+{
+  "model": "gemma4:26b-mlx-bf16",
+  "benchmark": "agentic-bugfix",
+  "pass": true,
+  "tests_passed": 6,
+  "tests_failed": 0,
+  "loop": {
+    "benchmark": "agentic",
+    "model": "gemma4:26b-mlx-bf16",
+    "turns": 13,
+    "tool_calls": 13,
+    "malformed_calls": 0,
+    "wasted_calls": 1,
+    "failed_commands": 1,
+    "repeated_failures": 0,
+    "recovered": true,
+    "declared_done": true,
+    "hit_guard": false,
+    "tokens": {
+      "prompt": 246283,
+      "completion": 11287
+    },
+    "vision": {
+      "mode": null,
+      "screenshots": 0,
+      "sidecar_tokens": {
+        "prompt": 0,
+        "completion": 0
+      }
+    },
+    "wall_ms": 632927,
+    "errors": [],
+    "novel_failures": 1
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "model": "laguna-xs.2",
+  "benchmark": "agentic-bugfix",
+  "pass": true,
+  "tests_passed": 6,
+  "tests_failed": 0,
+  "loop": {
+    "benchmark": "agentic",
+    "model": "laguna-xs.2",
+    "turns": 22,
+    "tool_calls": 22,
+    "malformed_calls": 0,
+    "wasted_calls": 7,
+    "failed_commands": 1,
+    "repeated_failures": 0,
+    "recovered": true,
+    "declared_done": true,
+    "hit_guard": false,
+    "tokens": {
+      "prompt": 695804,
+      "completion": 3835
+    },
+    "vision": {
+      "mode": null,
+      "screenshots": 0,
+      "sidecar_tokens": {
+        "prompt": 0,
+        "completion": 0
+      }
+    },
+    "wall_ms": 317707,
+    "errors": [],
+    "novel_failures": 1
+  }
+}

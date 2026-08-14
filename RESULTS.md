@@ -121,3 +121,113 @@ If you have to ask for glassmorphism and gradients by name, you're testing
 instruction following, not design taste. A good coder LLM should know what
 "modern web app" means without a checklist.
 
+---
+
+# Agentic dimension — offline coding agents
+
+Design: [`docs/SPEC_AGENTIC.md`](docs/SPEC_AGENTIC.md). Unlike the suite above,
+this measures whether a model can **drive a coding agent to completion** — read
+files, run commands, react to failures — rather than emit one artifact from one
+prompt. Every model runs on localhost with no network.
+
+Run: 2026-08-13, Ollama 0.32.1, Apple M4 Max / 128 GB. 14 legs, 7 models.
+
+**The artifact is the only gate.** Loop metrics are reported, never used to pass
+or fail. That is not a stylistic choice: on the first smoke run a model called
+`done()` reporting "operator precedence logic fixed" having written nothing at
+all, and the tests were still failing. A tidy transcript is not evidence.
+
+## Results
+
+| Model | vision | greenfield | bug-fix |
+|---|---|---:|---:|
+| `gemma4:26b-mlx-bf16` | sidecar | **8/8** | **6/6** |
+| `gpt-oss:20b` | sidecar | **8/8** | **6/6** |
+| `qwen3-coder:30b` | sidecar | **8/8** | 0/6 |
+| `laguna-xs.2` | sidecar | 6/8 | **6/6** |
+| `qwen3-coder-next` | sidecar | 4/8 | 3/6 |
+| `qwen3.5:35b-a3b-coding-nvfp4` | native | 4/8 | **6/6** |
+| `qwen3-vl:30b` | native | 3/8 | 3/6 |
+
+Bug-fix starts at 3/6 (the planted defect), so 3/6 means "changed nothing that
+mattered" and 0/6 means the model made it worse.
+
+## Native vision lost to the sidecar
+
+All five sidecar runs beat both native-vision runs. This was the outcome the spec
+pre-committed to accepting rather than correcting with a handicap, and it happened
+on the first run.
+
+It is not confounded with model skill: `qwen3.5:35b-a3b-coding-nvfp4` passed
+bug-fix 6/6 with no vision in the loop, then scored 4/8 on greenfield with its own
+eyes. Same model, same night.
+
+Nor is it a broken image path — `qwen3-vl:30b` took three screenshots and visibly
+used them, fixing two JavaScript load errors across iterations. Its final render
+looks correct: playing field, cyan I-piece, styled score.
+
+The per-tier breakdown explains it. Every failing run passes `loads_clean`,
+`has_canvas` and `has_score`, and fails `game_starts`, `gravity_alive`,
+`left_moves`, `right_moves`. They build tetris **scenery**, not a game — and a
+screenshot of a static frame cannot reveal that. Vision may actively mislead here:
+the model sees a correct-looking board and concludes it is finished.
+
+| Model | vision | load | cnvs | strt | grav | left | rght | rot | scor |
+|---|---|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|
+| `gemma4:26b-mlx-bf16` | sidecar | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `gpt-oss:20b` | sidecar | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `qwen3-coder:30b` | sidecar | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `laguna-xs.2` | sidecar | ✓ | ✓ | ✗ | ✓ | ✓ | ✗ | ✓ | ✓ |
+| `qwen3-coder-next` | sidecar | ✓ | ✓ | ✓ | ✗ | ✗ | ✗ | ✗ | ✓ |
+| `qwen3.5:35b-a3b-coding-nvfp4` | native | ✓ | ✓ | ✗ | ✗ | ✗ | ✗ | ✓ | ✓ |
+| `qwen3-vl:30b` | native | ✓ | ✓ | ✗ | ✗ | ✗ | ✗ | ✗ | ✓ |
+
+## Writing new code and repairing old code are different skills
+
+`qwen3-coder:30b` scored 8/8 on greenfield and **0/6** on bug-fix — below the 3/6
+it started from. It deleted 834 of 1839 lines and re-declared the operator
+constants *after* their use, so `var` hoisting left them `undefined` at parse
+time. The values were correct; the code was dead.
+
+`gemma4:26b-mlx-bf16` and `gpt-oss:20b` are the only models that passed both legs.
+
+## Sidecar cost, measured not invented
+
+The spec refuses a hand-tuned sidecar penalty: the extra model load and round trip
+are real, and they land in the token and wall-clock columns on their own.
+Greenfield, completion tokens:
+
+| Model | coder | sidecar | wall |
+|---|---:|---:|---:|
+| `gpt-oss:20b` | 8,875 | 1,026 | 3.2 min |
+| `qwen3-coder:30b` | 14,001 | 2,822 | 7.0 min |
+| `laguna-xs.2` | 18,693 | 3,309 | 7.6 min |
+| `gemma4:26b-mlx-bf16` | 11,149 | 2,164 | 8.7 min |
+
+Sidecar overhead runs ~12-18% of coder tokens — real, and smaller than the gap it
+bought.
+
+## Not yet measured: Muse Glimmer
+
+Glimmer 30B is the model that prompted this whole dimension and it is **absent
+from the table**. It is on Ollama (`ollama run muse-glimmer`, tags `30b`,
+`30b-mlx`, `latest`), but pulling it returns `412: requires a newer version of
+Ollama` — it needs 0.32.7+, and this run was 0.32.1.
+
+Upgrading and adding one row would put two runtimes in one table, which is not a
+comparison. The next sweep re-runs all eight models on one version.
+
+Published Glimmer-vs-Qwen numbers exist but are **Meta's own**, against
+Qwen3.6-27B rather than any model above, so they are direction only:
+
+| Benchmark | Glimmer 30B | Qwen3.6-27B |
+|---|---:|---:|
+| MCP-Atlas (tool use) | **75.5** | 62.5 |
+| IFBench (instruction following) | **77.0** | 70.8 |
+| TerminalBench 2.1 | 51.7 | **60.7** |
+| OSWorld-Verified | 65.9 | **75.6** |
+| SWE-Bench Verified | 76.0 | **77.2** |
+
+Vendor tables split along the axis this benchmark exists to settle: Glimmer leads
+tool use, Qwen leads terminal work. Neither vendor measures an agentic loop with a
+large tool surface on a laptop, which is the cell above.

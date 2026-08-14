@@ -1,0 +1,85 @@
+{
+  "benchmark": "agentic",
+  "model": "qwen3-vl:30b",
+  "turns": 7,
+  "tool_calls": 7,
+  "malformed_calls": 0,
+  "wasted_calls": 0,
+  "failed_commands": 0,
+  "repeated_failures": 0,
+  "recovered": null,
+  "declared_done": true,
+  "hit_guard": false,
+  "tokens": {
+    "prompt": 105721,
+    "completion": 23287
+  },
+  "vision": {
+    "mode": "native",
+    "screenshots": 3,
+    "sidecar_tokens": {
+      "prompt": 0,
+      "completion": 0
+    }
+  },
+  "wall_ms": 622123,
+  "errors": [],
+  "transcript": [
+    {
+      "turn": 1,
+      "tool": "write_file",
+      "args": {
+        "path": "tetris.html",
+        "bytes": 6034
+      },
+      "result": "wrote tetris.html (6034 bytes)"
+    },
+    {
+      "turn": 2,
+      "tool": "screenshot",
+      "args": {
+        "path": "tetris.html"
+      },
+      "result": "Screenshot captured.\nJavaScript errors on load:\nInvalid or unexpected token"
+    },
+    {
+      "turn": 3,
+      "tool": "write_file",
+      "args": {
+        "path": "tetris.html",
+        "bytes": 6618
+      },
+      "result": "wrote tetris.html (6618 bytes)"
+    },
+    {
+      "turn": 4,
+      "tool": "screenshot",
+      "args": {
+        "path": "tetris.html"
+      },
+      "result": "Screenshot captured.\nJavaScript errors on load:\nInvalid or unexpected token"
+    },
+    {
+      "turn": 5,
+      "tool": "write_file",
+      "args": {
+        "path": "tetris.html",
+        "bytes": 6572
+      },
+      "result": "wrote tetris.html (6572 bytes)"
+    },
+    {
+      "turn": 6,
+      "tool": "screenshot",
+      "args": {
+        "path": "tetris.html"
+      },
+      "result": "Screenshot captured."
+    },
+    {
+      "turn": 7,
+      "tool": "done",
+      "summary": "The Tetris game is implemented in a single self-contained HTML file meeting all requirements: visible playing field, seven standard pieces with rotation functionality, left/right movement, gravity, line clearing, and score display. The visual design includes dark background with colored blocks and neon-style text. After multiple iterations to fix JavaScript syntax errors and improve rotation logic, the game runs correctly in the browser screenshot without runtime errors."
+    }
+  ]
+}

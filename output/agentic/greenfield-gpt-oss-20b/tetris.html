@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Tetris</title>
+<style>
+    body{margin:0;display:flex;justify-content:center;align-items:center;background:#000;font-family:sans-serif;height:100vh;color:#fff;flex-direction:column;}
+    #game{display:grid;grid-template-columns:repeat(10,20px);grid-template-rows:repeat(20,20px);gap:0;background:#111;width:200px;height:400px;border:2px solid #555;margin-top:20px;}
+    .cell{width:20px;height:20px;border:1px solid #333;background:#222;box-sizing:border-box;}
+    #score{margin-top:10px;font-size:22px;text-align:center;width:200px;}
+    #overlay{
+        position:absolute;top:0;left:0;width:100%;height:100%;display:flex;justify-content:center;align-items:center;
+        background:rgba(0,0,0,0.8);color:#fff;font-size:28px;flex-direction:column;text-align:center;padding:20px;
+    }
+</style>
+</head>
+<body>
+<div id="game"></div>
+<div id="score">Score: 0</div>
+<script>
+const ROWS=20,COLS=10;
+// game board array
+let gridArray=Array.from({length:ROWS},()=>Array(COLS).fill(0));
+const COLORS=["#00ffff","#ffff00","#800080","#00ff00","#ff0000","#0000ff","#ffa500"];
+const SHAPES={
+  I:[[[0,0],[1,0],[2,0],[3,0]],[[2,-1],[2,0],[2,1],[2,2]]],
+  O:[[[0,0],[1,0],[0,1],[1,1]]],
+  T:[[[0,0],[-1,0],[1,0],[0,1]],[ [0,-1],[0,0],[0,1],[1,0] ],[ [-1,0],[0,0],[1,0],[0,-1] ],[ [0,-1],[0,0],[0,1],[-1,0] ]],
+  S:[[[0,0],[1,0],[-1,1],[0,1]],[ [-1,0],[-1,1],[0,0],[0,-1]]],
+  Z:[[[0,0],[-1,0],[0,1],[-1,1]],[ [0,0],[0,-1],[-1,0],[-1,1] ]],
+  J:[[[0,0],[-1,0],[-1,1],[1,0]],[[0,0],[0,-1],[0,-2],[-1,0]],[[0,0],[1,0],[1,-1],[-1,0]],[[0,0],[0,1],[0,2],[1,0]]],
+  L:[[[0,0],[1,0],[1,1],[-1,0]],[ [0,0],[0,-1],[0,-2],[1,0] ],[[0,0],[-1,0],[-1,-1],[1,0]],[[0,0],[0,1],[0,2],[-1,0]]]
+};
+const gameEl=document.getElementById('game');
+for(let r=0;r<ROWS;r++){
+  for(let c=0;c<COLS;c++){
+    const cell=document.createElement('div');cell.className='cell';gameEl.appendChild(cell);
+  }
+}
+let current={shape:'', rotation:0, blocks:[], x:3,y:0};
+let nextShape='';
+let score=0;
+let gameOver=false;
+function spawn(){
+  if(!nextShape){current.shape=getRandomKey(SHAPES);current.rotation=0;}
+  else{current.shape=nextShape;current.rotation=0;}
+  current.blocks=SHAPES[current.shape][current.rotation];
+  current.x=3;current.y=0;
+  nextShape=getRandomKey(SHAPES);
+  if(checkCollision(current.blocks,current.x,current.y)){
+    gameOver=true;drawOverlay('Game Over');return;
+  }
+}
+function getRandomKey(obj){const keys=Object.keys(obj);return keys[Math.floor(Math.random()*keys.length)];}
+function checkCollision(blocks,ox,oy){
+  for(const [bx,by] of blocks){let x=ox+bx,y=oy+by; if(x<0||x>=COLS||y<0||y>=ROWS)return true;if(gridArray[y][x])return true;} return false;
+}
+function lockPiece(){for(const [bx,by] of current.blocks){let x=current.x+bx,y=current.y+by;gridArray[y][x]=current.shape;}}
+function clearLines(){for(let r=ROWS-1;r>=0;--r){if(gridArray[r].every(v=>v)){gridArray.splice(r,1);gridArray.unshift(Array(COLS).fill(0));score+=100;}}}
+function draw(){gameEl.innerHTML='';
+  for(let r=0;r<ROWS;r++){
+    for(let c=0;c<COLS;c++){
+      const cell=document.createElement('div');cell.className='cell';
+      if(gridArray[r][c]){cell.style.background=COLORS[Object.keys(SHAPES).indexOf(gridArray[r][c])];}
+      gameEl.appendChild(cell);
+    }
+  }
+  // draw current piece
+  for(const [bx,by] of current.blocks){let x=current.x+bx,y=current.y+by; if(y>=0 && y<ROWS && x>=0 && x<COLS){const idx=y*COLS+x; const cell=gameEl.children[idx];cell.style.background=COLORS[Object.keys(SHAPES).indexOf(current.shape)];}}
+  document.getElementById('score').innerText='Score: '+score;
+}
+function gameLoop(){if(gameOver)return;current.y+=1;if(checkCollision(current.blocks,current.x,current.y)){
+  current.y-=1;lockPiece();clearLines();spawn();
+}draw();setTimeout(gameLoop,500);}
+window.addEventListener('keydown',e=>{if(gameOver)return;switch(e.key){case 'ArrowLeft':if(!checkCollision(current.blocks,current.x-1,current.y))current.x--;break;case 'ArrowRight':if(!checkCollision(current.blocks,current.x+1,current.y))current.x++;break;case 'ArrowDown':if(!checkCollision(current.blocks,current.x,current.y+1))current.y++;break;case 'ArrowUp':{let newRot=(current.rotation+1)%SHAPES[current.shape].length; if(!checkCollision(SHAPES[current.shape][newRot],current.x,current.y)){current.rotation=newRot;current.blocks=SHAPES[current.shape][current.rotation];}}break;}}
+);
+function drawOverlay(msg){const overlay=document.createElement('div');overlay.id='overlay';overlay.innerHTML=`${msg}<br>Press R to Restart`;document.body.appendChild(overlay);}
+window.addEventListener('keydown',e=>{if(e.key.toLowerCase()==='r'){location.reload();}});
+spawn();draw();gameLoop();
+</script>
+</body>
+</html>

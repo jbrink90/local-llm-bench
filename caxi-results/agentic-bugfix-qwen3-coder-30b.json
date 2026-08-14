@@ -1,0 +1,37 @@
+{
+  "model": "qwen3-coder:30b",
+  "benchmark": "agentic-bugfix",
+  "pass": false,
+  "tests_passed": 0,
+  "tests_failed": 6,
+  "loop": {
+    "benchmark": "agentic",
+    "model": "qwen3-coder:30b",
+    "turns": 16,
+    "tool_calls": 15,
+    "malformed_calls": 0,
+    "wasted_calls": 3,
+    "failed_commands": 2,
+    "repeated_failures": 1,
+    "recovered": false,
+    "declared_done": false,
+    "hit_guard": false,
+    "tokens": {
+      "prompt": 228997,
+      "completion": 9009
+    },
+    "vision": {
+      "mode": null,
+      "screenshots": 0,
+      "sidecar_tokens": {
+        "prompt": 0,
+        "completion": 0
+      }
+    },
+    "wall_ms": 750806,
+    "errors": [
+      "fetch failed"
+    ],
+    "novel_failures": 1
+  }
+}

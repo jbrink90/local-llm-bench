@@ -1,0 +1,29 @@
+17:53:18  START bugfix qwen3-coder:30b
+18:05:49  DONE  bugfix qwen3-coder:30b — pass=false tests=0/6
+18:05:49  START greenfield qwen3-coder:30b
+18:12:55  DONE  greenfield qwen3-coder:30b — pass=true score=8/8 vision=sidecar
+18:13:00  START bugfix qwen3-coder-next
+18:31:28  DONE  bugfix qwen3-coder-next — pass=false tests=3/6
+18:31:28  START greenfield qwen3-coder-next
+18:35:13  DONE  greenfield qwen3-coder-next — pass=false score=4/8 vision=sidecar
+18:35:18  START bugfix qwen3.5:35b-a3b-coding-nvfp4
+18:36:05  DONE  bugfix qwen3.5:35b-a3b-coding-nvfp4 — pass=true tests=6/6
+18:36:05  START greenfield qwen3.5:35b-a3b-coding-nvfp4
+18:38:23  DONE  greenfield qwen3.5:35b-a3b-coding-nvfp4 — pass=false score=4/8 vision=native
+18:38:29  START bugfix qwen3-vl:30b
+18:43:56  DONE  bugfix qwen3-vl:30b — pass=false tests=3/6
+18:43:56  START greenfield qwen3-vl:30b
+18:54:31  DONE  greenfield qwen3-vl:30b — pass=false score=3/8 vision=native
+18:54:36  START bugfix gemma4:26b-mlx-bf16
+19:05:10  DONE  bugfix gemma4:26b-mlx-bf16 — pass=true tests=6/6
+19:05:10  START greenfield gemma4:26b-mlx-bf16
+19:14:29  DONE  greenfield gemma4:26b-mlx-bf16 — pass=true score=8/8 vision=sidecar
+19:14:34  START bugfix laguna-xs.2
+19:19:52  DONE  bugfix laguna-xs.2 — pass=true tests=6/6
+19:19:53  START greenfield laguna-xs.2
+19:28:08  DONE  greenfield laguna-xs.2 — pass=true score=6/8 vision=sidecar
+19:28:14  START bugfix gpt-oss:20b
+19:31:23  DONE  bugfix gpt-oss:20b — pass=true tests=6/6
+19:31:23  START greenfield gpt-oss:20b
+19:34:41  DONE  greenfield gpt-oss:20b — pass=true score=8/8 vision=sidecar
+19:34:46  ALL DONE — results in /Users/sibagy/fileZ/projZ/local-llm-bench/caxi-results/agentic-*.json
