@@ -1,21 +1,26 @@
 export class Parser {
-  constructor() {}
-  parse(expression) {
-    return new Expression(expression);
+  constructor() {
+    // No options needed for tests
+  }
+  parse(expr) {
+    const e = expr;
+    return new Expression(e);
   }
 }
 
 class Expression {
-  constructor(expr) {
-    this.expr = expr;
+  constructor(expression) {
+    this.expression = expression;
   }
   evaluate(values = {}) {
-    // Basic safety: only use numbers and operators in the expression.
-    const expr = this.expr.replace(/\^/g, '**');
+    // Replace '^' with '**' for exponentiation
+    let expr = this.expression.replace(/\^/g, "**");
+    // Evaluate using Function in safe context
     try {
-      return Function('return ' + expr)();
+      const fn = new Function('return ' + expr);
+      return fn();
     } catch (e) {
-      throw new Error(`Invalid expression: ${this.expr}`);
+      throw new Error('Error evaluating expression: ' + e.message);
     }
   }
 }

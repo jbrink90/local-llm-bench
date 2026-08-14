@@ -1,24 +1,24 @@
 {
-  "model": "qwen3.5:35b-a3b-coding-nvfp4",
+  "model": "muse-glimmer:30b-mlx",
   "benchmark": "agentic-bugfix",
   "pass": true,
   "tests_passed": 6,
   "tests_failed": 0,
   "loop": {
     "benchmark": "agentic",
-    "model": "qwen3.5:35b-a3b-coding-nvfp4",
-    "turns": 16,
-    "tool_calls": 18,
-    "malformed_calls": 0,
-    "wasted_calls": 3,
-    "failed_commands": 2,
+    "model": "muse-glimmer:30b-mlx",
+    "turns": 30,
+    "tool_calls": 34,
+    "malformed_calls": 1,
+    "wasted_calls": 2,
+    "failed_commands": 4,
     "repeated_failures": 0,
     "recovered": true,
     "declared_done": true,
     "hit_guard": false,
     "tokens": {
-      "prompt": 317098,
-      "completion": 3034
+      "prompt": 523219,
+      "completion": 3719
     },
     "vision": {
       "mode": null,
@@ -28,8 +28,8 @@
         "completion": 0
       }
     },
-    "wall_ms": 70085,
+    "wall_ms": 338163,
     "errors": [],
-    "novel_failures": 2
+    "novel_failures": 4
   }
 }

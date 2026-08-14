@@ -1,24 +1,24 @@
 {
   "model": "laguna-xs.2",
   "benchmark": "agentic-bugfix",
-  "pass": true,
-  "tests_passed": 6,
-  "tests_failed": 0,
+  "pass": false,
+  "tests_passed": 3,
+  "tests_failed": 3,
   "loop": {
     "benchmark": "agentic",
     "model": "laguna-xs.2",
-    "turns": 22,
-    "tool_calls": 22,
+    "turns": 1,
+    "tool_calls": 0,
     "malformed_calls": 0,
-    "wasted_calls": 7,
-    "failed_commands": 1,
+    "wasted_calls": 0,
+    "failed_commands": 0,
     "repeated_failures": 0,
-    "recovered": true,
-    "declared_done": true,
+    "recovered": null,
+    "declared_done": false,
     "hit_guard": false,
     "tokens": {
-      "prompt": 695804,
-      "completion": 3835
+      "prompt": 0,
+      "completion": 0
     },
     "vision": {
       "mode": null,
@@ -28,8 +28,9 @@
         "completion": 0
       }
     },
-    "wall_ms": 317707,
-    "errors": [],
-    "novel_failures": 1
+    "wall_ms": 301542,
+    "errors": [
+      "fetch failed"
+    ]
   }
 }

@@ -1,24 +1,24 @@
 {
   "model": "qwen3-coder-next",
   "benchmark": "agentic-greenfield",
-  "pass": false,
-  "score": 4,
+  "pass": true,
+  "score": 8,
   "tiers": {
     "loads_clean": true,
     "has_canvas": true,
     "game_starts": true,
-    "gravity_alive": false,
-    "left_moves": false,
-    "right_moves": false,
-    "rotate_works": false,
+    "gravity_alive": true,
+    "left_moves": true,
+    "right_moves": true,
+    "rotate_works": true,
     "has_score": true
   },
   "vision_mode": "sidecar",
   "loop": {
     "benchmark": "agentic",
     "model": "qwen3-coder-next",
-    "turns": 4,
-    "tool_calls": 4,
+    "turns": 7,
+    "tool_calls": 7,
     "malformed_calls": 0,
     "wasted_calls": 0,
     "failed_commands": 0,
@@ -27,18 +27,18 @@
     "declared_done": true,
     "hit_guard": false,
     "tokens": {
-      "prompt": 24084,
-      "completion": 4614
+      "prompt": 48167,
+      "completion": 8548
     },
     "vision": {
       "mode": "sidecar",
-      "screenshots": 1,
+      "screenshots": 2,
       "sidecar_tokens": {
-        "prompt": 1120,
-        "completion": 713
+        "prompt": 2240,
+        "completion": 1915
       }
     },
-    "wall_ms": 151584,
+    "wall_ms": 312510,
     "errors": []
   }
 }

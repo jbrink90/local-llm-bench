@@ -1,0 +1,33 @@
+23:24:05  START bugfix qwen3-coder:30b
+23:41:17  DONE  bugfix qwen3-coder:30b — pass=false tests=0/6
+23:41:17  START greenfield qwen3-coder:30b
+23:47:26  DONE  greenfield qwen3-coder:30b — pass=false score=5/8 vision=sidecar
+23:47:31  START bugfix qwen3-coder-next
+00:19:55  DONE  bugfix qwen3-coder-next — pass=false tests=3/6
+00:19:55  START greenfield qwen3-coder-next
+00:25:46  DONE  greenfield qwen3-coder-next — pass=true score=8/8 vision=sidecar
+00:25:51  START bugfix qwen3.5:35b-a3b-coding-nvfp4
+00:27:02  DONE  bugfix qwen3.5:35b-a3b-coding-nvfp4 — pass=true tests=6/6
+00:27:02  START greenfield qwen3.5:35b-a3b-coding-nvfp4
+00:30:25  DONE  greenfield qwen3.5:35b-a3b-coding-nvfp4 — pass=false score=4/8 vision=native
+00:30:30  START bugfix qwen3-vl:30b
+00:36:18  DONE  bugfix qwen3-vl:30b — pass=false tests=3/6
+00:36:18  START greenfield qwen3-vl:30b
+00:41:19  DONE  greenfield qwen3-vl:30b — pass=false reason=no tetris.html produced
+00:41:25  START bugfix gemma4:26b-mlx-bf16
+00:47:09  DONE  bugfix gemma4:26b-mlx-bf16 — pass=true tests=6/6
+00:47:09  START greenfield gemma4:26b-mlx-bf16
+00:54:25  DONE  greenfield gemma4:26b-mlx-bf16 — pass=true score=7/8 vision=sidecar
+00:54:31  START bugfix laguna-xs.2
+00:59:33  DONE  bugfix laguna-xs.2 — pass=false tests=3/6
+00:59:33  START greenfield laguna-xs.2
+01:04:35  DONE  greenfield laguna-xs.2 — pass=false reason=no tetris.html produced
+01:04:40  START bugfix gpt-oss:20b
+01:06:47  DONE  bugfix gpt-oss:20b — pass=true tests=6/6
+01:06:47  START greenfield gpt-oss:20b
+01:11:56  DONE  greenfield gpt-oss:20b — pass=true score=8/8 vision=sidecar
+01:12:02  START bugfix muse-glimmer:30b-mlx
+01:17:40  DONE  bugfix muse-glimmer:30b-mlx — pass=true tests=6/6
+01:17:40  START greenfield muse-glimmer:30b-mlx
+01:28:08  DONE  greenfield muse-glimmer:30b-mlx — pass=true score=8/8 vision=native
+01:28:13  ALL DONE — results in /Users/sibagy/fileZ/projZ/local-llm-bench/caxi-results/agentic-*.json

@@ -1,4 +1,4 @@
-var INUMBER = 'INUMBER';
+var TERM_OPERATORS = ['*', '/', '%'];var INUMBER = 'INUMBER';
 var IOP1 = 'IOP1';
 var IOP2 = 'IOP2';
 var IOP3 = 'IOP3';
@@ -1192,7 +1192,7 @@ ParserState.prototype.parseComparison = function (instr) {
   }
 };
 
-var ADD_SUB_OPERATORS = ['*', '/', '%'];
+var ADD_SUB_OPERATORS = ['+', '-', '||'];
 
 ParserState.prototype.parseAddSub = function (instr) {
   this.parseTerm(instr);
@@ -1203,7 +1203,7 @@ ParserState.prototype.parseAddSub = function (instr) {
   }
 };
 
-var TERM_OPERATORS = ['+', '-', '||'];
+var TERM_OPERATORS = ['*', '/', '%'];
 
 ParserState.prototype.parseTerm = function (instr) {
   this.parseFactor(instr);

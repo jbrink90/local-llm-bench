@@ -1,0 +1,100 @@
+{
+  "benchmark": "agentic",
+  "model": "muse-glimmer:30b-mlx",
+  "turns": 9,
+  "tool_calls": 9,
+  "malformed_calls": 0,
+  "wasted_calls": 0,
+  "failed_commands": 0,
+  "repeated_failures": 0,
+  "recovered": null,
+  "declared_done": true,
+  "hit_guard": false,
+  "tokens": {
+    "prompt": 74744,
+    "completion": 10111
+  },
+  "vision": {
+    "mode": "native",
+    "screenshots": 2,
+    "sidecar_tokens": {
+      "prompt": 0,
+      "completion": 0
+    }
+  },
+  "wall_ms": 591087,
+  "errors": [],
+  "transcript": [
+    {
+      "turn": 1,
+      "tool": "list_dir",
+      "args": {
+        "path": "."
+      },
+      "result": "(empty)"
+    },
+    {
+      "turn": 2,
+      "tool": "list_dir",
+      "args": {
+        "path": "."
+      },
+      "result": "(empty)"
+    },
+    {
+      "turn": 3,
+      "tool": "write_file",
+      "args": {
+        "path": "tetris.html",
+        "bytes": 10518
+      },
+      "result": "wrote tetris.html (10518 bytes)"
+    },
+    {
+      "turn": 4,
+      "tool": "screenshot",
+      "args": {
+        "path": "tetris.html"
+      },
+      "result": "Screenshot captured."
+    },
+    {
+      "turn": 5,
+      "tool": "read_file",
+      "args": {
+        "path": "tetris.html"
+      },
+      "result": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n<meta charset=\"UTF-8\">\n<title>Tetris</title>\n<meta name=\"viewport\" content=\"width=device-width,initial-scale=1\">\n<style>\n*{box-sizing:border-box;margin:0;padding:0}\nbody{\n  background:#0b1020;\n  color:#e6eefc;\n  font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Arial,sans-serif;\n  display:flex;\n  align-items:center;\n  justify-content:center;\n  min-height:100vh;\n}\n.container{\n  display:flex;\n  gap:32px;\n  align-items:flex-start;\n  padding:24px;\n}\n.game{\n  background:#0f1630;\n  border-radius:16px;\n  padding:16px;\n  box-shadow:0 20px 60px rgba(0,0,0,.5), inset 0 0 0 1px rgba(255,255,255,.05);\n}\ncanvas{\n  display:block;\n  background:#070b18;\n  border-radius:12px;\n  box-shadow:inset 0 0 0 2px #1e2a4a, inset 0 0 40px rgba(0,0,0,.6);\n}\n.side{\n  width:220px;\n}\n.panel{\n  background:#0f1630;\n  border-radius:16px;\n  padding:16px;\n  box-shadow:0 10px 30px rgba(0,0,0,.4), inset 0 0 0 1px rgba(255,255,255,.05);\n  margin-bottom:16px;\n}\n.panel h2{\n  font-size:14px;\n  text-transform:uppercase;\n  letter-spacing:.12em;\n  color:#9fb3d9;\n  margin-bottom:12px;\n}\n.stat{\n  display:flex;\n  justify-content:space-between;\n  font-size:18px;\n  margin:6px 0;\n}\n.stat span:first-child{color:#9fb3d9}\n#nextCanvas{\n  background:#070b18;\n  border-radius:8px;\n  display:block;\n  margin:0 auto;\n}\n.title{\n  font-size:28px;\n  font-weight:800;\n  letter-spacing:.02em;\n  margin-bottom:4px;\n}\n.subtitle{\n  color:#9fb3d9;\n  font-size:13px;\n  margin-bottom:16px;\n}\n.controls{\n  font-size:12px;\n  line-height:1.6;\n  color:#a9c0e8;\n}\nbutton{\n  background:#1f2f5a;\n  color:#e6eefc;\n  border:none;\n  padding:10px 16px;\n  border-radius:10px;\n  font-weight:600;\n  cursor:pointer;\n  transition:.15s;\n}\nbutton:hover{background:#27406f}\n.overlay{\n  position:absolute;\n  inset:0;\n  display:flex;\n  align-items:center;\n  justify-content:center;\n  background:rgba(7,11,24,.85);\n  backdrop-filter:blur(4px);\n  border-radius:12px;\n  text-align:center;\n  padding:24px;\n}\n.overlay.hidden{display:none}\n.overlay h1{font-size:36px;margin-bottom:8px}\n.overlay p{color:#9fb3d9;margin-bottom:20px}\n</style>\n</head>\n<body>\n<div class=\"container\">\n  <div class=\"game\">\n    <canvas id=\"board\" width=\"300\" height=\"600\"></canvas>\n    <div class=\"overlay\" id=\"overlay\">\n      <div>\n        <h1>TETRIS</h1>\n        <p>Press Start to play</p>\n        <button id=\"startBtn\">Start</button>\n        <p style=\"font-size:12px;margin-top:16px;color:#7a93c7\">↑ Rotate • ← → Move • ↓ Soft Drop • Space Hard Drop • P Pause</p>\n      </div>\n    </div>\n  </div>\n  <div class=\"side\">\n    <div class=\"panel\">\n      <div class=\"title\">TETRIS</div>\n      <div class=\"subtitle\">Single file • No dependencies</div>\n      <div class=\"stat\"><span>Score</span><span id=\"score\">0</span></div>\n      <div class=\"stat\"><span>Lines</span><span id=\"lines\">0</span></div>\n      <div class=\"stat\"><span>Level</span><span id=\"level\">1</span></div>\n      <button id=\"pauseBtn\" style=\"width:100%;margin-top:12px\">Pause</button>\n    </div>\n    <div class=\"panel\">\n      <h2>Next</h2>\n      <canvas id=\"nextCanvas\" width=\"120\" height=\"120\"></canvas>\n    </div>\n    <div class=\"panel controls\">\n      Controls<br>\n      Arrow keys / WASD<br>\n      Space = Hard Drop<br>\n      P = Pause\n    </div>\n  </div>\n</div>\n\n<script>\n(() => {\nconst COLS=10, ROWS=20, SIZE=30;\nconst boardCanvas=document.getElementById('board');\nconst boardCtx=boardCanvas.getContext('2d');\nconst nextCanvas=document.getElementById('nextCanvas');\nconst nextCtx=nextCanvas.getContext('2d');\nconst scoreEl=document.getElementById('score');\nconst linesEl=document.getElementById('lines');\nconst levelEl=document.getElementById('level');\nconst overlay=document.getElementById('overlay');\nconst startBtn=document.getElementById('startBtn');\nconst pauseBtn=document.getElementById('pauseBtn');\n\nconst COLORS={\n  I:'#00e5ff',\n  O:'#ffee58',\n  T:'#ba68c8',\n  S:'#66ff99',\n  Z:'#ff5252',\n  J:'#4fc3f7',\n  L:'#ffb74d'\n};\n\nconst PIECES={\n  I:{shape:[[0,0,0,0],[1,1,1,1],[0,0,0,"
+    },
+    {
+      "turn": 6,
+      "tool": "write_file",
+      "args": {
+        "path": "tetris.html",
+        "bytes": 10664
+      },
+      "result": "wrote tetris.html (10664 bytes)"
+    },
+    {
+      "turn": 7,
+      "tool": "screenshot",
+      "args": {
+        "path": "tetris.html"
+      },
+      "result": "Screenshot captured."
+    },
+    {
+      "turn": 8,
+      "tool": "list_dir",
+      "args": {
+        "path": "."
+      },
+      "result": "tetris.html"
+    },
+    {
+      "turn": 9,
+      "tool": "done",
+      "summary": "Created a self-contained Tetris game in tetris.html with no external dependencies. The file includes a 10×20 playing field rendered on canvas, all seven standard pieces (I, O, T, S, Z, J, L) with rotation and wall-kick, left/right movement, soft/hard drop gravity, line clearing with scoring/level progression, a score/lines/level display, next-piece preview, ghost piece, and polished dark UI. Fixed input handling so keyboard controls work after starting. Verified visually with screenshot tool."
+    }
+  ]
+}

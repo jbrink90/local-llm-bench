@@ -17,8 +17,8 @@
     "declared_done": false,
     "hit_guard": false,
     "tokens": {
-      "prompt": 7482,
-      "completion": 1446
+      "prompt": 9481,
+      "completion": 3176
     },
     "vision": {
       "mode": null,
@@ -28,7 +28,7 @@
         "completion": 0
       }
     },
-    "wall_ms": 327233,
+    "wall_ms": 346554,
     "errors": [
       "fetch failed"
     ],
