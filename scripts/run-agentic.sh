@@ -27,6 +27,7 @@ DEFAULT_MODELS=(
   "gemma4:26b-mlx-bf16"
   "laguna-xs.2"
   "gpt-oss:20b"
+  "muse-glimmer:30b-mlx"
 )
 MODELS=("$@")
 [ ${#MODELS[@]} -eq 0 ] && MODELS=("${DEFAULT_MODELS[@]}")
