@@ -33,9 +33,24 @@ const CMD_TIMEOUT_MS = 120_000;
 const NUM_CTX = Number(process.env.AGENTIC_NUM_CTX || 32768);
 
 // Tool results are the bulk of the transcript, and old ones are dead weight — the
-// model has already acted on them. Keep the brief, then a sliding window of recent
-// turns, so prompt size plateaus instead of growing without bound.
+// model has already acted on them. Bound the history so prompt size plateaus
+// instead of growing without bound.
+//
+// Trimming happens in BLOCKS, not one message per turn. Ollama's KV prefix cache
+// only survives when the front of the prompt is byte-identical to the previous
+// request; a window that slides every turn changes the front every turn and throws
+// the cache away. Observed cost of getting this wrong: a 15,034-token prompt reused
+// only 693 cached tokens and re-processed the rest, where a stable prefix had been
+// reusing 12,476.
+//
+// So the kept tail only moves when the transcript exceeds the high-water mark, and
+// then it drops a whole block at once — the prefix stays stable for many turns.
 const KEEP_RECENT_MESSAGES = Number(process.env.AGENTIC_KEEP_RECENT || 24);
+const TRIM_BLOCK = Number(process.env.AGENTIC_TRIM_BLOCK || 12);
+
+// How many leading messages are currently dropped. Monotonic: it only ever grows,
+// and only in TRIM_BLOCK steps, so a prefix that was valid stays valid.
+let trimOffset = 0;
 
 // A single tool result should not be able to eat the window on its own.
 const MAX_TOOL_RESULT_CHARS = 6000;
@@ -238,19 +253,24 @@ async function chat(messages) {
 // Keep the brief (dropping it loses the task) plus the most recent window.
 // Everything between is tool output the model has already acted on.
 function trimHistory(messages) {
-  if (messages.length <= KEEP_RECENT_MESSAGES + 1) return messages;
   const [brief, ...rest] = messages;
-  const recent = rest.slice(-KEEP_RECENT_MESSAGES);
-  metrics.history_trimmed = true;
-  // A tool message whose originating assistant tool_call was trimmed away reads as
-  // an orphan, so lead the window with a note instead of a dangling result.
+
+  // Advance the cut only when the tail has grown a full block past the target, and
+  // advance it BY a full block. Between advances the prompt prefix is unchanged, so
+  // the KV cache holds.
+  while (rest.length - trimOffset > KEEP_RECENT_MESSAGES + TRIM_BLOCK) {
+    trimOffset += TRIM_BLOCK;
+    metrics.history_trimmed = true;
+    metrics.trim_advances = (metrics.trim_advances || 0) + 1;
+  }
+  if (trimOffset === 0) return messages;
+
+  // The omission note names the block count, not a per-turn number, so its text is
+  // also stable between advances — a changing note would itself break the prefix.
   return [
     brief,
-    {
-      role: 'user',
-      content: `[earlier turns omitted to bound context — ${rest.length - recent.length} messages]`,
-    },
-    ...recent,
+    { role: 'user', content: `[${trimOffset} earlier messages omitted to bound context]` },
+    ...rest.slice(trimOffset),
   ];
 }
 
