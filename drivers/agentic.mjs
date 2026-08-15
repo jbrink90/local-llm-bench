@@ -144,6 +144,12 @@ const metrics = {
   declared_done: false,
   hit_guard: false,
   tokens: { prompt: 0, completion: 0 },
+  // Durations, so the report can show throughput and not only volume. Prefill rate
+  // is the number that matters most in an agentic loop, because every turn
+  // re-processes the whole prompt. It also degrades as the prompt grows: observed
+  // 721 tok/s at 3k tokens falling to 411 tok/s at 12k within one request, on the
+  // same model.
+  durations_ns: { load: 0, prompt_eval: 0, eval: 0, total: 0 },
   // Sidecar cost is reported separately so a paired run's overhead is visible
   // rather than buried in the coder's own totals.
   vision: {
@@ -290,6 +296,10 @@ try {
     const res = await chat(messages);
     metrics.tokens.prompt += res.prompt_eval_count || 0;
     metrics.tokens.completion += res.eval_count || 0;
+    metrics.durations_ns.load += res.load_duration || 0;
+    metrics.durations_ns.prompt_eval += res.prompt_eval_duration || 0;
+    metrics.durations_ns.eval += res.eval_duration || 0;
+    metrics.durations_ns.total += res.total_duration || 0;
 
     const msg = res.message || {};
     messages.push(msg);
@@ -356,6 +366,23 @@ try {
 }
 
 metrics.wall_ms = Date.now() - started;
+
+// Throughput, derived once at the end. Reported, never gated — the same doctrine as
+// turns and memory: measure and publish, let the reader judge.
+const NS = 1e9;
+metrics.rates = {
+  prefill_tok_s: metrics.durations_ns.prompt_eval
+    ? +(metrics.tokens.prompt / (metrics.durations_ns.prompt_eval / NS)).toFixed(1)
+    : null,
+  generate_tok_s: metrics.durations_ns.eval
+    ? +(metrics.tokens.completion / (metrics.durations_ns.eval / NS)).toFixed(1)
+    : null,
+  // How much of the run was spent re-reading the prompt instead of producing work.
+  // A loop that spends most of its time on prefill is paying for its own history.
+  prefill_share: metrics.durations_ns.total
+    ? +(metrics.durations_ns.prompt_eval / metrics.durations_ns.total).toFixed(3)
+    : null,
+};
 
 // Recovery is only meaningful once something actually failed. A model that hit no
 // failure gets null, never false — an unmeasured signal is not a failed one.
