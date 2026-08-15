@@ -24,6 +24,22 @@ const OLLAMA = process.env.OLLAMA_URL || 'http://localhost:11434';
 const MAX_TURNS = Number(process.env.AGENTIC_MAX_TURNS || 500);
 const CMD_TIMEOUT_MS = 120_000;
 
+// Ollama defaults these models to a 131,072-token context, and the loop filled it:
+// the 2026-08-15 sweep logged prefills of task.n_tokens = 131011 on turn after
+// turn, each one re-processing a full context before emitting a single token. One
+// leg took 57 minutes where an earlier identical leg took 7, and the KV cache
+// alone claimed 12 GB on top of the weights. Cap it: 32k is ample for this task
+// and keeps prefill honest.
+const NUM_CTX = Number(process.env.AGENTIC_NUM_CTX || 32768);
+
+// Tool results are the bulk of the transcript, and old ones are dead weight — the
+// model has already acted on them. Keep the brief, then a sliding window of recent
+// turns, so prompt size plateaus instead of growing without bound.
+const KEEP_RECENT_MESSAGES = Number(process.env.AGENTIC_KEEP_RECENT || 24);
+
+// A single tool result should not be able to eat the window on its own.
+const MAX_TOOL_RESULT_CHARS = 6000;
+
 // The greenfield variant renders and inspects its own output; the bug-fix variant
 // is pure logic with nothing to look at, so the tool is absent there entirely
 // rather than present and useless. See docs/SPEC_AGENTIC.md.
@@ -136,6 +152,7 @@ const metrics = {
     sidecar_tokens: { prompt: 0, completion: 0 },
   },
   wall_ms: 0,
+  history_trimmed: false,
   errors: [],
 };
 
@@ -203,7 +220,32 @@ function dispatch(name, args) {
 }
 
 async function chat(messages) {
-  return ollamaPost(OLLAMA, '/api/chat', { model, stream: false, messages, tools: TOOLS });
+  return ollamaPost(OLLAMA, '/api/chat', {
+    model,
+    stream: false,
+    messages: trimHistory(messages),
+    tools: TOOLS,
+    options: { num_ctx: NUM_CTX },
+  });
+}
+
+// Keep the brief (dropping it loses the task) plus the most recent window.
+// Everything between is tool output the model has already acted on.
+function trimHistory(messages) {
+  if (messages.length <= KEEP_RECENT_MESSAGES + 1) return messages;
+  const [brief, ...rest] = messages;
+  const recent = rest.slice(-KEEP_RECENT_MESSAGES);
+  metrics.history_trimmed = true;
+  // A tool message whose originating assistant tool_call was trimmed away reads as
+  // an orphan, so lead the window with a note instead of a dangling result.
+  return [
+    brief,
+    {
+      role: 'user',
+      content: `[earlier turns omitted to bound context — ${rest.length - recent.length} messages]`,
+    },
+    ...recent,
+  ];
 }
 
 // Ask Ollama what the model can do rather than maintaining a hand-written list
@@ -300,7 +342,7 @@ try {
         args: name === 'write_file' ? { path: args.path, bytes: (args.content ?? '').length } : args,
         result: String(result).slice(0, 4000),
       });
-      const toolMsg = { role: 'tool', content: String(result).slice(0, 20_000) };
+      const toolMsg = { role: 'tool', content: String(result).slice(0, MAX_TOOL_RESULT_CHARS) };
       // A native-vision model receives the pixels, not a description of them.
       if (image) toolMsg.images = [image];
       messages.push(toolMsg);

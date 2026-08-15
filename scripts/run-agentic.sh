@@ -42,6 +42,17 @@ mkdir -p "$RESULTS" "$RUNS"
 
 log() { printf '%s  %s\n' "$(date '+%H:%M:%S')" "$*"; }
 
+# Ctrl-C during a run skipped the unload and left a 55 GB model resident until its
+# keep_alive expired. Release whatever is loaded on the way out, however we exit.
+cleanup() {
+  for m in "${MODELS[@]}" "qwen3-vl:30b"; do
+    curl -s --max-time 10 "$OLLAMA/api/generate" \
+      -d "{\"model\":\"$m\",\"keep_alive\":0}" > /dev/null 2>&1
+  done
+  log "unloaded models on exit"
+}
+trap cleanup EXIT INT TERM
+
 curl -sf --max-time 5 "$OLLAMA/api/version" > /dev/null || {
   log "FATAL: ollama unreachable at $OLLAMA"; exit 1
 }
