@@ -10,7 +10,7 @@
 
 import { readFileSync, writeFileSync, existsSync, statSync, readdirSync, mkdirSync } from 'fs';
 import { resolve, join, relative, dirname } from 'path';
-import { execFileSync } from 'child_process';
+import { runContained } from './exec.mjs';
 import { screenshot, describeViaSidecar, imageForNative } from './vision.mjs';
 import { ollamaPost } from './ollama.mjs';
 
@@ -189,6 +189,10 @@ function safePath(p) {
 
 const readFiles = new Set();      // for wasted-call detection
 const failedCommands = new Map(); // command -> times it has failed
+// Commands that hit the timeout, and how often. A timed-out command leaves a killed
+// process group behind; relaunching it forever is the leak that took the machine down.
+const timedOutCommands = new Map();
+const MAX_TIMEOUT_RETRIES = 2;
 
 function dispatch(name, args) {
   switch (name) {
@@ -217,23 +221,25 @@ function dispatch(name, args) {
     }
     case 'run_command': {
       const cmd = args.command;
-      try {
-        const out = execFileSync('/bin/sh', ['-c', cmd], {
-          cwd: WORKDIR,
-          timeout: CMD_TIMEOUT_MS,
-          encoding: 'utf8',
-          stdio: ['ignore', 'pipe', 'pipe'],
-        });
-        return `exit 0\n${out}`;
-      } catch (e) {
-        metrics.failed_commands++;
-        const prior = failedCommands.get(cmd) || 0;
-        if (prior > 0) metrics.repeated_failures++;
-        failedCommands.set(cmd, prior + 1);
-        const stdout = e.stdout || '';
-        const stderr = e.stderr || e.message;
-        return `exit ${e.status ?? 1}\n${stdout}\n${stderr}`;
+      // A command that already timed out twice is not going to start working, and
+      // relaunching it every turn is how one hung test became 102 CPU spinners.
+      if ((timedOutCommands.get(cmd) || 0) >= MAX_TIMEOUT_RETRIES) {
+        metrics.blocked_retries = (metrics.blocked_retries || 0) + 1;
+        return `refused: this command has timed out ${MAX_TIMEOUT_RETRIES} times already. Try a different approach.`;
       }
+      return runContained(cmd, { cwd: WORKDIR, timeoutMs: CMD_TIMEOUT_MS }).then((r) => {
+        if (r.timedOut) {
+          timedOutCommands.set(cmd, (timedOutCommands.get(cmd) || 0) + 1);
+          metrics.timed_out_commands = (metrics.timed_out_commands || 0) + 1;
+        }
+        if (r.code !== 0) {
+          metrics.failed_commands++;
+          const prior = failedCommands.get(cmd) || 0;
+          if (prior > 0) metrics.repeated_failures++;
+          failedCommands.set(cmd, prior + 1);
+        }
+        return `exit ${r.code}\n${r.stdout}\n${r.stderr}`;
+      });
     }
     default:
       throw new Error(`unknown tool: ${name}`);
@@ -360,7 +366,7 @@ try {
           result = shot.text;
           image = shot.image ?? null;
         } else {
-          result = dispatch(name, args);
+          result = await dispatch(name, args);
         }
       } catch (e) {
         metrics.malformed_calls++;

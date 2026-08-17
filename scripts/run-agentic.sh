@@ -45,11 +45,23 @@ log() { printf '%s  %s\n' "$(date '+%H:%M:%S')" "$*"; }
 # Ctrl-C during a run skipped the unload and left a 55 GB model resident until its
 # keep_alive expired. Release whatever is loaded on the way out, however we exit.
 cleanup() {
+  # Kill the driver and everything it spawned FIRST. Model-generated code can hang,
+  # and a killed shell leaves npm/node descendants reparented to PID 1 spinning
+  # forever — on 2026-08-17 that reached 307 processes and load average 429, which
+  # starved the whole machine. Ctrl-C must not leave that behind.
+  pkill -f "drivers/agentic.mjs" 2>/dev/null
+  sleep 1
+  pkill -9 -f "drivers/agentic.mjs" 2>/dev/null
+  # Descendants of the fixture's own test runs, by name, since they may already be
+  # orphaned and no longer in our process group.
+  pkill -f "precedence.test.mjs" 2>/dev/null
+  pkill -9 -f "precedence.test.mjs" 2>/dev/null
+
   for m in "${MODELS[@]}" "qwen3-vl:30b"; do
     curl -s --max-time 10 "$OLLAMA/api/generate" \
       -d "{\"model\":\"$m\",\"keep_alive\":0}" > /dev/null 2>&1
   done
-  log "unloaded models on exit"
+  log "killed driver descendants and unloaded models on exit"
 }
 trap cleanup EXIT INT TERM
 

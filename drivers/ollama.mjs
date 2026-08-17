@@ -15,6 +15,12 @@ import { URL } from 'node:url';
 // request, not to bound how long careful work may take.
 const DEFAULT_TIMEOUT_MS = Number(process.env.OLLAMA_TIMEOUT_MS || 1_800_000);
 
+// setTimeout below is an IDLE timeout, and an ESTABLISHED-but-silent socket does not
+// reliably trip it: the 2026-08-17 sweep sat on one for 3h41m at 0% CPU with no model
+// even resident, while Ollama kept serving other clients normally. Only a wall-clock
+// ceiling catches that, so it exists IN ADDITION to the idle timeout, not instead.
+const HARD_LIMIT_MS = Number(process.env.OLLAMA_HARD_LIMIT_MS || 900_000);
+
 export function ollamaPost(baseUrl, path, payload, timeoutMs = DEFAULT_TIMEOUT_MS) {
   const url = new URL(path, baseUrl);
   const body = JSON.stringify(payload);
@@ -54,6 +60,12 @@ export function ollamaPost(baseUrl, path, payload, timeoutMs = DEFAULT_TIMEOUT_M
     req.setTimeout(timeoutMs, () => {
       req.destroy(new Error(`ollama request idle for ${timeoutMs}ms — no data`));
     });
+
+    const hardStop = setTimeout(() => {
+      req.destroy(new Error(`ollama request exceeded ${HARD_LIMIT_MS}ms wall clock — abandoned`));
+    }, HARD_LIMIT_MS);
+    const clearHard = () => clearTimeout(hardStop);
+    req.on('close', clearHard);
     req.on('error', reject);
     req.write(body);
     req.end();
