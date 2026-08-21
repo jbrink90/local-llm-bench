@@ -1,0 +1,9 @@
+The current directory contains a Python exercise with a stub implementation and a
+test suite.
+
+Read instructions.md for the specification, then implement bowling.py so the
+tests pass.
+
+Run the tests with: python3 -m pytest bowling_test.py -q
+
+Do not modify bowling_test.py. Iterate until all tests pass, then call done().

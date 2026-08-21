@@ -95,6 +95,21 @@ for MODEL in "${MODELS[@]}"; do
     VERDICT=$("$REPO/validators/agentic-bugfix.sh" "$WORK" "$MODEL" "$RESULTS" "$TAG" 2>&1 | tail -1)
     log "DONE  bugfix $MODEL run $RUN — $VERDICT"
 
+    # ---- exercism leg (graded breadth: solved/31, no vision) ----
+    # The expr-eval fixture collapsed to three outcomes and 57% of models were
+    # perfect on every repeat, so it could not separate a new model from an old
+    # one. A canonical 31-case suite scores continuously and leaves headroom.
+    WORK="$RUNS/exercism-$TAG"
+    rm -rf "$WORK" && mkdir -p "$WORK"
+    cp "$REPO"/fixtures/exercism/bowling/{bowling.py,bowling_test.py,instructions.md} "$WORK/"
+
+    log "START exercism $MODEL run $RUN/$REPEATS"
+    ( cd "$WORK" && AGENTIC_VISION=0 \
+        node "$REPO/drivers/agentic.mjs" "$WORK" "$MODEL" "$RESULTS" "$TAG" \
+          "$REPO/prompts/agentic-exercism.txt" > /dev/null 2>&1 )
+    VERDICT=$("$REPO/validators/agentic-exercism.sh" "$WORK" "$MODEL" "$RESULTS" "$TAG" 2>&1 | tail -1)
+    log "DONE  exercism $MODEL run $RUN — $VERDICT"
+
     # ---- greenfield leg (vision applies: native or sidecar, resolved per model) ----
     WORK="$RUNS/greenfield-$TAG"
     rm -rf "$WORK" && mkdir -p "$WORK"
