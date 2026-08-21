@@ -27,13 +27,19 @@ REPEATS="${AGENTIC_REPEATS:-3}"
 # eligible: the premise is a laptop with no network.
 DEFAULT_MODELS=(
   "qwen3-coder:30b"
-  "qwen3-coder-next"
   "qwen3.5:35b-a3b-coding-nvfp4"
   "qwen3-vl:30b"
   "gemma4:26b-mlx-bf16"
-  "laguna-xs.2"
   "gpt-oss:20b"
   "muse-glimmer:30b-mlx"
+  # MLX build only. The GGUF laguna-xs.2 runs the llama.cpp path on Apple Silicon
+  # and degenerates: 189s and 8,129 tokens for one snake game, 110 code fences,
+  # role tags leaking into the reply. The nvfp4 build does the same task in 17.8s
+  # at 117.7 tok/s. All GGUF laguna results are void.
+  "laguna-xs.2:nvfp4"
+  # qwen3-coder-next excluded: 52 GB resident, one bug-fix leg ran 58 minutes
+  # without finishing, and its active parameter count matches
+  # qwen3.5:35b-a3b-coding-nvfp4 at less than half the footprint.
 )
 MODELS=("$@")
 [ ${#MODELS[@]} -eq 0 ] && MODELS=("${DEFAULT_MODELS[@]}")
