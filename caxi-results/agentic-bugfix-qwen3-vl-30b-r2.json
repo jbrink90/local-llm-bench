@@ -5,5 +5,6 @@
   "reason": "shipped suite was modified",
   "tests_passed": 0,
   "tests_failed": 1,
-  "tests_added": 0
+  "tests_added": 0,
+  "wall_min_from_log": 11.3
 }

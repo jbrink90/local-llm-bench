@@ -35,9 +35,9 @@ h1{font-size:clamp(1.9rem,4.5vw,3rem);line-height:1.1;margin:.5rem 0 .75rem;
 h2.sec{font-size:1.05rem;letter-spacing:.02em;margin:2.75rem 0 .35rem}
 p.secsub{color:var(--dim);font-size:.88rem;margin:0 0 1.25rem}
 
-.legend{display:flex;gap:1.25rem;flex-wrap:wrap;color:var(--dim);font-size:.82rem;
-  border-left:2px solid var(--line2);padding:.35rem 0 .35rem .85rem;margin-bottom:1.5rem}
-.legend b{color:var(--fg);font-weight:600}
+.legend{display:grid;gap:.3rem;color:var(--dim);font-size:.85rem;
+  border-left:2px solid var(--line2);padding:.45rem 0 .45rem .95rem;margin-bottom:1.5rem}
+.legend b{color:var(--fg);font-weight:600;display:inline-block;min-width:5.4rem}
 
 .grid{display:grid;gap:1rem}
 .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:1.1rem 1.25rem}
@@ -69,7 +69,17 @@ p.secsub{color:var(--dim);font-size:.88rem;margin:0 0 1.25rem}
 .legscore em{color:var(--dim);font-style:normal;font-size:.74rem}
 .spark{display:block}
 .card footer{margin-top:.9rem;padding-top:.7rem;border-top:1px solid var(--line);
-  color:var(--dim);font-size:.78rem;display:flex;gap:.35rem;flex-wrap:wrap}
+  color:var(--dim);font-size:.78rem}
+.cost{display:grid;grid-template-columns:3.1rem 1fr 5.4rem;gap:.5rem;align-items:center;
+  margin-bottom:.25rem}
+.clabel{font-size:.72rem;text-transform:uppercase;letter-spacing:.06em}
+.cbar{display:block;height:.38rem;background:var(--panel2);border-radius:99px;overflow:hidden}
+.cbar i{display:block;height:100%;border-radius:99px;opacity:.85}
+.cbar i.t{background:linear-gradient(90deg,#5b8def,#8fb6ff)}
+.cbar i.k{background:linear-gradient(90deg,#b06fd8,#d2a3f0)}
+.cval{text-align:right;font-variant-numeric:tabular-nums;font-size:.76rem;color:var(--fg)}
+.cval em{font-style:normal;color:var(--warn);font-size:.72rem}
+.costnote{margin-top:.4rem;font-size:.74rem}
 
 .notes{display:grid;gap:.75rem;grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
 .note{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:1rem 1.1rem}
@@ -111,7 +121,7 @@ footer.foot{margin-top:3rem;color:var(--dim);font-size:.8rem;text-align:center;l
   <div class="stats">
     <div class="stat"><b>63</b><span>legs run</span></div>
     <div class="stat"><b>7</b><span>models</span></div>
-    <div class="stat"><b>21.8<span style="font-size:.9rem">h</span></b><span>wall clock</span></div>
+    <div class="stat"><b>20.2<span style="font-size:.9rem">h</span></b><span>wall clock</span></div>
     <div class="stat"><b>1.9M</b><span>tokens burned</span></div>
     <div class="stat"><b>37</b><span>legs passed</span></div>
   </div>
@@ -167,10 +177,17 @@ Consistency separates these models far more than peak score does.</p>
       </div>
   </div>
   <footer>
-    <span title="median leg duration">⏱ 16.8 min median</span>
-    <span title="worst single leg">· worst 21 min</span>
-    <span>· 19.9 tok/s</span>
-    <span>· 87k tokens spent</span>
+    <div class="cost">
+      <span class="clabel">time</span>
+      <span class="cbar"><i class="t" style="width:22%"></i></span>
+      <span class="cval">1.7h <em>1.3×</em></span>
+    </div>
+    <div class="cost">
+      <span class="clabel">tokens</span>
+      <span class="cbar"><i class="k" style="width:11%"></i></span>
+      <span class="cval">87k</span>
+    </div>
+    <div class="costnote">9.8 min median leg · worst 21 min · 19.9 tok/s</div>
   </footer>
 </article>
 <article class="card">
@@ -205,10 +222,17 @@ Consistency separates these models far more than peak score does.</p>
       </div>
   </div>
   <footer>
-    <span title="median leg duration">⏱ 7.5 min median</span>
-    <span title="worst single leg">· worst 8 min</span>
-    <span>· 40.7 tok/s</span>
-    <span>· 93k tokens spent</span>
+    <div class="cost">
+      <span class="clabel">time</span>
+      <span class="cbar"><i class="t" style="width:27%"></i></span>
+      <span class="cval">2.1h <em>1.6×</em></span>
+    </div>
+    <div class="cost">
+      <span class="clabel">tokens</span>
+      <span class="cbar"><i class="k" style="width:12%"></i></span>
+      <span class="cval">93k</span>
+    </div>
+    <div class="costnote">8.1 min median leg · worst 57 min · 40.7 tok/s</div>
   </footer>
 </article>
 <article class="card">
@@ -243,10 +267,17 @@ Consistency separates these models far more than peak score does.</p>
       </div>
   </div>
   <footer>
-    <span title="median leg duration">⏱ 6.5 min median</span>
-    <span title="worst single leg">· worst 19 min</span>
-    <span>· 39.1 tok/s</span>
-    <span>· 113k tokens spent</span>
+    <div class="cost">
+      <span class="clabel">time</span>
+      <span class="cbar"><i class="t" style="width:17%"></i></span>
+      <span class="cval">1.3h</span>
+    </div>
+    <div class="cost">
+      <span class="clabel">tokens</span>
+      <span class="cbar"><i class="k" style="width:14%"></i></span>
+      <span class="cval">113k <em>1.3×</em></span>
+    </div>
+    <div class="costnote">5.5 min median leg · worst 19 min · 39.1 tok/s</div>
   </footer>
 </article>
 <article class="card">
@@ -281,10 +312,17 @@ Consistency separates these models far more than peak score does.</p>
       </div>
   </div>
   <footer>
-    <span title="median leg duration">⏱ 3.3 min median</span>
-    <span title="worst single leg">· worst 207 min</span>
-    <span>· 88.5 tok/s</span>
-    <span>· 784k tokens spent</span>
+    <div class="cost">
+      <span class="clabel">time</span>
+      <span class="cbar"><i class="t" style="width:48%"></i></span>
+      <span class="cval">3.7h <em>2.8×</em></span>
+    </div>
+    <div class="cost">
+      <span class="clabel">tokens</span>
+      <span class="cbar"><i class="k" style="width:100%"></i></span>
+      <span class="cval">784k <em>9.0×</em></span>
+    </div>
+    <div class="costnote">1 min median leg · worst 207 min · 88.5 tok/s</div>
   </footer>
 </article>
 <article class="card">
@@ -319,10 +357,17 @@ Consistency separates these models far more than peak score does.</p>
       </div>
   </div>
   <footer>
-    <span title="median leg duration">⏱ 12.4 min median</span>
-    <span title="worst single leg">· worst 25 min</span>
-    <span>· 39.5 tok/s</span>
-    <span>· 202k tokens spent</span>
+    <div class="cost">
+      <span class="clabel">time</span>
+      <span class="cbar"><i class="t" style="width:30%"></i></span>
+      <span class="cval">2.3h <em>1.8×</em></span>
+    </div>
+    <div class="cost">
+      <span class="clabel">tokens</span>
+      <span class="cbar"><i class="k" style="width:26%"></i></span>
+      <span class="cval">202k <em>2.3×</em></span>
+    </div>
+    <div class="costnote">12.4 min median leg · worst 25 min · 39.5 tok/s</div>
   </footer>
 </article>
 <article class="card">
@@ -357,10 +402,17 @@ Consistency separates these models far more than peak score does.</p>
       </div>
   </div>
   <footer>
-    <span title="median leg duration">⏱ 70.1 min median</span>
-    <span title="worst single leg">· worst 127 min</span>
-    <span>· 48 tok/s</span>
-    <span>· 544k tokens spent</span>
+    <div class="cost">
+      <span class="clabel">time</span>
+      <span class="cbar"><i class="t" style="width:100%"></i></span>
+      <span class="cval">7.7h <em>5.8×</em></span>
+    </div>
+    <div class="cost">
+      <span class="clabel">tokens</span>
+      <span class="cbar"><i class="k" style="width:69%"></i></span>
+      <span class="cval">544k <em>6.2×</em></span>
+    </div>
+    <div class="costnote">22.3 min median leg · worst 131 min · 48 tok/s</div>
   </footer>
 </article>
 <article class="card">
@@ -395,10 +447,17 @@ Consistency separates these models far more than peak score does.</p>
       </div>
   </div>
   <footer>
-    <span title="median leg duration">⏱ 6.8 min median</span>
-    <span title="worst single leg">· worst 21 min</span>
-    <span>· 54.5 tok/s</span>
-    <span>· 91k tokens spent</span>
+    <div class="cost">
+      <span class="clabel">time</span>
+      <span class="cbar"><i class="t" style="width:17%"></i></span>
+      <span class="cval">1.3h</span>
+    </div>
+    <div class="cost">
+      <span class="clabel">tokens</span>
+      <span class="cbar"><i class="k" style="width:12%"></i></span>
+      <span class="cval">91k</span>
+    </div>
+    <div class="costnote">6.9 min median leg · worst 21 min · 54.5 tok/s</div>
   </footer>
 </article>
 </div>
@@ -438,11 +497,16 @@ Consistency separates these models far more than peak score does.</p>
   fixed" having written nothing at all.<br>
   <b>INVALID</b> means the harness failed, not the model.
   1 row(s) from an earlier sweep excluded. 
-  Generated 2026-08-22 04:03 · Apple M4 Max, 128 GB · Ollama 0.32.9
+  Generated 2026-08-22 22:40<br>
+  <b>Harness</b> local-llm-bench agentic driver · Ollama <code>/api/chat</code> tool calling, non-streaming ·
+  32k context cap, sliding-window history · tools: list_dir, read_file, write_file, run_command, screenshot, done ·
+  each command in its own process group, 120s cap · 15-min per-request ceiling ·
+  40-min / 250k-token leg budget · fresh fixture copy per attempt, no network<br>
+  <b>Machine</b> Apple M4 Max, 128 GB unified · macOS · Ollama 0.32.9 (MLX engine for safetensors, llama.cpp for GGUF)
 </footer>
 
 <script>
-const ROWS = [{"model":"gemma4:26b-mlx-bf16","leg":"bugfix","run":1,"pass":true,"invalid":false,"score":6,"of":6,"reason":null,"vision":null,"testsAdded":1,"turns":null,"minutes":null,"genTok":null,"tokS":null,"prefill":null,"guard":null},{"model":"gemma4:26b-mlx-bf16","leg":"bugfix","run":2,"pass":true,"invalid":false,"score":6,"of":6,"reason":null,"vision":null,"testsAdded":0,"turns":null,"minutes":null,"genTok":null,"tokS":null,"prefill":null,"guard":null},{"model":"gemma4:26b-mlx-bf16","leg":"bugfix","run":3,"pass":true,"invalid":false,"score":6,"of":6,"reason":null,"vision":null,"testsAdded":0,"turns":null,"minutes":null,"genTok":null,"tokS":null,"prefill":null,"guard":null},{"model":"gpt-oss:20b","leg":"bugfix","run":1,"pass":true,"invalid":false,"score":6,"of":6,"reason":null,"vision":null,"testsAdded":0,"turns":null,"minutes":null,"genTok":null,"tokS":null,"prefill":null,"guard":null},{"model":"gpt-oss:20b","leg":"bugfix","run":2,"pass":true,"invalid":false,"score":6,"of":6,"reason":null,"vision":null,"testsAdded":0,"turns":null,"minutes":null,"genTok":null,"tokS":null,"prefill":null,"guard":null},{"model":"gpt-oss:20b","leg":"bugfix","run":3,"pass":true,"invalid":false,"score":6,"of":6,"reason":null,"vision":null,"testsAdded":0,"turns":null,"minutes":null,"genTok":null,"tokS":null,"prefill":null,"guard":null},{"model":"laguna-xs.2:nvfp4","leg":"bugfix","run":1,"pass":true,"invalid":false,"score":6,"of":6,"reason":null,"vision":null,"testsAdded":0,"turns":null,"minutes":null,"genTok":null,"tokS":null,"prefill":null,"guard":null},{"model":"laguna-xs.2:nvfp4","leg":"bugfix","run":2,"pass":true,"invalid":false,"score":6,"of":6,"reason":null,"vision":null,"testsAdded":0,"turns":null,"minutes":null,"genTok":null,"tokS":null,"prefill":null,"guard":null},{"model":"laguna-xs.2:nvfp4","leg":"bugfix","run":3,"pass":true,"invalid":false,"score":6,"of":6,"reason":null,"vision":null,"testsAdded":0,"turns":null,"minutes":null,"genTok":null,"tokS":null,"prefill":null,"guard":null},{"model":"muse-glimmer:30b-mlx","leg":"bugfix","run":1,"pass":true,"invalid":false,"score":6,"of":6,"reason":null,"vision":null,"testsAdded":0,"turns":null,"minutes":null,"genTok":null,"tokS":null,"prefill":null,"guard":null},{"model":"muse-glimmer:30b-mlx","leg":"bugfix","run":2,"pass":true,"invalid":false,"score":6,"of":6,"reason":null,"vision":null,"testsAdded":0,"turns":null,"minutes":null,"genTok":null,"tokS":null,"prefill":null,"guard":null},{"model":"muse-glimmer:30b-mlx","leg":"bugfix","run":3,"pass":true,"invalid":false,"score":6,"of":6,"reason":null,"vision":null,"testsAdded":0,"turns":null,"minutes":null,"genTok":null,"tokS":null,"prefill":null,"guard":null},{"model":"qwen3-coder:30b","leg":"bugfix","run":1,"pass":false,"invalid":false,"score":0,"of":6,"reason":"shipped suite was modified","vision":null,"testsAdded":0,"turns":null,"minutes":null,"genTok":null,"tokS":null,"prefill":null,"guard":null},{"model":"qwen3-coder:30b","leg":"bugfix","run":2,"pass":false,"invalid":false,"score":0,"of":6,"reason":null,"vision":null,"testsAdded":0,"turns":null,"minutes":null,"genTok":null,"tokS":null,"prefill":null,"guard":null},{"model":"qwen3-coder:30b","leg":"bugfix","run":3,"pass":true,"invalid":false,"score":6,"of":6,"reason":null,"vision":null,"testsAdded":0,"turns":null,"minutes":null,"genTok":null,"tokS":null,"prefill":null,"guard":null},{"model":"qwen3-vl:30b","leg":"bugfix","run":1,"pass":false,"invalid":false,"score":0,"of":6,"reason":null,"vision":null,"testsAdded":0,"turns":null,"minutes":null,"genTok":null,"tokS":null,"prefill":null,"guard":null},{"model":"qwen3-vl:30b","leg":"bugfix","run":2,"pass":false,"invalid":false,"score":0,"of":6,"reason":"shipped suite was modified","vision":null,"testsAdded":0,"turns":null,"minutes":null,"genTok":null,"tokS":null,"prefill":null,"guard":null},{"model":"qwen3-vl:30b","leg":"bugfix","run":3,"pass":false,"invalid":false,"score":0,"of":6,"reason":null,"vision":null,"testsAdded":0,"turns":null,"minutes":null,"genTok":null,"tokS":null,"prefill":null,"guard":null},{"model":"qwen3.5:35b-a3b-coding-nvfp4","leg":"bugfix","run":1,"pass":true,"invalid":false,"score":6,"of":6,"reason":null,"vision":null,"testsAdded":0,"turns":null,"minutes":null,"genTok":null,"tokS":null,"prefill":null,"guard":null},{"model":"qwen3.5:35b-a3b-coding-nvfp4","leg":"bugfix","run":2,"pass":true,"invalid":false,"score":6,"of":6,"reason":null,"vision":null,"testsAdded":0,"turns":null,"minutes":null,"genTok":null,"tokS":null,"prefill":null,"guard":null},{"model":"qwen3.5:35b-a3b-coding-nvfp4","leg":"bugfix","run":3,"pass":true,"invalid":false,"score":6,"of":6,"reason":null,"vision":null,"testsAdded":0,"turns":null,"minutes":null,"genTok":null,"tokS":null,"prefill":null,"guard":null},{"model":"gemma4:26b-mlx-bf16","leg":"exercism","run":1,"pass":true,"invalid":false,"score":31,"of":31,"reason":null,"vision":null,"testsAdded":null,"turns":15,"minutes":7.5,"genTok":16526,"tokS":38.4,"prefill":0.031,"guard":null},{"model":"gemma4:26b-mlx-bf16","leg":"exercism","run":2,"pass":true,"invalid":false,"score":31,"of":31,"reason":null,"vision":null,"testsAdded":null,"turns":13,"minutes":8.1,"genTok":18347,"tokS":38.9,"prefill":0.022,"guard":null},{"model":"gemma4:26b-mlx-bf16","leg":"exercism","run":3,"pass":true,"invalid":false,"score":31,"of":31,"reason":null,"vision":null,"testsAdded":null,"turns":10,"minutes":8.3,"genTok":17925,"tokS":38.4,"prefill":0.058,"guard":null},{"model":"gpt-oss:20b","leg":"exercism","run":1,"pass":false,"invalid":false,"score":26,"of":31,"reason":null,"vision":null,"testsAdded":null,"turns":12,"minutes":6.5,"genTok":15104,"tokS":41.4,"prefill":0.056,"guard":null},{"model":"gpt-oss:20b","leg":"exercism","run":2,"pass":false,"invalid":false,"score":4,"of":31,"reason":null,"vision":null,"testsAdded":null,"turns":13,"minutes":5.3,"genTok":9951,"tokS":36.5,"prefill":0.121,"guard":null},{"model":"gpt-oss:20b","leg":"exercism","run":3,"pass":false,"invalid":false,"score":29,"of":31,"reason":null,"vision":null,"testsAdded":null,"turns":7,"minutes":4.3,"genTok":9099,"tokS":36.4,"prefill":0.03,"guard":null},{"model":"laguna-xs.2:nvfp4","leg":"exercism","run":1,"pass":false,"invalid":false,"score":0,"of":31,"reason":"test count shrank — suite was modified","vision":null,"testsAdded":null,"turns":null,"minutes":null,"genTok":null,"tokS":null,"prefill":null,"guard":null},{"model":"laguna-xs.2:nvfp4","leg":"exercism","run":2,"pass":false,"invalid":false,"score":0,"of":31,"reason":null,"vision":null,"testsAdded":null,"turns":8,"minutes":15.2,"genTok":412,"tokS":98.8,"prefill":0.696,"guard":null},{"model":"laguna-xs.2:nvfp4","leg":"exercism","run":3,"pass":false,"invalid":false,"score":28,"of":31,"reason":null,"vision":null,"testsAdded":null,"turns":200,"minutes":126.6,"genTok":243318,"tokS":48,"prefill":0.235,"guard":null},{"model":"muse-glimmer:30b-mlx","leg":"exercism","run":1,"pass":true,"invalid":false,"score":31,"of":31,"reason":null,"vision":null,"testsAdded":null,"turns":21,"minutes":20.7,"genTok":19328,"tokS":19.3,"prefill":0.19,"guard":null},{"model":"muse-glimmer:30b-mlx","leg":"exercism","run":2,"pass":true,"invalid":false,"score":31,"of":31,"reason":null,"vision":null,"testsAdded":null,"turns":11,"minutes":16.8,"genTok":19040,"tokS":19.9,"prefill":0.048,"guard":null},{"model":"muse-glimmer:30b-mlx","leg":"exercism","run":3,"pass":true,"invalid":false,"score":31,"of":31,"reason":null,"vision":null,"testsAdded":null,"turns":14,"minutes":18.3,"genTok":19343,"tokS":18.8,"prefill":0.06,"guard":null},{"model":"qwen3-coder:30b","leg":"exercism","run":1,"pass":false,"invalid":false,"score":24,"of":31,"reason":null,"vision":null,"testsAdded":null,"turns":76,"minutes":14.3,"genTok":23070,"tokS":41.3,"prefill":0.311,"guard":null},{"model":"qwen3-coder:30b","leg":"exercism","run":2,"pass":false,"invalid":false,"score":20,"of":31,"reason":null,"vision":null,"testsAdded":null,"turns":96,"minutes":21.4,"genTok":35456,"tokS":42.7,"prefill":0.324,"guard":null},{"model":"qwen3-coder:30b","leg":"exercism","run":3,"pass":false,"invalid":false,"score":23,"of":31,"reason":null,"vision":null,"testsAdded":null,"turns":41,"minutes":6.8,"genTok":13148,"tokS":48.2,"prefill":0.301,"guard":null},{"model":"qwen3-vl:30b","leg":"exercism","run":1,"pass":false,"invalid":false,"score":25,"of":31,"reason":null,"vision":null,"testsAdded":null,"turns":11,"minutes":12.4,"genTok":26040,"tokS":36.6,"prefill":0.035,"guard":null},{"model":"qwen3-vl:30b","leg":"exercism","run":2,"pass":false,"invalid":false,"score":20,"of":31,"reason":null,"vision":null,"testsAdded":null,"turns":11,"minutes":25.3,"genTok":54974,"tokS":37.1,"prefill":0.021,"guard":null},{"model":"qwen3-vl:30b","leg":"exercism","run":3,"pass":false,"invalid":false,"score":22,"of":31,"reason":null,"vision":null,"testsAdded":null,"turns":16,"minutes":25.1,"genTok":50129,"tokS":36.8,"prefill":0.089,"guard":null},{"model":"qwen3.5:35b-a3b-coding-nvfp4","leg":"exercism","run":1,"pass":true,"invalid":false,"score":31,"of":31,"reason":null,"vision":null,"testsAdded":null,"turns":18,"minutes":3.3,"genTok":12454,"tokS":73.1,"prefill":0.136,"guard":null},{"model":"qwen3.5:35b-a3b-coding-nvfp4","leg":"exercism","run":2,"pass":false,"invalid":false,"score":5,"of":31,"reason":null,"vision":null,"testsAdded":null,"turns":500,"minutes":207.1,"genTok":741621,"tokS":69,"prefill":0.13,"guard":"guard hit"},{"model":"qwen3.5:35b-a3b-coding-nvfp4","leg":"exercism","run":3,"pass":true,"invalid":false,"score":31,"of":31,"reason":null,"vision":null,"testsAdded":null,"turns":11,"minutes":0.6,"genTok":2566,"tokS":99.1,"prefill":0.248,"guard":null},{"model":"gemma4:26b-mlx-bf16","leg":"greenfield","run":1,"pass":true,"invalid":false,"score":7,"of":8,"reason":null,"vision":"sidecar","testsAdded":null,"turns":5,"minutes":5.6,"genTok":11129,"tokS":42.5,"prefill":0.075,"guard":null},{"model":"gemma4:26b-mlx-bf16","leg":"greenfield","run":2,"pass":true,"invalid":false,"score":8,"of":8,"reason":null,"vision":"sidecar","testsAdded":null,"turns":7,"minutes":6.9,"genTok":13706,"tokS":40.7,"prefill":0.065,"guard":null},{"model":"gemma4:26b-mlx-bf16","leg":"greenfield","run":3,"pass":false,"invalid":false,"score":3,"of":8,"reason":null,"vision":"sidecar","testsAdded":null,"turns":8,"minutes":7.5,"genTok":15064,"tokS":40.9,"prefill":0.062,"guard":null},{"model":"gpt-oss:20b","leg":"greenfield","run":1,"pass":true,"invalid":false,"score":8,"of":8,"reason":null,"vision":"sidecar","testsAdded":null,"turns":45,"minutes":18.5,"genTok":36985,"tokS":44.9,"prefill":0.102,"guard":null},{"model":"gpt-oss:20b","leg":"greenfield","run":2,"pass":true,"invalid":false,"score":8,"of":8,"reason":null,"vision":"sidecar","testsAdded":null,"turns":19,"minutes":16.6,"genTok":32137,"tokS":37.8,"prefill":0.077,"guard":null},{"model":"gpt-oss:20b","leg":"greenfield","run":3,"pass":true,"invalid":false,"score":8,"of":8,"reason":null,"vision":"sidecar","testsAdded":null,"turns":7,"minutes":5.5,"genTok":9262,"tokS":39.1,"prefill":0.048,"guard":null},{"model":"laguna-xs.2:nvfp4","leg":"greenfield","run":1,"pass":false,"invalid":false,"score":2,"of":8,"reason":null,"vision":"sidecar","testsAdded":null,"turns":12,"minutes":22.3,"genTok":20840,"tokS":63.5,"prefill":0.118,"guard":null},{"model":"laguna-xs.2:nvfp4","leg":"greenfield","run":2,"pass":false,"invalid":false,"score":3,"of":8,"reason":null,"vision":"sidecar","testsAdded":null,"turns":61,"minutes":70.1,"genTok":123853,"tokS":46.4,"prefill":0.188,"guard":null},{"model":"laguna-xs.2:nvfp4","leg":"greenfield","run":3,"pass":false,"invalid":false,"score":2,"of":8,"reason":null,"vision":"sidecar","testsAdded":null,"turns":60,"minutes":88.7,"genTok":155332,"tokS":46.6,"prefill":0.22,"guard":null},{"model":"muse-glimmer:30b-mlx","leg":"greenfield","run":1,"pass":true,"invalid":false,"score":8,"of":8,"reason":null,"vision":"native","testsAdded":null,"turns":12,"minutes":13.6,"genTok":14616,"tokS":20.2,"prefill":0.105,"guard":null},{"model":"muse-glimmer:30b-mlx","leg":"greenfield","run":2,"pass":true,"invalid":false,"score":8,"of":8,"reason":null,"vision":"native","testsAdded":null,"turns":5,"minutes":4.6,"genTok":4900,"tokS":22.3,"prefill":0.198,"guard":null},{"model":"muse-glimmer:30b-mlx","leg":"greenfield","run":3,"pass":true,"invalid":false,"score":8,"of":8,"reason":null,"vision":"native","testsAdded":null,"turns":7,"minutes":9.8,"genTok":10107,"tokS":19,"prefill":0.09,"guard":null},{"model":"qwen3-coder:30b","leg":"greenfield","run":1,"pass":false,"invalid":false,"score":4,"of":8,"reason":null,"vision":"sidecar","testsAdded":null,"turns":7,"minutes":2.4,"genTok":4910,"tokS":55.1,"prefill":0.092,"guard":null},{"model":"qwen3-coder:30b","leg":"greenfield","run":2,"pass":true,"invalid":false,"score":7,"of":8,"reason":null,"vision":"sidecar","testsAdded":null,"turns":5,"minutes":2.2,"genTok":5343,"tokS":54.5,"prefill":0.018,"guard":null},{"model":"qwen3-coder:30b","leg":"greenfield","run":3,"pass":true,"invalid":false,"score":7,"of":8,"reason":null,"vision":"sidecar","testsAdded":null,"turns":8,"minutes":3.3,"genTok":9098,"tokS":60.9,"prefill":0.026,"guard":null},{"model":"qwen3-vl:30b","leg":"greenfield","run":1,"pass":true,"invalid":false,"score":8,"of":8,"reason":null,"vision":"native","testsAdded":null,"turns":5,"minutes":10.1,"genTok":22508,"tokS":39.5,"prefill":0.052,"guard":null},{"model":"qwen3-vl:30b","leg":"greenfield","run":2,"pass":true,"invalid":false,"score":8,"of":8,"reason":null,"vision":"native","testsAdded":null,"turns":5,"minutes":10.5,"genTok":24069,"tokS":40.4,"prefill":0.048,"guard":null},{"model":"qwen3-vl:30b","leg":"greenfield","run":3,"pass":true,"invalid":false,"score":7,"of":8,"reason":null,"vision":"native","testsAdded":null,"turns":4,"minutes":10.6,"genTok":23805,"tokS":39.9,"prefill":0.059,"guard":null},{"model":"qwen3.5:35b-a3b-coding-nvfp4","leg":"greenfield","run":1,"pass":false,"invalid":false,"score":2,"of":8,"reason":null,"vision":"native","testsAdded":null,"turns":8,"minutes":4,"genTok":15496,"tokS":73,"prefill":0.105,"guard":null},{"model":"qwen3.5:35b-a3b-coding-nvfp4","leg":"greenfield","run":2,"pass":false,"invalid":false,"score":7,"of":8,"reason":null,"vision":"native","testsAdded":null,"turns":4,"minutes":3.3,"genTok":6233,"tokS":88.5,"prefill":0.085,"guard":null},{"model":"qwen3.5:35b-a3b-coding-nvfp4","leg":"greenfield","run":3,"pass":false,"invalid":false,"score":6,"of":8,"reason":null,"vision":"native","testsAdded":null,"turns":3,"minutes":1,"genTok":5648,"tokS":104.3,"prefill":0.085,"guard":null}];
+const ROWS = [{"model":"gemma4:26b-mlx-bf16","leg":"bugfix","run":1,"pass":true,"invalid":false,"score":6,"of":6,"reason":null,"vision":null,"testsAdded":1,"turns":null,"minutes":57.4,"minutesFromLog":true,"genTok":null,"tokS":null,"prefill":null,"guard":null},{"model":"gemma4:26b-mlx-bf16","leg":"bugfix","run":2,"pass":true,"invalid":false,"score":6,"of":6,"reason":null,"vision":null,"testsAdded":0,"turns":null,"minutes":9.6,"minutesFromLog":true,"genTok":null,"tokS":null,"prefill":null,"guard":null},{"model":"gemma4:26b-mlx-bf16","leg":"bugfix","run":3,"pass":true,"invalid":false,"score":6,"of":6,"reason":null,"vision":null,"testsAdded":0,"turns":null,"minutes":12.5,"minutesFromLog":true,"genTok":null,"tokS":null,"prefill":null,"guard":null},{"model":"gpt-oss:20b","leg":"bugfix","run":1,"pass":true,"invalid":false,"score":6,"of":6,"reason":null,"vision":null,"testsAdded":0,"turns":null,"minutes":5.3,"minutesFromLog":true,"genTok":null,"tokS":null,"prefill":null,"guard":null},{"model":"gpt-oss:20b","leg":"bugfix","run":2,"pass":true,"invalid":false,"score":6,"of":6,"reason":null,"vision":null,"testsAdded":0,"turns":null,"minutes":5.3,"minutesFromLog":true,"genTok":null,"tokS":null,"prefill":null,"guard":null},{"model":"gpt-oss:20b","leg":"bugfix","run":3,"pass":true,"invalid":false,"score":6,"of":6,"reason":null,"vision":null,"testsAdded":0,"turns":null,"minutes":11.8,"minutesFromLog":true,"genTok":null,"tokS":null,"prefill":null,"guard":null},{"model":"laguna-xs.2:nvfp4","leg":"bugfix","run":1,"pass":true,"invalid":false,"score":6,"of":6,"reason":null,"vision":null,"testsAdded":0,"turns":null,"minutes":1.3,"minutesFromLog":true,"genTok":null,"tokS":null,"prefill":null,"guard":null},{"model":"laguna-xs.2:nvfp4","leg":"bugfix","run":2,"pass":true,"invalid":false,"score":6,"of":6,"reason":null,"vision":null,"testsAdded":0,"turns":null,"minutes":1.4,"minutesFromLog":true,"genTok":null,"tokS":null,"prefill":null,"guard":null},{"model":"laguna-xs.2:nvfp4","leg":"bugfix","run":3,"pass":true,"invalid":false,"score":6,"of":6,"reason":null,"vision":null,"testsAdded":0,"turns":null,"minutes":2.3,"minutesFromLog":true,"genTok":null,"tokS":null,"prefill":null,"guard":null},{"model":"muse-glimmer:30b-mlx","leg":"bugfix","run":1,"pass":true,"invalid":false,"score":6,"of":6,"reason":null,"vision":null,"testsAdded":0,"turns":null,"minutes":5,"minutesFromLog":true,"genTok":null,"tokS":null,"prefill":null,"guard":null},{"model":"muse-glimmer:30b-mlx","leg":"bugfix","run":2,"pass":true,"invalid":false,"score":6,"of":6,"reason":null,"vision":null,"testsAdded":0,"turns":null,"minutes":3.3,"minutesFromLog":true,"genTok":null,"tokS":null,"prefill":null,"guard":null},{"model":"muse-glimmer:30b-mlx","leg":"bugfix","run":3,"pass":true,"invalid":false,"score":6,"of":6,"reason":null,"vision":null,"testsAdded":0,"turns":null,"minutes":7.5,"minutesFromLog":true,"genTok":null,"tokS":null,"prefill":null,"guard":null},{"model":"qwen3-coder:30b","leg":"bugfix","run":1,"pass":false,"invalid":false,"score":0,"of":6,"reason":"shipped suite was modified","vision":null,"testsAdded":0,"turns":null,"minutes":6.9,"minutesFromLog":true,"genTok":null,"tokS":null,"prefill":null,"guard":null},{"model":"qwen3-coder:30b","leg":"bugfix","run":2,"pass":false,"invalid":false,"score":0,"of":6,"reason":null,"vision":null,"testsAdded":0,"turns":null,"minutes":8.2,"minutesFromLog":true,"genTok":null,"tokS":null,"prefill":null,"guard":null},{"model":"qwen3-coder:30b","leg":"bugfix","run":3,"pass":true,"invalid":false,"score":6,"of":6,"reason":null,"vision":null,"testsAdded":0,"turns":null,"minutes":13.5,"minutesFromLog":true,"genTok":null,"tokS":null,"prefill":null,"guard":null},{"model":"qwen3-vl:30b","leg":"bugfix","run":1,"pass":false,"invalid":false,"score":0,"of":6,"reason":null,"vision":null,"testsAdded":0,"turns":null,"minutes":18.1,"minutesFromLog":true,"genTok":null,"tokS":null,"prefill":null,"guard":null},{"model":"qwen3-vl:30b","leg":"bugfix","run":2,"pass":false,"invalid":false,"score":0,"of":6,"reason":"shipped suite was modified","vision":null,"testsAdded":0,"turns":null,"minutes":11.3,"minutesFromLog":true,"genTok":null,"tokS":null,"prefill":null,"guard":null},{"model":"qwen3-vl:30b","leg":"bugfix","run":3,"pass":false,"invalid":false,"score":0,"of":6,"reason":null,"vision":null,"testsAdded":0,"turns":null,"minutes":15.8,"minutesFromLog":true,"genTok":null,"tokS":null,"prefill":null,"guard":null},{"model":"qwen3.5:35b-a3b-coding-nvfp4","leg":"bugfix","run":1,"pass":true,"invalid":false,"score":6,"of":6,"reason":null,"vision":null,"testsAdded":0,"turns":null,"minutes":0.8,"minutesFromLog":true,"genTok":null,"tokS":null,"prefill":null,"guard":null},{"model":"qwen3.5:35b-a3b-coding-nvfp4","leg":"bugfix","run":2,"pass":true,"invalid":false,"score":6,"of":6,"reason":null,"vision":null,"testsAdded":0,"turns":null,"minutes":0.5,"minutesFromLog":true,"genTok":null,"tokS":null,"prefill":null,"guard":null},{"model":"qwen3.5:35b-a3b-coding-nvfp4","leg":"bugfix","run":3,"pass":true,"invalid":false,"score":6,"of":6,"reason":null,"vision":null,"testsAdded":0,"turns":null,"minutes":0.6,"minutesFromLog":true,"genTok":null,"tokS":null,"prefill":null,"guard":null},{"model":"gemma4:26b-mlx-bf16","leg":"exercism","run":1,"pass":true,"invalid":false,"score":31,"of":31,"reason":null,"vision":null,"testsAdded":null,"turns":15,"minutes":7.5,"minutesFromLog":false,"genTok":16526,"tokS":38.4,"prefill":0.031,"guard":null},{"model":"gemma4:26b-mlx-bf16","leg":"exercism","run":2,"pass":true,"invalid":false,"score":31,"of":31,"reason":null,"vision":null,"testsAdded":null,"turns":13,"minutes":8.1,"minutesFromLog":false,"genTok":18347,"tokS":38.9,"prefill":0.022,"guard":null},{"model":"gemma4:26b-mlx-bf16","leg":"exercism","run":3,"pass":true,"invalid":false,"score":31,"of":31,"reason":null,"vision":null,"testsAdded":null,"turns":10,"minutes":8.3,"minutesFromLog":false,"genTok":17925,"tokS":38.4,"prefill":0.058,"guard":null},{"model":"gpt-oss:20b","leg":"exercism","run":1,"pass":false,"invalid":false,"score":26,"of":31,"reason":null,"vision":null,"testsAdded":null,"turns":12,"minutes":6.5,"minutesFromLog":false,"genTok":15104,"tokS":41.4,"prefill":0.056,"guard":null},{"model":"gpt-oss:20b","leg":"exercism","run":2,"pass":false,"invalid":false,"score":4,"of":31,"reason":null,"vision":null,"testsAdded":null,"turns":13,"minutes":5.3,"minutesFromLog":false,"genTok":9951,"tokS":36.5,"prefill":0.121,"guard":null},{"model":"gpt-oss:20b","leg":"exercism","run":3,"pass":false,"invalid":false,"score":29,"of":31,"reason":null,"vision":null,"testsAdded":null,"turns":7,"minutes":4.3,"minutesFromLog":false,"genTok":9099,"tokS":36.4,"prefill":0.03,"guard":null},{"model":"laguna-xs.2:nvfp4","leg":"exercism","run":1,"pass":false,"invalid":false,"score":0,"of":31,"reason":"test count shrank — suite was modified","vision":null,"testsAdded":null,"turns":null,"minutes":131.3,"minutesFromLog":true,"genTok":null,"tokS":null,"prefill":null,"guard":null},{"model":"laguna-xs.2:nvfp4","leg":"exercism","run":2,"pass":false,"invalid":false,"score":0,"of":31,"reason":null,"vision":null,"testsAdded":null,"turns":8,"minutes":15.2,"minutesFromLog":false,"genTok":412,"tokS":98.8,"prefill":0.696,"guard":null},{"model":"laguna-xs.2:nvfp4","leg":"exercism","run":3,"pass":false,"invalid":false,"score":28,"of":31,"reason":null,"vision":null,"testsAdded":null,"turns":200,"minutes":126.6,"minutesFromLog":false,"genTok":243318,"tokS":48,"prefill":0.235,"guard":null},{"model":"muse-glimmer:30b-mlx","leg":"exercism","run":1,"pass":true,"invalid":false,"score":31,"of":31,"reason":null,"vision":null,"testsAdded":null,"turns":21,"minutes":20.7,"minutesFromLog":false,"genTok":19328,"tokS":19.3,"prefill":0.19,"guard":null},{"model":"muse-glimmer:30b-mlx","leg":"exercism","run":2,"pass":true,"invalid":false,"score":31,"of":31,"reason":null,"vision":null,"testsAdded":null,"turns":11,"minutes":16.8,"minutesFromLog":false,"genTok":19040,"tokS":19.9,"prefill":0.048,"guard":null},{"model":"muse-glimmer:30b-mlx","leg":"exercism","run":3,"pass":true,"invalid":false,"score":31,"of":31,"reason":null,"vision":null,"testsAdded":null,"turns":14,"minutes":18.3,"minutesFromLog":false,"genTok":19343,"tokS":18.8,"prefill":0.06,"guard":null},{"model":"qwen3-coder:30b","leg":"exercism","run":1,"pass":false,"invalid":false,"score":24,"of":31,"reason":null,"vision":null,"testsAdded":null,"turns":76,"minutes":14.3,"minutesFromLog":false,"genTok":23070,"tokS":41.3,"prefill":0.311,"guard":null},{"model":"qwen3-coder:30b","leg":"exercism","run":2,"pass":false,"invalid":false,"score":20,"of":31,"reason":null,"vision":null,"testsAdded":null,"turns":96,"minutes":21.4,"minutesFromLog":false,"genTok":35456,"tokS":42.7,"prefill":0.324,"guard":null},{"model":"qwen3-coder:30b","leg":"exercism","run":3,"pass":false,"invalid":false,"score":23,"of":31,"reason":null,"vision":null,"testsAdded":null,"turns":41,"minutes":6.8,"minutesFromLog":false,"genTok":13148,"tokS":48.2,"prefill":0.301,"guard":null},{"model":"qwen3-vl:30b","leg":"exercism","run":1,"pass":false,"invalid":false,"score":25,"of":31,"reason":null,"vision":null,"testsAdded":null,"turns":11,"minutes":12.4,"minutesFromLog":false,"genTok":26040,"tokS":36.6,"prefill":0.035,"guard":null},{"model":"qwen3-vl:30b","leg":"exercism","run":2,"pass":false,"invalid":false,"score":20,"of":31,"reason":null,"vision":null,"testsAdded":null,"turns":11,"minutes":25.3,"minutesFromLog":false,"genTok":54974,"tokS":37.1,"prefill":0.021,"guard":null},{"model":"qwen3-vl:30b","leg":"exercism","run":3,"pass":false,"invalid":false,"score":22,"of":31,"reason":null,"vision":null,"testsAdded":null,"turns":16,"minutes":25.1,"minutesFromLog":false,"genTok":50129,"tokS":36.8,"prefill":0.089,"guard":null},{"model":"qwen3.5:35b-a3b-coding-nvfp4","leg":"exercism","run":1,"pass":true,"invalid":false,"score":31,"of":31,"reason":null,"vision":null,"testsAdded":null,"turns":18,"minutes":3.3,"minutesFromLog":false,"genTok":12454,"tokS":73.1,"prefill":0.136,"guard":null},{"model":"qwen3.5:35b-a3b-coding-nvfp4","leg":"exercism","run":2,"pass":false,"invalid":false,"score":5,"of":31,"reason":null,"vision":null,"testsAdded":null,"turns":500,"minutes":207.1,"minutesFromLog":false,"genTok":741621,"tokS":69,"prefill":0.13,"guard":"guard hit"},{"model":"qwen3.5:35b-a3b-coding-nvfp4","leg":"exercism","run":3,"pass":true,"invalid":false,"score":31,"of":31,"reason":null,"vision":null,"testsAdded":null,"turns":11,"minutes":0.6,"minutesFromLog":false,"genTok":2566,"tokS":99.1,"prefill":0.248,"guard":null},{"model":"gemma4:26b-mlx-bf16","leg":"greenfield","run":1,"pass":true,"invalid":false,"score":7,"of":8,"reason":null,"vision":"sidecar","testsAdded":null,"turns":5,"minutes":5.6,"minutesFromLog":false,"genTok":11129,"tokS":42.5,"prefill":0.075,"guard":null},{"model":"gemma4:26b-mlx-bf16","leg":"greenfield","run":2,"pass":true,"invalid":false,"score":8,"of":8,"reason":null,"vision":"sidecar","testsAdded":null,"turns":7,"minutes":6.9,"minutesFromLog":false,"genTok":13706,"tokS":40.7,"prefill":0.065,"guard":null},{"model":"gemma4:26b-mlx-bf16","leg":"greenfield","run":3,"pass":false,"invalid":false,"score":3,"of":8,"reason":null,"vision":"sidecar","testsAdded":null,"turns":8,"minutes":7.5,"minutesFromLog":false,"genTok":15064,"tokS":40.9,"prefill":0.062,"guard":null},{"model":"gpt-oss:20b","leg":"greenfield","run":1,"pass":true,"invalid":false,"score":8,"of":8,"reason":null,"vision":"sidecar","testsAdded":null,"turns":45,"minutes":18.5,"minutesFromLog":false,"genTok":36985,"tokS":44.9,"prefill":0.102,"guard":null},{"model":"gpt-oss:20b","leg":"greenfield","run":2,"pass":true,"invalid":false,"score":8,"of":8,"reason":null,"vision":"sidecar","testsAdded":null,"turns":19,"minutes":16.6,"minutesFromLog":false,"genTok":32137,"tokS":37.8,"prefill":0.077,"guard":null},{"model":"gpt-oss:20b","leg":"greenfield","run":3,"pass":true,"invalid":false,"score":8,"of":8,"reason":null,"vision":"sidecar","testsAdded":null,"turns":7,"minutes":5.5,"minutesFromLog":false,"genTok":9262,"tokS":39.1,"prefill":0.048,"guard":null},{"model":"laguna-xs.2:nvfp4","leg":"greenfield","run":1,"pass":false,"invalid":false,"score":2,"of":8,"reason":null,"vision":"sidecar","testsAdded":null,"turns":12,"minutes":22.3,"minutesFromLog":false,"genTok":20840,"tokS":63.5,"prefill":0.118,"guard":null},{"model":"laguna-xs.2:nvfp4","leg":"greenfield","run":2,"pass":false,"invalid":false,"score":3,"of":8,"reason":null,"vision":"sidecar","testsAdded":null,"turns":61,"minutes":70.1,"minutesFromLog":false,"genTok":123853,"tokS":46.4,"prefill":0.188,"guard":null},{"model":"laguna-xs.2:nvfp4","leg":"greenfield","run":3,"pass":false,"invalid":false,"score":2,"of":8,"reason":null,"vision":"sidecar","testsAdded":null,"turns":60,"minutes":88.7,"minutesFromLog":false,"genTok":155332,"tokS":46.6,"prefill":0.22,"guard":null},{"model":"muse-glimmer:30b-mlx","leg":"greenfield","run":1,"pass":true,"invalid":false,"score":8,"of":8,"reason":null,"vision":"native","testsAdded":null,"turns":12,"minutes":13.6,"minutesFromLog":false,"genTok":14616,"tokS":20.2,"prefill":0.105,"guard":null},{"model":"muse-glimmer:30b-mlx","leg":"greenfield","run":2,"pass":true,"invalid":false,"score":8,"of":8,"reason":null,"vision":"native","testsAdded":null,"turns":5,"minutes":4.6,"minutesFromLog":false,"genTok":4900,"tokS":22.3,"prefill":0.198,"guard":null},{"model":"muse-glimmer:30b-mlx","leg":"greenfield","run":3,"pass":true,"invalid":false,"score":8,"of":8,"reason":null,"vision":"native","testsAdded":null,"turns":7,"minutes":9.8,"minutesFromLog":false,"genTok":10107,"tokS":19,"prefill":0.09,"guard":null},{"model":"qwen3-coder:30b","leg":"greenfield","run":1,"pass":false,"invalid":false,"score":4,"of":8,"reason":null,"vision":"sidecar","testsAdded":null,"turns":7,"minutes":2.4,"minutesFromLog":false,"genTok":4910,"tokS":55.1,"prefill":0.092,"guard":null},{"model":"qwen3-coder:30b","leg":"greenfield","run":2,"pass":true,"invalid":false,"score":7,"of":8,"reason":null,"vision":"sidecar","testsAdded":null,"turns":5,"minutes":2.2,"minutesFromLog":false,"genTok":5343,"tokS":54.5,"prefill":0.018,"guard":null},{"model":"qwen3-coder:30b","leg":"greenfield","run":3,"pass":true,"invalid":false,"score":7,"of":8,"reason":null,"vision":"sidecar","testsAdded":null,"turns":8,"minutes":3.3,"minutesFromLog":false,"genTok":9098,"tokS":60.9,"prefill":0.026,"guard":null},{"model":"qwen3-vl:30b","leg":"greenfield","run":1,"pass":true,"invalid":false,"score":8,"of":8,"reason":null,"vision":"native","testsAdded":null,"turns":5,"minutes":10.1,"minutesFromLog":false,"genTok":22508,"tokS":39.5,"prefill":0.052,"guard":null},{"model":"qwen3-vl:30b","leg":"greenfield","run":2,"pass":true,"invalid":false,"score":8,"of":8,"reason":null,"vision":"native","testsAdded":null,"turns":5,"minutes":10.5,"minutesFromLog":false,"genTok":24069,"tokS":40.4,"prefill":0.048,"guard":null},{"model":"qwen3-vl:30b","leg":"greenfield","run":3,"pass":true,"invalid":false,"score":7,"of":8,"reason":null,"vision":"native","testsAdded":null,"turns":4,"minutes":10.6,"minutesFromLog":false,"genTok":23805,"tokS":39.9,"prefill":0.059,"guard":null},{"model":"qwen3.5:35b-a3b-coding-nvfp4","leg":"greenfield","run":1,"pass":false,"invalid":false,"score":2,"of":8,"reason":null,"vision":"native","testsAdded":null,"turns":8,"minutes":4,"minutesFromLog":false,"genTok":15496,"tokS":73,"prefill":0.105,"guard":null},{"model":"qwen3.5:35b-a3b-coding-nvfp4","leg":"greenfield","run":2,"pass":false,"invalid":false,"score":7,"of":8,"reason":null,"vision":"native","testsAdded":null,"turns":4,"minutes":3.3,"minutesFromLog":false,"genTok":6233,"tokS":88.5,"prefill":0.085,"guard":null},{"model":"qwen3.5:35b-a3b-coding-nvfp4","leg":"greenfield","run":3,"pass":false,"invalid":false,"score":6,"of":8,"reason":null,"vision":"native","testsAdded":null,"turns":3,"minutes":1,"minutesFromLog":false,"genTok":5648,"tokS":104.3,"prefill":0.085,"guard":null}];
 const LABEL = {"bugfix":"Repair","exercism":"Implement","greenfield":"Build"};
 let key = 'model', dir = 1;
 
@@ -478,7 +542,7 @@ function render(){
       + '<td class="num">' + scoreCell(r) + '</td>'
       + '<td>' + (r.vision || '<span class="dim">—</span>') + '</td>'
       + '<td class="num">' + (r.turns == null ? '' : r.turns) + '</td>'
-      + '<td class="num">' + (r.minutes == null ? '' : r.minutes) + '</td>'
+      + '<td class="num">' + (r.minutes == null ? '' : r.minutes + (r.minutesFromLog ? '<span class="dim" title="recovered from the run log: loop metrics for this leg were overwritten">*</span>' : '')) + '</td>'
       + '<td class="num">' + (r.genTok ? r.genTok.toLocaleString() : '') + '</td>'
       + '<td class="num">' + (r.tokS == null ? '' : r.tokS) + '</td>'
       + '<td class="num">' + (r.prefill == null ? '' : r.prefill) + '</td>'

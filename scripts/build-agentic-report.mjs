@@ -8,7 +8,7 @@
 // Inputs:  caxi-results/agentic-{bugfix,exercism,greenfield}-{model}-r{N}.json
 // Output:  caxi-results/agentic-report.html
 
-import { readdirSync, readFileSync, writeFileSync, statSync } from 'fs';
+import { readdirSync, readFileSync, writeFileSync, statSync, existsSync } from 'fs';
 import { join } from 'path';
 
 const RESULTS = join(import.meta.dirname, '..', 'caxi-results');
@@ -76,7 +76,14 @@ for (const f of readdirSync(RESULTS)) {
     vision: d.vision_mode || (loop.vision || {}).mode || null,
     testsAdded: d.tests_added ?? null,
     turns: loop.turns ?? null,
-    minutes: loop.wall_ms ? +(loop.wall_ms / 60000).toFixed(1) : null,
+    // Bug-fix rows predate the per-leg loop file, so their loop metrics were
+    // overwritten by the next leg. Wall time survived in the run log's START/DONE
+    // lines; a log-derived duration is flagged so it is never mistaken for
+    // instrumented data.
+    minutes: loop.wall_ms
+      ? +(loop.wall_ms / 60000).toFixed(1)
+      : (d.wall_min_from_log ?? null),
+    minutesFromLog: !loop.wall_ms && d.wall_min_from_log != null,
     genTok: (loop.tokens || {}).completion ?? null,
     tokS: rates.generate_tok_s ?? null,
     prefill: rates.prefill_share ?? null,
@@ -87,10 +94,33 @@ for (const f of readdirSync(RESULTS)) {
 // ---------- per-model rollup ----------
 // Sweep duration from first to last result file: the only measure that survives
 // rows whose loop metrics were dropped, and it updates itself on the next run.
+function sweepHoursFromLog() {
+  const dir = join(import.meta.dirname, '..', 'logs');
+  if (!existsSync(dir)) return null;
+  const logs = readdirSync(dir)
+    .filter((f) => /^agentic-.*\.log$/.test(f))
+    .map((f) => ({ f, m: statSync(join(dir, f)).mtimeMs }))
+    .sort((a, b) => b.m - a.m);
+  for (const { f } of logs) {
+    const txt = readFileSync(join(dir, f), 'utf8');
+    const times = [...txt.matchAll(/^\s*(\d\d):(\d\d):(\d\d)\s+(?:START|DONE)/gm)]
+      .map((m) => +m[1] * 3600 + +m[2] * 60 + +m[3]);
+    if (times.length < 2) continue;
+    // Legs run in order, so a timestamp lower than its predecessor crossed midnight.
+    let span = 0;
+    for (let i = 1; i < times.length; i++) {
+      const d = times[i] - times[i - 1];
+      span += d < 0 ? d + 86400 : d;
+    }
+    return (span / 3600).toFixed(1);
+  }
+  return null;
+}
+
 const stamps = rows.map((r) => r.mtime).filter(Boolean);
-const sweepHours = stamps.length
-  ? ((Math.max(...stamps) - Math.min(...stamps)) / 3.6e6).toFixed(1)
-  : null;
+const sweepHours =
+  sweepHoursFromLog() ??
+  (stamps.length ? ((Math.max(...stamps) - Math.min(...stamps)) / 3.6e6).toFixed(1) : null);
 
 const models = [...new Set(rows.map((r) => r.model))].map((name) => {
   const mine = rows.filter((r) => r.model === name);
@@ -119,11 +149,24 @@ const models = [...new Set(rows.map((r) => r.model))].map((name) => {
     worstMin: Math.max(...mine.map((r) => r.minutes || 0)),
     tokS: med(mine.map((r) => r.tokS)),
     totalTok: mine.reduce((a, r) => a + (r.genTok || 0), 0),
+    totalMin: mine.reduce((a, r) => a + (r.minutes || 0), 0),
   };
 }).sort((a, b) => b.passed - a.passed
   || b.flawless - a.flawless
   || (b.legs.exercism.ratio || 0) - (a.legs.exercism.ratio || 0)
   || a.medMin - b.medMin);
+
+// What a model costs to get its result is half the airplane question: a laptop on
+// battery pays for every minute and every token. Scale each against the cheapest
+// model in the field so the bars mean "relative to the best case here".
+const minTime = Math.min(...models.map((m) => m.totalMin).filter((x) => x > 0));
+const minTok = Math.min(...models.map((m) => m.totalTok).filter((x) => x > 0));
+for (const m of models) {
+  m.timeVsBest = m.totalMin && minTime ? m.totalMin / minTime : null;
+  m.tokVsBest = m.totalTok && minTok ? m.totalTok / minTok : null;
+}
+const maxTime = Math.max(...models.map((m) => m.totalMin));
+const maxTok = Math.max(...models.map((m) => m.totalTok));
 
 // ---------- notable moments, derived from the data not narrated ----------
 const notes = [];
@@ -226,10 +269,17 @@ const card = (m, i) => {
   }).join('')}
   </div>
   <footer>
-    <span title="median leg duration">⏱ ${m.medMin ?? '?'} min median</span>
-    <span title="worst single leg">· worst ${m.worstMin.toFixed(0)} min</span>
-    ${m.tokS ? `<span>· ${m.tokS} tok/s</span>` : ''}
-    <span>· ${(m.totalTok / 1000).toFixed(0)}k tokens spent</span>
+    <div class="cost">
+      <span class="clabel">time</span>
+      <span class="cbar"><i class="t" style="width:${Math.max(2, (m.totalMin / maxTime) * 100).toFixed(0)}%"></i></span>
+      <span class="cval">${(m.totalMin / 60).toFixed(1)}h${m.timeVsBest > 1.15 ? ` <em>${m.timeVsBest.toFixed(1)}×</em>` : ''}</span>
+    </div>
+    <div class="cost">
+      <span class="clabel">tokens</span>
+      <span class="cbar"><i class="k" style="width:${Math.max(2, (m.totalTok / maxTok) * 100).toFixed(0)}%"></i></span>
+      <span class="cval">${(m.totalTok / 1000).toFixed(0)}k${m.tokVsBest > 1.15 ? ` <em>${m.tokVsBest.toFixed(1)}×</em>` : ''}</span>
+    </div>
+    <div class="costnote">${m.medMin ?? '?'} min median leg · worst ${m.worstMin.toFixed(0)} min${m.tokS ? ` · ${m.tokS} tok/s` : ''}</div>
   </footer>
 </article>`;
 };
@@ -271,9 +321,9 @@ h1{font-size:clamp(1.9rem,4.5vw,3rem);line-height:1.1;margin:.5rem 0 .75rem;
 h2.sec{font-size:1.05rem;letter-spacing:.02em;margin:2.75rem 0 .35rem}
 p.secsub{color:var(--dim);font-size:.88rem;margin:0 0 1.25rem}
 
-.legend{display:flex;gap:1.25rem;flex-wrap:wrap;color:var(--dim);font-size:.82rem;
-  border-left:2px solid var(--line2);padding:.35rem 0 .35rem .85rem;margin-bottom:1.5rem}
-.legend b{color:var(--fg);font-weight:600}
+.legend{display:grid;gap:.3rem;color:var(--dim);font-size:.85rem;
+  border-left:2px solid var(--line2);padding:.45rem 0 .45rem .95rem;margin-bottom:1.5rem}
+.legend b{color:var(--fg);font-weight:600;display:inline-block;min-width:5.4rem}
 
 .grid{display:grid;gap:1rem}
 .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:1.1rem 1.25rem}
@@ -305,7 +355,17 @@ p.secsub{color:var(--dim);font-size:.88rem;margin:0 0 1.25rem}
 .legscore em{color:var(--dim);font-style:normal;font-size:.74rem}
 .spark{display:block}
 .card footer{margin-top:.9rem;padding-top:.7rem;border-top:1px solid var(--line);
-  color:var(--dim);font-size:.78rem;display:flex;gap:.35rem;flex-wrap:wrap}
+  color:var(--dim);font-size:.78rem}
+.cost{display:grid;grid-template-columns:3.1rem 1fr 5.4rem;gap:.5rem;align-items:center;
+  margin-bottom:.25rem}
+.clabel{font-size:.72rem;text-transform:uppercase;letter-spacing:.06em}
+.cbar{display:block;height:.38rem;background:var(--panel2);border-radius:99px;overflow:hidden}
+.cbar i{display:block;height:100%;border-radius:99px;opacity:.85}
+.cbar i.t{background:linear-gradient(90deg,#5b8def,#8fb6ff)}
+.cbar i.k{background:linear-gradient(90deg,#b06fd8,#d2a3f0)}
+.cval{text-align:right;font-variant-numeric:tabular-nums;font-size:.76rem;color:var(--fg)}
+.cval em{font-style:normal;color:var(--warn);font-size:.72rem}
+.costnote{margin-top:.4rem;font-size:.74rem}
 
 .notes{display:grid;gap:.75rem;grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
 .note{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:1rem 1.1rem}
@@ -407,7 +467,12 @@ ${notes.map((n) => `<div class="note"><div class="ic">${n.icon}</div><h4>${n.tit
   fixed" having written nothing at all.<br>
   <b>INVALID</b> means the harness failed, not the model.
   ${staleCount ? `${staleCount} row(s) from an earlier sweep excluded. ` : ''}
-  Generated ${new Date().toISOString().slice(0, 16).replace('T', ' ')} · Apple M4 Max, 128 GB · Ollama 0.32.9
+  Generated ${new Date().toISOString().slice(0, 16).replace('T', ' ')}<br>
+  <b>Harness</b> local-llm-bench agentic driver · Ollama <code>/api/chat</code> tool calling, non-streaming ·
+  32k context cap, sliding-window history · tools: list_dir, read_file, write_file, run_command, screenshot, done ·
+  each command in its own process group, 120s cap · 15-min per-request ceiling ·
+  40-min / 250k-token leg budget · fresh fixture copy per attempt, no network<br>
+  <b>Machine</b> Apple M4 Max, 128 GB unified · macOS · Ollama 0.32.9 (MLX engine for safetensors, llama.cpp for GGUF)
 </footer>
 
 <script>
@@ -447,7 +512,7 @@ function render(){
       + '<td class="num">' + scoreCell(r) + '</td>'
       + '<td>' + (r.vision || '<span class="dim">—</span>') + '</td>'
       + '<td class="num">' + (r.turns == null ? '' : r.turns) + '</td>'
-      + '<td class="num">' + (r.minutes == null ? '' : r.minutes) + '</td>'
+      + '<td class="num">' + (r.minutes == null ? '' : r.minutes + (r.minutesFromLog ? '<span class="dim" title="recovered from the run log: loop metrics for this leg were overwritten">*</span>' : '')) + '</td>'
       + '<td class="num">' + (r.genTok ? r.genTok.toLocaleString() : '') + '</td>'
       + '<td class="num">' + (r.tokS == null ? '' : r.tokS) + '</td>'
       + '<td class="num">' + (r.prefill == null ? '' : r.prefill) + '</td>'
