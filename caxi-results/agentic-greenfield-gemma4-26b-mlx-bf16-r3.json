@@ -1,0 +1,56 @@
+{
+  "model": "gemma4:26b-mlx-bf16",
+  "benchmark": "agentic-greenfield",
+  "pass": false,
+  "score": 3,
+  "tiers": {
+    "loads_clean": true,
+    "has_canvas": true,
+    "game_starts": false,
+    "gravity_alive": false,
+    "left_moves": false,
+    "right_moves": false,
+    "rotate_works": false,
+    "has_score": true
+  },
+  "vision_mode": "sidecar",
+  "loop": {
+    "benchmark": "agentic",
+    "model": "gemma4:26b-mlx-bf16",
+    "turns": 8,
+    "tool_calls": 8,
+    "malformed_calls": 0,
+    "wasted_calls": 0,
+    "failed_commands": 0,
+    "repeated_failures": 0,
+    "recovered": null,
+    "declared_done": true,
+    "hit_guard": false,
+    "tokens": {
+      "prompt": 72475,
+      "completion": 15064
+    },
+    "durations_ns": {
+      "load": 856941419,
+      "prompt_eval": 24568374709,
+      "eval": 368382492877,
+      "total": 394524265125
+    },
+    "vision": {
+      "mode": "sidecar",
+      "screenshots": 3,
+      "sidecar_tokens": {
+        "prompt": 3360,
+        "completion": 2317
+      }
+    },
+    "wall_ms": 448855,
+    "history_trimmed": false,
+    "errors": [],
+    "rates": {
+      "prefill_tok_s": 2949.9,
+      "generate_tok_s": 40.9,
+      "prefill_share": 0.062
+    }
+  }
+}

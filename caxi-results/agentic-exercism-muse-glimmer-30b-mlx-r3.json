@@ -1,0 +1,47 @@
+{
+  "model": "muse-glimmer:30b-mlx",
+  "benchmark": "agentic-exercism",
+  "pass": true,
+  "solved": 31,
+  "of": 31,
+  "loop": {
+    "benchmark": "agentic",
+    "model": "muse-glimmer:30b-mlx",
+    "turns": 14,
+    "tool_calls": 14,
+    "malformed_calls": 0,
+    "wasted_calls": 0,
+    "failed_commands": 1,
+    "repeated_failures": 0,
+    "recovered": true,
+    "declared_done": true,
+    "hit_guard": false,
+    "tokens": {
+      "prompt": 153071,
+      "completion": 19343
+    },
+    "durations_ns": {
+      "load": 648466374,
+      "prompt_eval": 66081547124,
+      "eval": 1028938736998,
+      "total": 1098789975416
+    },
+    "vision": {
+      "mode": null,
+      "screenshots": 0,
+      "sidecar_tokens": {
+        "prompt": 0,
+        "completion": 0
+      }
+    },
+    "wall_ms": 1099599,
+    "history_trimmed": false,
+    "errors": [],
+    "rates": {
+      "prefill_tok_s": 2316.4,
+      "generate_tok_s": 18.8,
+      "prefill_share": 0.06
+    },
+    "novel_failures": 1
+  }
+}

@@ -1,0 +1,97 @@
+{
+  "benchmark": "agentic",
+  "model": "gpt-oss:20b",
+  "turns": 7,
+  "tool_calls": 7,
+  "malformed_calls": 0,
+  "wasted_calls": 0,
+  "failed_commands": 0,
+  "repeated_failures": 0,
+  "recovered": null,
+  "declared_done": true,
+  "hit_guard": false,
+  "tokens": {
+    "prompt": 38708,
+    "completion": 9262
+  },
+  "durations_ns": {
+    "load": 3517615500,
+    "prompt_eval": 12104453000,
+    "eval": 236787671999,
+    "total": 252843430959
+  },
+  "vision": {
+    "mode": "sidecar",
+    "screenshots": 3,
+    "sidecar_tokens": {
+      "prompt": 3360,
+      "completion": 2058
+    }
+  },
+  "wall_ms": 327630,
+  "history_trimmed": false,
+  "errors": [],
+  "rates": {
+    "prefill_tok_s": 3197.8,
+    "generate_tok_s": 39.1,
+    "prefill_share": 0.048
+  },
+  "transcript": [
+    {
+      "turn": 1,
+      "tool": "write_file",
+      "args": {
+        "path": "tetris.html",
+        "bytes": 5077
+      },
+      "result": "wrote tetris.html (5077 bytes)"
+    },
+    {
+      "turn": 2,
+      "tool": "screenshot",
+      "args": {
+        "path": "tetris.html"
+      },
+      "result": "Screenshot description (via vision model):\nThe screenshot shows a minimalist web app layout with a dark gray background. On the left, there is a rectangular area with a black interior and a light gray border. Inside this black rectangle, at the top center, there is a green Tetris - style shape consisting of four blocks (three horizontally aligned blocks with one block stacked above the middle block). To the right of this rectangular area, the text “Score” appears in white, bold, sans - serif font. Directly below “Score”, the number “0” is displayed in white, sans - serif font. There are no visible controls, interactive elements, or additional UI components. The layout is simple, with no overlapping elements, broken visual elements, or unstyled parts. Colors used are dark gray (background), black (inner rectangle), light gray (border), green (Tetris shape), and white (text)."
+    },
+    {
+      "turn": 3,
+      "tool": "write_file",
+      "args": {
+        "path": "tetris.html",
+        "bytes": 5708
+      },
+      "result": "wrote tetris.html (5708 bytes)"
+    },
+    {
+      "turn": 4,
+      "tool": "screenshot",
+      "args": {
+        "path": "tetris.html"
+      },
+      "result": "Screenshot description (via vision model):\nThe screenshot shows a dark - themed web app interface. On the left, there is a vertical grid composed of small, dark gray squares with light gray grid lines. Within the top row of this grid, three adjacent squares are filled with bright green color, forming an L - shaped block (two squares stacked vertically on the left, with one square extending horizontally to the right from the top square). The remaining cells in the grid are black (empty). To the right of the grid, the word “Score” is displayed in white, uppercase, sans - serif text, positioned directly above a large white “0”. The entire screen’s background is dark gray. There are no visible interactive controls, menus, or other UI elements. The layout has clear separation between the grid and the score display, and all visible text and graphical elements use consistent styling (dark background, light grid lines, bright green block, white text)."
+    },
+    {
+      "turn": 5,
+      "tool": "write_file",
+      "args": {
+        "path": "tetris.html",
+        "bytes": 5741
+      },
+      "result": "wrote tetris.html (5741 bytes)"
+    },
+    {
+      "turn": 6,
+      "tool": "screenshot",
+      "args": {
+        "path": "tetris.html"
+      },
+      "result": "Screenshot description (via vision model):\nThe screenshot displays a dark gray background. On the left side, there is a rectangular grid composed of small square cells; the cells are black with light gray grid lines. At the top of this grid, four adjacent cells form a bright green shape resembling a Tetris piece (a \"T\" - shaped tetromino). The rest of the grid cells are empty (black). On the right side of the screen, there is white text: the word \"Score\" appears first, followed by the number \"0\" directly below it. There are no visible controls (e.g., buttons, sliders) in the screenshot. The text is clearly legible and not overlapping with other elements. The grid lines are evenly spaced, and all visible elements appear styled without signs of breaking, blank areas, or unstyled content."
+    },
+    {
+      "turn": 7,
+      "tool": "done",
+      "summary": "Implemented a fully functional Tetris game in a single HTML file with a dark theme, grid lines, piece rotation using up arrow, left/right movement, gravity, line clearing with score updates, and a clear score display. All assets are self‑contained, and the game runs without external dependencies."
+    }
+  ]
+}

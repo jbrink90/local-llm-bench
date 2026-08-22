@@ -1,0 +1,10 @@
+ParserState.prototype.parseComparison = function (instr) {
+  this.parseAddSub(instr);
+  while (this.accept(TOP, COMPARISON_OPERATORS)) {
+    var op = this.current;
+    this.parseAddSub(instr);
+    instr.push(binaryInstruction(op.value));
+  }
+};
+
+var ADD_SUB_OPERATORS = ["*", "/", "

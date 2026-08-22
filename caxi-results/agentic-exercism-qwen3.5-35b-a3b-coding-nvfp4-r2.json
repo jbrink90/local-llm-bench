@@ -1,0 +1,48 @@
+{
+  "model": "qwen3.5:35b-a3b-coding-nvfp4",
+  "benchmark": "agentic-exercism",
+  "pass": false,
+  "solved": 5,
+  "of": 31,
+  "loop": {
+    "benchmark": "agentic",
+    "model": "qwen3.5:35b-a3b-coding-nvfp4",
+    "turns": 500,
+    "tool_calls": 501,
+    "malformed_calls": 0,
+    "wasted_calls": 1,
+    "failed_commands": 11,
+    "repeated_failures": 10,
+    "recovered": false,
+    "declared_done": false,
+    "hit_guard": true,
+    "tokens": {
+      "prompt": 11514845,
+      "completion": 741621
+    },
+    "durations_ns": {
+      "load": 29472840382,
+      "prompt_eval": 1611505519912,
+      "eval": 10753537483958,
+      "total": 12418928225090
+    },
+    "vision": {
+      "mode": null,
+      "screenshots": 0,
+      "sidecar_tokens": {
+        "prompt": 0,
+        "completion": 0
+      }
+    },
+    "wall_ms": 12425700,
+    "history_trimmed": true,
+    "errors": [],
+    "trim_advances": 81,
+    "rates": {
+      "prefill_tok_s": 7145.4,
+      "generate_tok_s": 69,
+      "prefill_share": 0.13
+    },
+    "novel_failures": 1
+  }
+}

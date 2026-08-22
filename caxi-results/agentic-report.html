@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<title>Agentic dimension — local model report</title>
+<style>
+:root { color-scheme: dark; --bg:#0f1115; --fg:#e6e6e6; --dim:#8b93a1; --line:#262b35;
+        --ok:#3ba55d; --bad:#d64545; --warn:#d99b28; --accent:#5b9dd9; }
+* { box-sizing: border-box; }
+body { margin:0; padding:2rem; background:var(--bg); color:var(--fg);
+       font:14px/1.5 ui-sans-serif,-apple-system,"Segoe UI",sans-serif; }
+h1 { font-size:1.4rem; margin:0 0 .25rem; }
+p.sub { color:var(--dim); margin:0 0 1.5rem; }
+table { border-collapse:collapse; width:100%; margin-bottom:2.5rem; }
+th, td { text-align:left; padding:.45rem .6rem; border-bottom:1px solid var(--line); }
+th { position:sticky; top:0; background:#161a21; cursor:pointer; user-select:none;
+     font-weight:600; white-space:nowrap; }
+th:hover { color:var(--accent); }
+th::after { content:''; color:var(--dim); }
+th.asc::after { content:' ▲'; }
+th.desc::after { content:' ▼'; }
+td.num { text-align:right; font-variant-numeric:tabular-nums; }
+tr:hover td { background:#151922; }
+.pass { color:var(--ok); font-weight:600; }
+.fail { color:var(--bad); font-weight:600; }
+.inv  { color:var(--warn); font-weight:600; }
+.dim  { color:var(--dim); }
+.bar { display:inline-block; height:.55rem; border-radius:2px; background:var(--accent);
+       vertical-align:middle; margin-right:.4rem; }
+.controls { display:flex; gap:.75rem; align-items:center; margin-bottom:.75rem; flex-wrap:wrap; }
+input, select { background:#161a21; color:var(--fg); border:1px solid var(--line);
+                border-radius:4px; padding:.35rem .5rem; font:inherit; }
+.badge { font-size:.75rem; padding:.1rem .4rem; border:1px solid var(--line);
+         border-radius:3px; color:var(--dim); }
+.note { color:var(--dim); font-size:.85rem; border-left:2px solid var(--line);
+        padding-left:.75rem; margin:1rem 0 2rem; }
+</style></head><body>
+
+<h1>Agentic dimension — local coding agents</h1>
+<p class="sub">Generated 2026-08-22 02:57 ·
+63 legs · 7 models · localhost only, no network during runs</p>
+
+<div class="note">
+The artifact is the only gate. Loop metrics (turns, tokens, throughput) are reported
+and never used to pass or fail: on the first smoke run a model called <code>done()</code>
+reporting "operator precedence logic fixed" having written nothing at all.
+<strong>INVALID</strong> means the harness failed, not the model — recorded as
+<code>pass=null</code> so a timeout never reads as a zero.
+<br>1 row(s) from an earlier sweep excluded.
+</div>
+
+<h2>Per-leg results</h2>
+<div class="controls">
+  <input id="q" placeholder="filter model or leg…" size="28">
+  <select id="legf">
+    <option value="">all legs</option>
+    <option value="bugfix">bugfix</option>
+    <option value="exercism">exercism</option>
+    <option value="greenfield">greenfield</option>
+  </select>
+  <label class="badge"><input type="checkbox" id="onlyfail"> problems only</label>
+  <span class="dim" id="count"></span>
+</div>
+<table id="t">
+<thead><tr>
+  <th data-k="model">model</th>
+  <th data-k="leg">leg</th>
+  <th data-k="run" class="num">run</th>
+  <th data-k="verdict">verdict</th>
+  <th data-k="score" class="num">score</th>
+  <th data-k="vision">vision</th>
+  <th data-k="turns" class="num">turns</th>
+  <th data-k="minutes" class="num">min</th>
+  <th data-k="gen_tok" class="num">gen tok</th>
+  <th data-k="gen_tok_s" class="num">tok/s</th>
+  <th data-k="prefill_share" class="num">prefill</th>
+  <th data-k="tests_added" class="num">+tests</th>
+  <th data-k="reason">note</th>
+</tr></thead>
+<tbody></tbody>
+</table>
+
+<script>
+const ROWS = [{"model":"gemma4:26b-mlx-bf16","leg":"bugfix","run":1,"pass":true,"invalid":false,"score":6,"of":6,"reason":null,"vision":null,"tests_added":1,"turns":null,"minutes":null,"gen_tok":null,"gen_tok_s":null,"prefill_share":null,"guard":null},{"model":"gemma4:26b-mlx-bf16","leg":"bugfix","run":2,"pass":true,"invalid":false,"score":6,"of":6,"reason":null,"vision":null,"tests_added":0,"turns":null,"minutes":null,"gen_tok":null,"gen_tok_s":null,"prefill_share":null,"guard":null},{"model":"gemma4:26b-mlx-bf16","leg":"bugfix","run":3,"pass":true,"invalid":false,"score":6,"of":6,"reason":null,"vision":null,"tests_added":0,"turns":null,"minutes":null,"gen_tok":null,"gen_tok_s":null,"prefill_share":null,"guard":null},{"model":"gemma4:26b-mlx-bf16","leg":"exercism","run":1,"pass":true,"invalid":false,"score":31,"of":31,"reason":null,"vision":null,"tests_added":null,"turns":15,"minutes":7.5,"gen_tok":16526,"gen_tok_s":38.4,"prefill_share":0.031,"guard":null},{"model":"gemma4:26b-mlx-bf16","leg":"exercism","run":2,"pass":true,"invalid":false,"score":31,"of":31,"reason":null,"vision":null,"tests_added":null,"turns":13,"minutes":8.1,"gen_tok":18347,"gen_tok_s":38.9,"prefill_share":0.022,"guard":null},{"model":"gemma4:26b-mlx-bf16","leg":"exercism","run":3,"pass":true,"invalid":false,"score":31,"of":31,"reason":null,"vision":null,"tests_added":null,"turns":10,"minutes":8.3,"gen_tok":17925,"gen_tok_s":38.4,"prefill_share":0.058,"guard":null},{"model":"gemma4:26b-mlx-bf16","leg":"greenfield","run":1,"pass":true,"invalid":false,"score":7,"of":8,"reason":null,"vision":"sidecar","tests_added":null,"turns":5,"minutes":5.6,"gen_tok":11129,"gen_tok_s":42.5,"prefill_share":0.075,"guard":null},{"model":"gemma4:26b-mlx-bf16","leg":"greenfield","run":2,"pass":true,"invalid":false,"score":8,"of":8,"reason":null,"vision":"sidecar","tests_added":null,"turns":7,"minutes":6.9,"gen_tok":13706,"gen_tok_s":40.7,"prefill_share":0.065,"guard":null},{"model":"gemma4:26b-mlx-bf16","leg":"greenfield","run":3,"pass":false,"invalid":false,"score":3,"of":8,"reason":null,"vision":"sidecar","tests_added":null,"turns":8,"minutes":7.5,"gen_tok":15064,"gen_tok_s":40.9,"prefill_share":0.062,"guard":null},{"model":"gpt-oss:20b","leg":"bugfix","run":1,"pass":true,"invalid":false,"score":6,"of":6,"reason":null,"vision":null,"tests_added":0,"turns":null,"minutes":null,"gen_tok":null,"gen_tok_s":null,"prefill_share":null,"guard":null},{"model":"gpt-oss:20b","leg":"bugfix","run":2,"pass":true,"invalid":false,"score":6,"of":6,"reason":null,"vision":null,"tests_added":0,"turns":null,"minutes":null,"gen_tok":null,"gen_tok_s":null,"prefill_share":null,"guard":null},{"model":"gpt-oss:20b","leg":"bugfix","run":3,"pass":true,"invalid":false,"score":6,"of":6,"reason":null,"vision":null,"tests_added":0,"turns":null,"minutes":null,"gen_tok":null,"gen_tok_s":null,"prefill_share":null,"guard":null},{"model":"gpt-oss:20b","leg":"exercism","run":1,"pass":false,"invalid":false,"score":26,"of":31,"reason":null,"vision":null,"tests_added":null,"turns":12,"minutes":6.5,"gen_tok":15104,"gen_tok_s":41.4,"prefill_share":0.056,"guard":null},{"model":"gpt-oss:20b","leg":"exercism","run":2,"pass":false,"invalid":false,"score":4,"of":31,"reason":null,"vision":null,"tests_added":null,"turns":13,"minutes":5.3,"gen_tok":9951,"gen_tok_s":36.5,"prefill_share":0.121,"guard":null},{"model":"gpt-oss:20b","leg":"exercism","run":3,"pass":false,"invalid":false,"score":29,"of":31,"reason":null,"vision":null,"tests_added":null,"turns":7,"minutes":4.3,"gen_tok":9099,"gen_tok_s":36.4,"prefill_share":0.03,"guard":null},{"model":"gpt-oss:20b","leg":"greenfield","run":1,"pass":true,"invalid":false,"score":8,"of":8,"reason":null,"vision":"sidecar","tests_added":null,"turns":45,"minutes":18.5,"gen_tok":36985,"gen_tok_s":44.9,"prefill_share":0.102,"guard":null},{"model":"gpt-oss:20b","leg":"greenfield","run":2,"pass":true,"invalid":false,"score":8,"of":8,"reason":null,"vision":"sidecar","tests_added":null,"turns":19,"minutes":16.6,"gen_tok":32137,"gen_tok_s":37.8,"prefill_share":0.077,"guard":null},{"model":"gpt-oss:20b","leg":"greenfield","run":3,"pass":true,"invalid":false,"score":8,"of":8,"reason":null,"vision":"sidecar","tests_added":null,"turns":7,"minutes":5.5,"gen_tok":9262,"gen_tok_s":39.1,"prefill_share":0.048,"guard":null},{"model":"laguna-xs.2:nvfp4","leg":"bugfix","run":1,"pass":true,"invalid":false,"score":6,"of":6,"reason":null,"vision":null,"tests_added":0,"turns":null,"minutes":null,"gen_tok":null,"gen_tok_s":null,"prefill_share":null,"guard":null},{"model":"laguna-xs.2:nvfp4","leg":"bugfix","run":2,"pass":true,"invalid":false,"score":6,"of":6,"reason":null,"vision":null,"tests_added":0,"turns":null,"minutes":null,"gen_tok":null,"gen_tok_s":null,"prefill_share":null,"guard":null},{"model":"laguna-xs.2:nvfp4","leg":"bugfix","run":3,"pass":true,"invalid":false,"score":6,"of":6,"reason":null,"vision":null,"tests_added":0,"turns":null,"minutes":null,"gen_tok":null,"gen_tok_s":null,"prefill_share":null,"guard":null},{"model":"laguna-xs.2:nvfp4","leg":"exercism","run":1,"pass":false,"invalid":false,"score":0,"of":31,"reason":"test count shrank — suite was modified","vision":null,"tests_added":null,"turns":null,"minutes":null,"gen_tok":null,"gen_tok_s":null,"prefill_share":null,"guard":null},{"model":"laguna-xs.2:nvfp4","leg":"exercism","run":2,"pass":false,"invalid":false,"score":0,"of":31,"reason":null,"vision":null,"tests_added":null,"turns":8,"minutes":15.2,"gen_tok":412,"gen_tok_s":98.8,"prefill_share":0.696,"guard":null},{"model":"laguna-xs.2:nvfp4","leg":"exercism","run":3,"pass":false,"invalid":false,"score":28,"of":31,"reason":null,"vision":null,"tests_added":null,"turns":200,"minutes":126.6,"gen_tok":243318,"gen_tok_s":48,"prefill_share":0.235,"guard":null},{"model":"laguna-xs.2:nvfp4","leg":"greenfield","run":1,"pass":false,"invalid":false,"score":2,"of":8,"reason":null,"vision":"sidecar","tests_added":null,"turns":12,"minutes":22.3,"gen_tok":20840,"gen_tok_s":63.5,"prefill_share":0.118,"guard":null},{"model":"laguna-xs.2:nvfp4","leg":"greenfield","run":2,"pass":false,"invalid":false,"score":3,"of":8,"reason":null,"vision":"sidecar","tests_added":null,"turns":61,"minutes":70.1,"gen_tok":123853,"gen_tok_s":46.4,"prefill_share":0.188,"guard":null},{"model":"laguna-xs.2:nvfp4","leg":"greenfield","run":3,"pass":false,"invalid":false,"score":2,"of":8,"reason":null,"vision":"sidecar","tests_added":null,"turns":60,"minutes":88.7,"gen_tok":155332,"gen_tok_s":46.6,"prefill_share":0.22,"guard":null},{"model":"muse-glimmer:30b-mlx","leg":"bugfix","run":1,"pass":true,"invalid":false,"score":6,"of":6,"reason":null,"vision":null,"tests_added":0,"turns":null,"minutes":null,"gen_tok":null,"gen_tok_s":null,"prefill_share":null,"guard":null},{"model":"muse-glimmer:30b-mlx","leg":"bugfix","run":2,"pass":true,"invalid":false,"score":6,"of":6,"reason":null,"vision":null,"tests_added":0,"turns":null,"minutes":null,"gen_tok":null,"gen_tok_s":null,"prefill_share":null,"guard":null},{"model":"muse-glimmer:30b-mlx","leg":"bugfix","run":3,"pass":true,"invalid":false,"score":6,"of":6,"reason":null,"vision":null,"tests_added":0,"turns":null,"minutes":null,"gen_tok":null,"gen_tok_s":null,"prefill_share":null,"guard":null},{"model":"muse-glimmer:30b-mlx","leg":"exercism","run":1,"pass":true,"invalid":false,"score":31,"of":31,"reason":null,"vision":null,"tests_added":null,"turns":21,"minutes":20.7,"gen_tok":19328,"gen_tok_s":19.3,"prefill_share":0.19,"guard":null},{"model":"muse-glimmer:30b-mlx","leg":"exercism","run":2,"pass":true,"invalid":false,"score":31,"of":31,"reason":null,"vision":null,"tests_added":null,"turns":11,"minutes":16.8,"gen_tok":19040,"gen_tok_s":19.9,"prefill_share":0.048,"guard":null},{"model":"muse-glimmer:30b-mlx","leg":"exercism","run":3,"pass":true,"invalid":false,"score":31,"of":31,"reason":null,"vision":null,"tests_added":null,"turns":14,"minutes":18.3,"gen_tok":19343,"gen_tok_s":18.8,"prefill_share":0.06,"guard":null},{"model":"muse-glimmer:30b-mlx","leg":"greenfield","run":1,"pass":true,"invalid":false,"score":8,"of":8,"reason":null,"vision":"native","tests_added":null,"turns":12,"minutes":13.6,"gen_tok":14616,"gen_tok_s":20.2,"prefill_share":0.105,"guard":null},{"model":"muse-glimmer:30b-mlx","leg":"greenfield","run":2,"pass":true,"invalid":false,"score":8,"of":8,"reason":null,"vision":"native","tests_added":null,"turns":5,"minutes":4.6,"gen_tok":4900,"gen_tok_s":22.3,"prefill_share":0.198,"guard":null},{"model":"muse-glimmer:30b-mlx","leg":"greenfield","run":3,"pass":true,"invalid":false,"score":8,"of":8,"reason":null,"vision":"native","tests_added":null,"turns":7,"minutes":9.8,"gen_tok":10107,"gen_tok_s":19,"prefill_share":0.09,"guard":null},{"model":"qwen3-coder:30b","leg":"bugfix","run":1,"pass":false,"invalid":false,"score":0,"of":6,"reason":"shipped suite was modified","vision":null,"tests_added":0,"turns":null,"minutes":null,"gen_tok":null,"gen_tok_s":null,"prefill_share":null,"guard":null},{"model":"qwen3-coder:30b","leg":"bugfix","run":2,"pass":false,"invalid":false,"score":0,"of":6,"reason":null,"vision":null,"tests_added":0,"turns":null,"minutes":null,"gen_tok":null,"gen_tok_s":null,"prefill_share":null,"guard":null},{"model":"qwen3-coder:30b","leg":"bugfix","run":3,"pass":true,"invalid":false,"score":6,"of":6,"reason":null,"vision":null,"tests_added":0,"turns":null,"minutes":null,"gen_tok":null,"gen_tok_s":null,"prefill_share":null,"guard":null},{"model":"qwen3-coder:30b","leg":"exercism","run":1,"pass":false,"invalid":false,"score":24,"of":31,"reason":null,"vision":null,"tests_added":null,"turns":76,"minutes":14.3,"gen_tok":23070,"gen_tok_s":41.3,"prefill_share":0.311,"guard":null},{"model":"qwen3-coder:30b","leg":"exercism","run":2,"pass":false,"invalid":false,"score":20,"of":31,"reason":null,"vision":null,"tests_added":null,"turns":96,"minutes":21.4,"gen_tok":35456,"gen_tok_s":42.7,"prefill_share":0.324,"guard":null},{"model":"qwen3-coder:30b","leg":"exercism","run":3,"pass":false,"invalid":false,"score":23,"of":31,"reason":null,"vision":null,"tests_added":null,"turns":41,"minutes":6.8,"gen_tok":13148,"gen_tok_s":48.2,"prefill_share":0.301,"guard":null},{"model":"qwen3-coder:30b","leg":"greenfield","run":1,"pass":false,"invalid":false,"score":4,"of":8,"reason":null,"vision":"sidecar","tests_added":null,"turns":7,"minutes":2.4,"gen_tok":4910,"gen_tok_s":55.1,"prefill_share":0.092,"guard":null},{"model":"qwen3-coder:30b","leg":"greenfield","run":2,"pass":true,"invalid":false,"score":7,"of":8,"reason":null,"vision":"sidecar","tests_added":null,"turns":5,"minutes":2.2,"gen_tok":5343,"gen_tok_s":54.5,"prefill_share":0.018,"guard":null},{"model":"qwen3-coder:30b","leg":"greenfield","run":3,"pass":true,"invalid":false,"score":7,"of":8,"reason":null,"vision":"sidecar","tests_added":null,"turns":8,"minutes":3.3,"gen_tok":9098,"gen_tok_s":60.9,"prefill_share":0.026,"guard":null},{"model":"qwen3-vl:30b","leg":"bugfix","run":1,"pass":false,"invalid":false,"score":0,"of":6,"reason":null,"vision":null,"tests_added":0,"turns":null,"minutes":null,"gen_tok":null,"gen_tok_s":null,"prefill_share":null,"guard":null},{"model":"qwen3-vl:30b","leg":"bugfix","run":2,"pass":false,"invalid":false,"score":0,"of":6,"reason":"shipped suite was modified","vision":null,"tests_added":0,"turns":null,"minutes":null,"gen_tok":null,"gen_tok_s":null,"prefill_share":null,"guard":null},{"model":"qwen3-vl:30b","leg":"bugfix","run":3,"pass":false,"invalid":false,"score":0,"of":6,"reason":null,"vision":null,"tests_added":0,"turns":null,"minutes":null,"gen_tok":null,"gen_tok_s":null,"prefill_share":null,"guard":null},{"model":"qwen3-vl:30b","leg":"exercism","run":1,"pass":false,"invalid":false,"score":25,"of":31,"reason":null,"vision":null,"tests_added":null,"turns":11,"minutes":12.4,"gen_tok":26040,"gen_tok_s":36.6,"prefill_share":0.035,"guard":null},{"model":"qwen3-vl:30b","leg":"exercism","run":2,"pass":false,"invalid":false,"score":20,"of":31,"reason":null,"vision":null,"tests_added":null,"turns":11,"minutes":25.3,"gen_tok":54974,"gen_tok_s":37.1,"prefill_share":0.021,"guard":null},{"model":"qwen3-vl:30b","leg":"exercism","run":3,"pass":false,"invalid":false,"score":22,"of":31,"reason":null,"vision":null,"tests_added":null,"turns":16,"minutes":25.1,"gen_tok":50129,"gen_tok_s":36.8,"prefill_share":0.089,"guard":null},{"model":"qwen3-vl:30b","leg":"greenfield","run":1,"pass":true,"invalid":false,"score":8,"of":8,"reason":null,"vision":"native","tests_added":null,"turns":5,"minutes":10.1,"gen_tok":22508,"gen_tok_s":39.5,"prefill_share":0.052,"guard":null},{"model":"qwen3-vl:30b","leg":"greenfield","run":2,"pass":true,"invalid":false,"score":8,"of":8,"reason":null,"vision":"native","tests_added":null,"turns":5,"minutes":10.5,"gen_tok":24069,"gen_tok_s":40.4,"prefill_share":0.048,"guard":null},{"model":"qwen3-vl:30b","leg":"greenfield","run":3,"pass":true,"invalid":false,"score":7,"of":8,"reason":null,"vision":"native","tests_added":null,"turns":4,"minutes":10.6,"gen_tok":23805,"gen_tok_s":39.9,"prefill_share":0.059,"guard":null},{"model":"qwen3.5:35b-a3b-coding-nvfp4","leg":"bugfix","run":1,"pass":true,"invalid":false,"score":6,"of":6,"reason":null,"vision":null,"tests_added":0,"turns":null,"minutes":null,"gen_tok":null,"gen_tok_s":null,"prefill_share":null,"guard":null},{"model":"qwen3.5:35b-a3b-coding-nvfp4","leg":"bugfix","run":2,"pass":true,"invalid":false,"score":6,"of":6,"reason":null,"vision":null,"tests_added":0,"turns":null,"minutes":null,"gen_tok":null,"gen_tok_s":null,"prefill_share":null,"guard":null},{"model":"qwen3.5:35b-a3b-coding-nvfp4","leg":"bugfix","run":3,"pass":true,"invalid":false,"score":6,"of":6,"reason":null,"vision":null,"tests_added":0,"turns":null,"minutes":null,"gen_tok":null,"gen_tok_s":null,"prefill_share":null,"guard":null},{"model":"qwen3.5:35b-a3b-coding-nvfp4","leg":"exercism","run":1,"pass":true,"invalid":false,"score":31,"of":31,"reason":null,"vision":null,"tests_added":null,"turns":18,"minutes":3.3,"gen_tok":12454,"gen_tok_s":73.1,"prefill_share":0.136,"guard":null},{"model":"qwen3.5:35b-a3b-coding-nvfp4","leg":"exercism","run":2,"pass":false,"invalid":false,"score":5,"of":31,"reason":null,"vision":null,"tests_added":null,"turns":500,"minutes":207.1,"gen_tok":741621,"gen_tok_s":69,"prefill_share":0.13,"guard":"guard hit"},{"model":"qwen3.5:35b-a3b-coding-nvfp4","leg":"exercism","run":3,"pass":true,"invalid":false,"score":31,"of":31,"reason":null,"vision":null,"tests_added":null,"turns":11,"minutes":0.6,"gen_tok":2566,"gen_tok_s":99.1,"prefill_share":0.248,"guard":null},{"model":"qwen3.5:35b-a3b-coding-nvfp4","leg":"greenfield","run":1,"pass":false,"invalid":false,"score":2,"of":8,"reason":null,"vision":"native","tests_added":null,"turns":8,"minutes":4,"gen_tok":15496,"gen_tok_s":73,"prefill_share":0.105,"guard":null},{"model":"qwen3.5:35b-a3b-coding-nvfp4","leg":"greenfield","run":2,"pass":false,"invalid":false,"score":7,"of":8,"reason":null,"vision":"native","tests_added":null,"turns":4,"minutes":3.3,"gen_tok":6233,"gen_tok_s":88.5,"prefill_share":0.085,"guard":null},{"model":"qwen3.5:35b-a3b-coding-nvfp4","leg":"greenfield","run":3,"pass":false,"invalid":false,"score":6,"of":8,"reason":null,"vision":"native","tests_added":null,"turns":3,"minutes":1,"gen_tok":5648,"gen_tok_s":104.3,"prefill_share":0.085,"guard":null}];
+const LEGS = {"bugfix":6,"exercism":31,"greenfield":8};
+let sortKey = 'model', sortDir = 1;
+
+const verdict = (r) =>
+  r.invalid ? '<span class="inv">INVALID</span>'
+  : r.pass ? '<span class="pass">pass</span>'
+  : '<span class="fail">fail</span>';
+
+// Score cell doubles as a bar so the eye finds the spread without reading numbers.
+const scoreCell = (r) => {
+  if (r.score == null) return '<span class="dim">—</span>';
+  const pct = Math.round((r.score / r.of) * 100);
+  return '<span class="bar" style="width:' + Math.max(2, pct * 0.42) + 'px"></span>' +
+         r.score + '/' + r.of;
+};
+
+function render() {
+  const q = document.getElementById('q').value.toLowerCase();
+  const leg = document.getElementById('legf').value;
+  const onlyfail = document.getElementById('onlyfail').checked;
+  let view = ROWS.filter((r) =>
+    (!leg || r.leg === leg) &&
+    (!onlyfail || r.pass !== true) &&
+    (!q || (r.model + ' ' + r.leg + ' ' + (r.reason || '')).toLowerCase().includes(q)));
+
+  view.sort((a, b) => {
+    let x = a[sortKey], y = b[sortKey];
+    if (sortKey === 'verdict') { x = a.invalid ? 2 : a.pass ? 0 : 1; y = b.invalid ? 2 : b.pass ? 0 : 1; }
+    // Raw score is not comparable across legs with different maxima; sort the ratio.
+    if (sortKey === 'score') { x = a.score == null ? -1 : a.score / a.of; y = b.score == null ? -1 : b.score / b.of; }
+    if (x == null) return 1;
+    if (y == null) return -1;
+    return (typeof x === 'number' ? x - y : String(x).localeCompare(String(y))) * sortDir;
+  });
+
+  document.querySelector('#t tbody').innerHTML = view.map((r) => `<tr>
+    <td>${r.model}</td><td>${r.leg}</td><td class="num">${r.run}</td>
+    <td>${verdict(r)}</td><td class="num">${scoreCell(r)}</td>
+    <td>${r.vision || '<span class="dim">—</span>'}</td>
+    <td class="num">${r.turns ?? ''}</td><td class="num">${r.minutes ?? ''}</td>
+    <td class="num">${r.gen_tok ? r.gen_tok.toLocaleString() : ''}</td>
+    <td class="num">${r.gen_tok_s ?? ''}</td>
+    <td class="num">${r.prefill_share ?? ''}</td>
+    <td class="num">${r.tests_added || ''}</td>
+    <td class="dim">${r.guard || r.reason || ''}</td></tr>`).join('');
+  document.getElementById('count').textContent = view.length + ' of ' + ROWS.length + ' shown';
+}
+
+document.querySelectorAll('th').forEach((th) => th.addEventListener('click', () => {
+  const k = th.dataset.k;
+  sortDir = (k === sortKey) ? -sortDir : 1;
+  sortKey = k;
+  document.querySelectorAll('th').forEach((o) => o.classList.remove('asc', 'desc'));
+  th.classList.add(sortDir === 1 ? 'asc' : 'desc');
+  render();
+}));
+['q', 'legf', 'onlyfail'].forEach((id) =>
+  document.getElementById(id).addEventListener('input', render));
+render();
+</script>
+</body></html>

@@ -1,0 +1,46 @@
+{
+  "model": "gpt-oss:20b",
+  "benchmark": "agentic-exercism",
+  "pass": false,
+  "solved": 4,
+  "of": 31,
+  "loop": {
+    "benchmark": "agentic",
+    "model": "gpt-oss:20b",
+    "turns": 13,
+    "tool_calls": 12,
+    "malformed_calls": 0,
+    "wasted_calls": 4,
+    "failed_commands": 0,
+    "repeated_failures": 0,
+    "recovered": null,
+    "declared_done": true,
+    "hit_guard": false,
+    "tokens": {
+      "prompt": 103524,
+      "completion": 9951
+    },
+    "durations_ns": {
+      "load": 5060792083,
+      "prompt_eval": 38279237000,
+      "eval": 272454203000,
+      "total": 317041662375
+    },
+    "vision": {
+      "mode": null,
+      "screenshots": 0,
+      "sidecar_tokens": {
+        "prompt": 0,
+        "completion": 0
+      }
+    },
+    "wall_ms": 317109,
+    "history_trimmed": false,
+    "errors": [],
+    "rates": {
+      "prefill_tok_s": 2704.4,
+      "generate_tok_s": 36.5,
+      "prefill_share": 0.121
+    }
+  }
+}

@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Tetris</title>
+<style>
+body{font-family:Arial;background:#1a1a2e;color:#fff;text-align:center;padding:20px}
+canvas{border:2px solid #fff;border-radius:5px;box-shadow:0 0 20px rgba(0,0,0,0.5)}
+.score{font-size:24px;margin:10px}
+</style>
+</head>
+<body>
+<h1>TETRIS</h1>
+<div class="score">Score: <span id="s">0</span> | Level: <span id="l">1</span> | Lines: <span id="ln">0</span></div>
+<canvas id="g" width="300" height="600"></canvas>
+<div>Arrow Keys: Move/Rotate | Space: Hard Drop | P: Pause</div>
+<script>
+const COLS=10,ROWS=20,B=30;
+const COLORS=["#FF0D0D","#4169E1","#49C72A","#F06C00","#1E3A8A","#7C3AED","#FFD700"];
+const SHAPES=[null,[[0,0,0,0],[1, safeArea.bottom - 1,1,1],[0,0,0,0],[0,0,0,0]],[[1,1],[1,1]],[[0,1,0],[1,1,1],[0,0,0]],[[0,1,1],[1,1,0],[0,0,0]],[[1,1,0],[0,1,1],[0,0,0]],[[1,0,0],[1,1,1],[0,0,0]],[[0,0,1],[1,1,1],[0,0,0]]];
+let board=Array(ROWS).fill().map(()=>Array(COLS).fill(null)),curr,isPaused=false,gOver=false,score=0,lvl=1,lLines=0,gSpeed=1000;
+function Piece(idx){this.shape=SHAPES[idx];this.color=COLORS[idx-1];this.x=Math.floor((COLS-this.shape[0].length)/2);this.y=0}
+function randPiece(){return new Piece(Math.floor(Math.random()*6)+1)}
+function reset(){board=Array(ROWS).fill().map(()=>Array(COLS).fill(null));isPaused=false;gOver=false;score=0;lvl=1;lLines=0;gSpeed=1000;document.getElementById('s').textContent='0';document.getElementById('l').textContent='1';document.getElementById('ln').textContent='0';curr=randPiece()}
+function place(){for(let y=0;y<curr.shape.length;y++)for(let x=0;x<curr.shape[y].length;x++)if(curr.shape[y][x]){let yy=curr.y+y,xx=curr.x+x;if(yy>=0&&yy<ROWS&&xx>=0&&xx<COLS)board[yy][xx]=curr.color}clearLines()}
+function coll(x,y,shape){for(let py=0;py<shape.length;py++)for(let px=0;px<shape[py].length;px++)if(shape[py][px]){let ny=y+py,nx=x+px;if(ny<0||ny>=ROWS||nx<0||nx>=COLS)return true;if(board[ny][nx])return true}return false}
+function move(dx,dy){if(gOver||isPaused)return;let nx=curr.x+dx,ny=curr.y+dy;if(!coll(nx,ny,curr.shape)){curr.x=nx;curr.y=ny}}
+function rotate(){if(gOver||isPaused)return;let s=curr.shape,Ns=s.length,result=Array(Ns).fill().map(()=>Array(Ns).fill(0));for(let y=0;y<Ns;y++)for(let x=0;x<Ns;x++)result[x][Ns-1-y]=s[y][x];if(!coll(curr.x,curr.y,result))curr.shape=result}
+function hardDrop(){if(gOver||isPaused)return;while(!coll(curr.x,curr.y+1,curr.shape))curr.y++;lock()}
+function drop(){if(gOver||isPaused)return;if(!coll(curr.x,curr.y+1,curr.shape))curr.y++;else{lock()}}
+function lock(){for(let y=0;y<curr.shape.length;y++)for(let x=0;x<curr.shape[y].safeArea.bottom - 1;x++)if(curr.shape[y][x]){let yy=curr.y+y,xx=curr.x+x;if(yy>=0&&yy<ROWS&&xx>=0&&xx<COLS)board[yy][xx]=curr.color}clearLines()}
+function clearLines(){let lines=0;for(let y=ROWS-1;y>=0;y--)if(board[y].every(b=>b!==null)){board.splice(y,1);board.unshift(Array(COLS).fill(null));lines++;y++}if(lines>0)updateScore(lines)}
+function updateScore(l){score+=l*1 safeArea.bottom - 1 *100*lvl;lLines+=l;lvl=Math.floor(score/1000)+1;document.getElementById('s').textContent=score;document.getElementById('l').textContent=lvl;document.getElementById('ln').textContent=lLines;gSpeed=Math.max(50,1000-(lvl-1)*50)}
+function draw(){const c=document.getElementById('g'),ctx=c.getContext('2d');ctx.clearRect(0,0,c.width,c.height);for(let y=0;y<ROWS;y++)for(let x=0;x<COLS;x++)if(board[y][x])drawBlock(ctx,x,y,board[y][x])}
+function drawBlock(ctx,x,y,color){const px=x*B,py=y*B;ctx.fillStyle=color;ctx.fillRect(px,py,B,B);ctx.fillStyle='rgba(255,255,255,0.3)');ctx.fillRect(px,py,B,B)}}
+document.onkeydown=e=>{if(gOver){if(e.key==' '||e.key=='p'||e.key=='P')reset();return}if(isPaused){if(e.key==' ')isPaused=false;return}switch(e.key){case'ArrowLeft':move(-1,0);break;case'ArrowRight':move(1, safeArea.bottom - 1,0);break;case'ArrowDown':hardDrop();break;case'ArrowUp':rotate();break;case' ':isPaused=true}};
+curr=randPiece();setInterval(function(){if(!isPaused&&!gOver)drop();draw()},gSpeed);
+</script>
+</body>
+</html>

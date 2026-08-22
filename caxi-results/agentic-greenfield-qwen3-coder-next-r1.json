@@ -1,0 +1,6 @@
+{
+  "model": "qwen3-coder-next",
+  "benchmark": "agentic-greenfield",
+  "pass": false,
+  "reason": "no tetris.html produced"
+}

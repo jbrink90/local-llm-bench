@@ -1,0 +1,58 @@
+{
+  "model": "laguna-xs.2:nvfp4",
+  "benchmark": "agentic-greenfield",
+  "pass": false,
+  "score": 2,
+  "tiers": {
+    "loads_clean": false,
+    "has_canvas": true,
+    "game_starts": false,
+    "gravity_alive": false,
+    "left_moves": false,
+    "right_moves": false,
+    "rotate_works": false,
+    "has_score": true
+  },
+  "vision_mode": "sidecar",
+  "loop": {
+    "benchmark": "agentic",
+    "model": "laguna-xs.2:nvfp4",
+    "turns": 12,
+    "tool_calls": 11,
+    "malformed_calls": 0,
+    "wasted_calls": 0,
+    "failed_commands": 0,
+    "repeated_failures": 0,
+    "recovered": null,
+    "declared_done": false,
+    "hit_guard": false,
+    "tokens": {
+      "prompt": 109615,
+      "completion": 20840
+    },
+    "durations_ns": {
+      "load": 969338542,
+      "prompt_eval": 44046657001,
+      "eval": 327949237541,
+      "total": 373619330336
+    },
+    "vision": {
+      "mode": "sidecar",
+      "screenshots": 2,
+      "sidecar_tokens": {
+        "prompt": 2240,
+        "completion": 1616
+      }
+    },
+    "wall_ms": 1338342,
+    "history_trimmed": false,
+    "errors": [
+      "ollama request exceeded 900000ms wall clock — abandoned"
+    ],
+    "rates": {
+      "prefill_tok_s": 2488.6,
+      "generate_tok_s": 63.5,
+      "prefill_share": 0.118
+    }
+  }
+}

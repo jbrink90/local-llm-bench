@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Tetris</title>
+    <style>
+        body {
+            background-color: #111;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        #game-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        #score-display {
+            color: white;
+            font-family: Arial, sans-serif;
+            font-size: 20px;
+            margin-bottom: 10px;
+        }
+        canvas {
+            background: #222;
+            border: 2px solid #444;
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <div id="score-display">Score: 0</div>
+        <canvas id="game" width="300" height="600"></canvas>
+    </div>
+    <script>
+        const canvas = document.getElementById('game');
+        const ctx = canvas.getContext('2d');
+        const cols = 10;
+        const rows = 20;
+        const gridSize = 30;
+        canvas.width = cols * gridSize;
+        canvas.height = rows * gridSize;
+        
+        // Game state
+        let currentPiece = null;
+        let grid = Array(rows).fill().map(() => Array(cols).fill(0));
+        let score = 0;
+        let gameOver = false;
+        let gravityInterval;
+        
+        // Tetris piece definitions
+        const pieces = {
+            I: [
+                [[0,0,0,0],
+                 [1,1,1,1],
+                 [0,0,0,0],
+                 [0,0,0,0]],
+                [[0,0,1,0],
+                 [0,0,1,0],
+                 [0,0,1,0],
+                 [0,0,1,0]]
+            ],
+            O: [
+                [[1,1,0,0],
+                 [1,1,0,0],
+                 [0,0,0,0],
+                 [0,0,0,0]]
+            ],
+            T: [
+                [[0,1,0,0],
+                 [1,1,1,0],
+                 [0,0,0,0],
+                 [0,0,0,0]],
+                [[0,0,0,0],
+                 [1,1,1,0],
+                 [0,1,0,0],
+                 [0,0,0,0]],
+                [[0,0,0,0],
+                 [0,1,0,0],
+                 [1,1,1,0],
+                 [0,0,0,0]],
+                [[0,1,0,0],
+                 [1,1,0,0],
+                 [0,1,0,0],
+                 [0,0,0,0]]
+            ],
+            L: [
+                [[0,0,0,0],
+                 [1,1,1,0],
+                 [0,0,1,0],
+                 [0,0,0,0]],
+                [[0,1,1,0],
+                 [0,1,0,0],
+                 [0,1,0,0],
+                 [0,0,0,0]],
+                [[0,0,0,0],
+                 [1,0,0,0],
+                 [1,1,1,0],
+                 [0,0,0,0]],
+                [[0,1,0,0],
+                 [1,1,0,0],
+                 [0,1,0,0],
+                 [0,0,0,0]]
+            ],
+            J: [
+                [[0,0,0,0],
+                 [1,1,1,0],
+                 [1,0,0,0],
+                 [0,0,0,0]],
+                [[0,1,0,0],
+                 [0,1,0,0],
+                 [0,1,1,0],
+                 [0,0,0,0]],
+                [[0,0,1,0],
+                 [1,1,1,0],
+                 [0,0,0,0],
+                 [0,0,0,0]],
+                [[1,1,0,0],
+                 [0,1,0,0],
+                 [0,1,0,0],
+                 [0,0,0,0]]
+            ],
+            S: [
+                [[0,1,1,0],
+                 [1,1,0,0],
+                 [0,0,0,0],
+                 [0,0,0,0]],
+                [[0,0,0,0],
+                 [0,1,1,0],
+                 [1,1,0,0],
+                 [0,0,0,0]]
+            ],
+            Z: [
+                [[1,1,0,0],
+                 [0,1,1,0],
+                 [0,0,0,0],
+                 [0,0,0,0]],
+                [[0,0,0,0],
+                 [0,1,1,0],
+                 [1,1,0,0],
+                 [0,0,0,0]]
+            ]
+        };
+        
+        // Helper functions
+        function createPiece() {
+            const types = Object.keys(pieces);
+            const type = types[Math.floor(Math.random() * types.length)];
+            const rotation = 0;
+            
+            // Starting position: center of the top row
+            const x = Math.floor(cols / 2) - 2;
+            const y = 0;
+            
+            // Check if it's possible to place the piece
+            const piece = {
+                type,
+                rotation,
+                x,
+                y,
+                shape: pieces[type][rotation]
+            };
+            
+            if (checkCollision(piece, x, y)) {
+                gameOver = true;
+                return null;
+            }
+            
+            return piece;
+        }
+        
+        function checkCollision(piece, x, y) {
+            for (let r = 0; r < 4; r++) {
+                for (let c = 0; c < 4; c++) {
+                    if (piece.shape[r][c] !== 0) {
+                        const newX = x + c;
+                        const newY = y + r;
+                        if (newX < 0 || newX >= cols || newY >= rows || grid[newY][newX] !== 0) {
+                            return true;
+                        }
+                    }
+                }
+            }
+            return false;
+        }
+        
+        function mergePiece() {
+            const { x, y, shape } = currentPiece;
+            for (let r = 0; r < 4; r++) {
+                for (let c = 0; c < 4; c++) {
+                    if (shape[r][c] !== 0) {
+                        grid[y + r][x + c] = 1;
+                    }
+                }
+            }
+        }
+        
+        function checkLines() {
+            let linesCleared = 0;
+            for (let r = rows - 1; r >= 0; r--) {
+                let isLineComplete = true;
+                for (let c = 0; c < cols; c++) {
+                    if (grid[r][c] === 0) {
+                        isLineComplete = false;
+                        break;
+                    }
+                }
+                if (isLineComplete) {
+                    grid.splice(r, 1);
+                    grid.unshift(Array(cols).fill(0));
+                    linesCleared++;
+                }
+            }
+            score += linesCleared * 10;
+        }
+        
+        function moveDown() {
+            if (!checkCollision(currentPiece, currentPiece.x, currentPiece.y + 1)) {
+                currentPiece.y++;
+                draw();
+            } else {
+                mergePiece();
+                checkLines();
+                currentPiece = createPiece();
+                if (!currentPiece) {
+                    clearInterval(gravityInterval);
+                    gameOver = true;
+                }
+                draw();
+            }
+        }
+        
+        function moveLeft() {
+            if (!checkCollision(currentPiece, currentPiece.x - 1, currentPiece.y)) {
+                currentPiece.x--;
+                draw();
+            }
+        }
+        
+        function moveRight() {
+            if (!checkCollision(currentPiece, currentPiece.x + 1, currentPiece.y)) {
+                currentPiece.x++;
+                draw();
+            }
+        }
+        
+        function rotate() {
+            const newRotation = (currentPiece.rotation + 1) % currentPiece.shape.length;
+            const newPiece = {
+                ...currentPiece,
+                rotation: newRotation
+            };
+            if (!checkCollision(newPiece, currentPiece.x, currentPiece.y)) {
+                currentPiece.rotation = newRotation;
+                draw();
+            }
+        }
+        
+        function draw() {
+            // Clear the canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw grid
+            ctx.strokeStyle = '#333';
+            ctx.lineWidth = 1;
+            for (let i = 0; i <= cols; i++) {
+                ctx.beginPath();
+                ctx.moveTo(i * gridSize, 0);
+                ctx.lineTo(i * gridSize, rows * gridSize);
+                ctx.stroke();
+            }
+            for (let i = 0; i <= rows; i++) {
+                ctx.beginPath();
+                ctx.moveTo(0, i * gridSize);
+                ctx.lineTo(cols * gridSize, i * gridSize);
+                ctx.stroke();
+            }
+            
+            // Draw filled grid cells
+            for (let r = 0; r < rows; r++) {
+                for (let c = 0; c < cols; c++) {
+                    if (grid[r][c] !== 0) {
+                        drawBlock(c, r);
+                    }
+                }
+            }
+            
+            // Draw active piece
+            if (currentPiece) {
+                const { x, y, shape, type } = currentPiece;
+                for (let r = 0; r < 4; r++) {
+                    for (let c = 0; c < 4; c++) {
+                        if (shape[r][c] !== 0) {
+                            drawBlock(x + c, y + r, getPieceColor(type));
+                        }
+                    }
+                }
+            }
+            
+            // Draw score
+            ctx.fillStyle = 'white';
+            ctx.font = '20px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText(`Score: ${score}`, canvas.width / 2, 30);
+        }
+        
+        function drawBlock(x, y, color = 'white') {
+            ctx.fillStyle = color;
+            ctx.fillRect(x * gridSize, y * gridSize, gridSize, gridSize);
+        }
+        
+        function getPieceColor(type) {
+            const colors = {
+                'I': '#00FFFF',
+                'O': '#FFD700',
+                'T': '#9932CC',
+                'L': '#FF7F00',
+                'J': '#0000FF',
+                'S': '#00B050',
+                'Z': '#FF0000',
+                'default': '#000'
+            };
+            return colors[type] || colors['default'];
+        }
+        
+        // Initialize game
+        currentPiece = createPiece();
+        gameOver = false;
+        gravityInterval = setInterval(moveDown, 500);
+        draw();
+        
+        // Event listeners
+        window.addEventListener('keydown', function(e) {
+            if (gameOver) return;
+            switch (e.key) {
+                case 'ArrowLeft':
+                    moveLeft();
+                    break;
+                case 'ArrowRight':
+                    moveRight();
+                    break;
+                case 'ArrowUp':
+                    rotate();
+                    break;
+                case 'ArrowDown':
+                    clearInterval(gravityInterval);
+                    gravityInterval = setInterval(moveDown, 100);
+                    break;
+                case ' ':
+                    clearInterval(gravityInterval);
+                    gravityInterval = setInterval(moveDown, 500);
+                    break;
+            }
+        });
+    </script>
+</body>
+</html>

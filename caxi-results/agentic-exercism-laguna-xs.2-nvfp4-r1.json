@@ -1,0 +1,7 @@
+{
+  "model": "laguna-xs.2:nvfp4",
+  "benchmark": "agentic-exercism",
+  "pass": false,
+  "solved": 0,
+  "reason": "test count shrank — suite was modified"
+}

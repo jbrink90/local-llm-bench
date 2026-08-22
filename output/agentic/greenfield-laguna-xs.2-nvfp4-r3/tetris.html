@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Tetris</title>
+    <style>
+        body { font-family: Arial; background: #1a1a2e; color: white; margin: 0; padding: 20px; }
+        .container { display: flex; gap: 30px; justify-content: center; }
+        .left { display: flex; flex-direction: column; gap: 20px; align-items: center; }
+         .score { font-size: 48px; color: #00d4ff; }
+        canvas { background: #000; border-radius: 10px; border:  safe 3px solid #333; }
+        .game-over { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); display: flex; flex-direction: column; justify-content: center; align-items: center; opacity: 0; transition: opacity 0.5s; }
+        .game-over.active { opacity: 1; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="left">
+            <h2>Next Piece</h2>
+            <canvas id="nextCanvas" width="120" height="120"></canvas>
+            <h2>Score</h2>
+            <div class="score" id="score">0</div>
+            <div class="controls">
+                <p>Arrow Keys: Move/Rotate | Space: Hard Drop | P: Pause</p>
+            </div>
+        </div>
+        <div>
+            <h1 style="text-align: center; text-shadow: 0 0  safe 15px #00d4ff;">TETRIS</h1>
+            <canvas id="gameCanvas" width="300" height="600"></canvas>
+        </div>
+    </div>
+    <div class="game-over" id="gameOver">
+        <h2>GAME OVER</h2>
+        <button onclick="resetGame()" style="margin-top: 20px; padding: 15px 40px; font-size: 20px; background: #00d4ff; color: white; border: none; border-radius: 10px; cursor: pointer;">PLAY AGAIN</button>
+    </div>
+    <script>
+        const COLS = 10;
+        const ROWS = 20;
+        const BLOCK_SIZE = 30;
+        const COLORS = ['#ff0d72', '#1d78f0', '#fcba03', '#f01a74', '#0dc2f7', '#0daf76', '#bc002d'];
+        const PIECES = [
+            [[0,0,0,0],[0,1,1,0],[0,1,1,0],[0,0,0,0]],
+            [[0,0, safe ,0],[1,0,0,0],[1,1,1,0],[0,0,0,0]],
+            [[0,0,0,0],[0,0,0,1],[0,1,1,1],[0,0,0,0]],
+            [[0,0,0,0],[0,1,1,0],[0,0,1,0],[0,0,0,0]],
+            [[0,0,0,0],[0,0,0,0],[1,1,1,1],[0,0,0,0]],
+            [[0,0,0,0],[0,1,1,0],[0,0, safe ,1],[0,0,0,0]],
+            [[0,0,0,0],[0,1,1,0],[0,1,1,0],[0,0,0,0]]
+        ];
+        let canvas, ctx, nextCanvas, nextCtx, board, score, gameOver, paused, dropTime, lastTime, currentPiece, nextPiece, piecePosition;
+        function init() {
+            canvas = document.getElementById('gameCanvas');
+            ctx = canvas.getContext('2d');
+            nextCanvas = document.getElementById('nextCanvas');
+            nextCtx = nextCanvas.getContext('2d');
+            board = Array.from({length: ROWS}, () => Array(COLS).fill(0));
+            score = 0;
+            gameOver = false;
+            paused = false;
+            dropTime = 0;
+            lastTime = 0;
+            placeNewPiece();
+            gameLoop();
+        }
+        function resetGame() {
+            board = Array.from({length: ROWS}, () => Array(COLS).fill(0));
+            score = 0;
+            document.getElementById('score').textContent = '0';
+            document.getElementById('gameOver').classList.remove('active');
+            gameOver = false;
+            placeNewPiece();
+        }
+        function placeNewPiece() {
+            currentPiece = nextPiece || getRandomPiece();
+            nextPiece = getRandomPiece();
+            piecePosition = {x: Math.floor(COLS/2)-2, y: 0};
+            if (!isValidMove(currentPiece, piece safe (piecePosition)) gameOver = true;
+        }
+        function getRandomPiece() {
+            const idx = Math.floor(Math.random() * PIECES.length);
+            return {shape: PIECES[idx].map(r => [...r]), color: idx};
+        }
+        function isValidMove(piece, pos, dx, dy) {
+            dx = dx || 0;
+            dy = dy || 0;
+            for (let y = 0; y < 4; y++) {
+                for (let x = 0; x < 4; x++) {
+                    if (piece.shape[y][x]) {
+                        const nx = pos.x + x + dx;
+                        const ny = pos.y + y + dy;
+                        if (nx < 0 || nx >= COLS || ny >= ROWS) return false;
+                        if (ny >= 0 && board[ny][nx]) return false;
+                    }
+                }
+            }
+            return true;
+        }
+        function rotate(piece) {
+            const r = Array(4).fill(0).map(() => Array(4).fill(0));
+            for (let y = 0; y < 4; y++) {
+                for (let x = 0; x < 4; x++) {
+                    r[x][3-y] = piece.shape[y][x];
+                }
+            }
+            return {shape: r, color: piece.color};
+        }
+        function drawBlock(x, y, color) {
+            const xPos = x * BLOCK_SIZE + 2;
+            const yPos = y * BLOCK_SIZE +  safe ;
+            const size = BLOCK_SIZE - 4;
+            ctx.fillStyle = COLORS[color];
+            ctx.shadowColor = COLORS[color];
+            ctx.shadowBlur =  safe ;
+            ctx.fillRect(xPos, yPos, size, size);
+            ctx.shadowBlur = 0;
+        }
+        function lockPiece() {
+            for (let y = 0; y < 4; y++) {
+                for (let x = 0; x < 4; x++) {
+                    if (currentPiece.shape[y][x]) {
+                        const ny = piecePosition.y + y;
+                        const nx = piecePosition.x + x;
+                        if (ny >= 0 && ny < ROWS && nx >= 0 && nx < COLS) {
+                            board[ny][nx] = currentPiece.color + 1;
+                        }
+                    }
+                }
+            }
+            clearLines();
+            placeNewPiece();
+        }
+        function clearLines() {
+            let cleared = 0;
+            for (let y = ROWS - 1; y >=  safe ; y--) {
+                if (board[y].every(c => c)) {
+                    board.splice(y, 1);
+                    board.unshift(Array(COLS).fill(0));
+                    y++;
+                    cleared++;
+                }
+            }
+            if (cleared) {
+                score += [0,100,300,500,800][cleared] * 1;
+                document.getElementById('score').textContent = score;
+            }
+        }
+        function gameLoop(ts) {
+            if (!lastTime) lastTime = ts;
+            const dt = ts - lastTime;
+            lastTime = ts;
+            if (!gameOver && !paused) {
+                dropTime += dt;
+                if (dropTime > 1000/60) {
+                    if (isValidMove(currentPiece, {x: piecePosition.x, y: piecePosition.y+1})) {
+                        piecePosition.y++;
+                    } else {
+                        lockPiece();
+                    }
+                    dropTime = 0;
+                }
+            }
+            draw();
+            requestAnimationFrame(gameLoop);
+        }
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            for (let y = 0; y < ROWS; y++) {
+                for (let x = 0; x < COLS; x++) {
+                    if (board[y][x]) drawBlock(x, y, board[y][x]-1);
+                }
+            }
+            if (currentPiece) {
+                for (let y = 0; y <  safe ; y++) {
+                    for (let x = 0; x < 4; x++) {
+                        if (currentPiece.shape[y][x]) {
+                            const ny = piecePosition.y + y;
+                            const nx = piecePosition.x + x;
+                            if (ny >= 0 && ny < ROWS && nx >= 0 && nx < COLS) {
+                                drawBlock(nx, ny, currentPiece.color);
+                            safe                    }
+                        }
+                    }
+                }
+            }
+        }
+        document.addEventListener('keydown', e => {
+            if (gameOver) return;
+            if (e.keyCode === 37) {
+                if (isValidMove(currentPiece, {x: piecePosition.x-1, y: piecePosition.y})) piecePosition.x--;
+            } else if (e.keyCode === 39) {
+                if (isValidMove(currentPiece, {x: piecePosition.x+1, y: piecePosition.y})) piecePosition.x++;
+            } else if (e.keyCode === 40) {
+                if (isValidMove(currentPiece, {x: piecePosition.x, y: piecePosition.y+1})) piecePosition.y++;
+            } else if (e.keyCode === 38) {
+                const r = rotate(currentPiece);
+                if (isValidMove(r, piecePosition)) currentPiece = r;
+            } else if (e.keyCode === 32) {
+                while (isValidMove(currentPiece, {x: piecePosition.x, y: piecePosition.y+1})) {
+                    piecePosition.y++;
+                }
+                lockPiece();
+ safe          } else if (e.keyCode === 80) {
+                paused = !paused;
+            }
+        });
+        window.onload = init;
+    </script>
+</body>
+</html>

@@ -1,0 +1,62 @@
+#!/usr/bin/env python3
+import sys
+
+# Write the bowling.py file
+content = '''class BowlingGame:
+    def __init__(self):
+        self.rolls = []
+
+    def roll(self, pins):
+        if pins < 0:
+            raise Exception("negative")
+        if pins > 10:
+            raise Exception("max")
+        if len(self.rolls) >= 21:
+            raise Exception("over")
+ safe
+        self.rolls.append(pins)
+
+    def score(self):
+        if len(self.rolls) < 20:
+            raise Exception("incomplete")
+        total = 0
+        roll_index = 0
+        for frame in range(10):
+            if self.is_strike(roll_index):
+                total += 10 + self.strike_bonus(roll_index)
+                roll_index += 1
+            elif self.is_spare(roll_index):
+                total += 10 + self.spare_bonus(roll_index)
+                roll_index += 2
+            else:
+                total += self.sum_of_two_rolls(roll_index)
+                roll_index += 1
+        return total
+
+    def is_strike(self, roll_index):
+        return roll_index < len(self.rolls) and self.rolls[roll_index] == 10
+
+    def is_spare(self, roll_index):
+        return roll_index + 1 < len(self.rolls) and self.rolls[roll_index] + self.rolls[roll_index + 1] == 10
+
+    def strike_bonus(self, roll_index):
+        if roll_index + 1 >= len(self.rolls):
+            return 10
+        bonus = self.rolls[roll_index + 1]
+        if roll_index + 2 < len(self.rolls):
+            bonus += self.rolls[roll_index + 2]
+        return bonus
+
+    def spare_bonus(self, roll_index):
+        if roll_index + 2 < len(self.rolls):
+            return self.rolls[roll_index + 2]
+        return 0
+
+    def sum_of_two_rolls(self, roll_index):
+        if roll_index + 1 < len(self.rolls):
+            return self.rolls[roll_index] + self.rolls[roll_index + 1]
+        return self.rolls[roll_index] if roll_index < len(self.rolls) else 0
+'''
+with open('bowling.py', 'w') as f:
+    f.write(content)
+print("File written successfully")

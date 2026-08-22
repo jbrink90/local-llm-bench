@@ -1,0 +1,48 @@
+{
+  "model": "laguna-xs.2:nvfp4",
+  "benchmark": "agentic-exercism",
+  "pass": false,
+  "solved": 0,
+  "of": 31,
+  "loop": {
+    "benchmark": "agentic",
+    "model": "laguna-xs.2:nvfp4",
+    "turns": 8,
+    "tool_calls": 7,
+    "malformed_calls": 0,
+    "wasted_calls": 2,
+    "failed_commands": 0,
+    "repeated_failures": 0,
+    "recovered": null,
+    "declared_done": false,
+    "hit_guard": false,
+    "tokens": {
+      "prompt": 29029,
+      "completion": 412
+    },
+    "durations_ns": {
+      "load": 245393083,
+      "prompt_eval": 10339382084,
+      "eval": 4168311624,
+      "total": 14865434208
+    },
+    "vision": {
+      "mode": null,
+      "screenshots": 0,
+      "sidecar_tokens": {
+        "prompt": 0,
+        "completion": 0
+      }
+    },
+    "wall_ms": 914992,
+    "history_trimmed": false,
+    "errors": [
+      "ollama request exceeded 900000ms wall clock — abandoned"
+    ],
+    "rates": {
+      "prefill_tok_s": 2807.6,
+      "generate_tok_s": 98.8,
+      "prefill_share": 0.696
+    }
+  }
+}

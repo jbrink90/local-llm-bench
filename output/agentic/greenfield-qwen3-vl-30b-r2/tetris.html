@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Tetris</title>
+  <style>
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      font-family: Arial, sans-serif;
+    }
+    #score {
+      font-size: 20px;
+      margin-top: 10px;
+    }
+    #game {
+      display: grid;
+      grid-template-columns: repeat(10, 20px);
+      grid-template-rows: repeat(20, 20px);
+      border: 2px solid black;
+      gap: 1px;
+    }
+    .cell {
+      width: 20px;
+      height: 20px;
+      border: 1px solid #ddd;
+    }
+  </style>
+</head>
+<body>
+  <div id="score">Score: 0</div>
+  <div id="game"></div>
+  <script>
+    const pieces = [
+      {
+        shapes: [
+          [[0, 0], [0, 1], [0, 2], [0, 3]],
+          [[0, 0], [1, 0], [2, 0], [3, 0]]
+        ],
+        color: 'cyan'
+      },
+      {
+        shapes: [
+          [[0, 0], [0, 1], [1, 0], [1, 1]]
+        ],
+        color: 'yellow'
+      },
+      {
+        shapes: [
+          [[0, 0], [1, 0], [2, 0], [1, 1]],
+          [[0, 0], [0, 1], [0, 2], [1, 1]],
+          [[0, 0], [1, 0], [1, 1], [1, 2]],
+          [[1, 0], [2, 0], [1, 1], [1, 2]]
+        ],
+        color: 'purple'
+      },
+      {
+        shapes: [
+          [[0, 0], [0, 1], [1, 0], [1, 1]],
+          [[0, 1], [1, 0], [1, 1], [2, 0]]
+        ],
+        color: 'green'
+      },
+      {
+        shapes: [
+          [[0, 1], [0, 2], [1, 0], [1, 1]],
+          [[0, 0], [1, 0], [1, 1], [2, 1]]
+        ],
+        color: 'orange'
+      },
+      {
+        shapes: [
+          [[0, 0], [0, 1], [0, 2], [1, 0]],
+          [[0, 1], [1, 1], [2, 1], [2, 2]],
+          [[0, 0], [1, 0], [2, 0], [2, 1]],
+          [[0, 0], [0, 1], [0, 2], [1, 2]]
+        ],
+        color: 'blue'
+      },
+      {
+        shapes: [
+          [[0, 0], [0, 1], [0, 2], [1, 2]],
+          [[0, 0], [0, 1], [1, 0], [2, 0]],
+          [[0, 0], [1, 0], [2, 0], [2, 1]],
+          [[0, 0], [0, 1], [1, 1], [1, 2]]
+        ],
+        color: 'red'
+      }
+    ];
+
+    const colors = [
+      'cyan',
+      'yellow',
+      'purple',
+      'green',
+      'orange',
+      'blue',
+      'red'
+    ];
+
+    let grid = Array(20).fill(0).map(() => Array(10).fill(0));
+    let score = 0;
+    let gameInterval;
+    let currentPiece;
+
+    const createGrid = () => {
+      const gameDiv = document.getElementById('game');
+      for (let y = 0; y < 20; y++) {
+        for (let x = 0; x < 10; x++) {
+          const cell = document.createElement('div');
+          cell.className = 'cell';
+          cell.setAttribute('data-x', x);
+          cell.setAttribute('data-y', y);
+          gameDiv.appendChild(cell);
+        }
+      }
+    };
+
+    const canMove = (piece, deltaX, deltaY) => {
+      for (let i = 0; i < piece.shape.length; i++) {
+        let x = piece.x + piece.shape[i][0] + deltaX;
+        let y = piece.y + piece.shape[i][1] + deltaY;
+        if (x < 0 || x >= 10 || y < 0 || y >= 20) {
+          return false;
+        }
+        if (grid[y][x] !== 0) {
+          return false;
+        }
+      }
+      return true;
+    };
+
+    const rotate = () => {
+      const originalRotation = currentPiece.rotation;
+      const newRotation = (originalRotation + 1) % currentPiece.shapes.length;
+      currentPiece.rotation = newRotation;
+      
+      if (!canMove(currentPiece, 0, 0)) {
+        currentPiece.rotation = originalRotation;
+      }
+    };
+
+    const render = () => {
+      const cells = document.querySelectorAll('.cell');
+      cells.forEach(cell => {
+        cell.style.backgroundColor = 'white';
+      });
+
+      for (let y = 0; y < 20; y++) {
+        for (let x = 0; x < 10; x++) {
+          if (grid[y][x] !== 0) {
+            const cell = document.querySelector(`[data-x="${x}"][data-y="${y}"]`);
+            cell.style.backgroundColor = colors[grid[y][x]-1];
+          }
+        }
+      }
+
+      for (let i = 0; i < currentPiece.shape.length; i++) {
+        let x = currentPiece.x + currentPiece.shape[i][0];
+        let y = currentPiece.y + currentPiece.shape[i][1];
+        if (x >= 0 && x < 10 && y >= 0 && y < 20) {
+          const cell = document.querySelector(`[data-x="${x}"][data-y="${y}"]`);
+          cell.style.backgroundColor = currentPiece.color;
+        }
+      }
+    };
+
+    const gravity = () => {
+      if (canMove(currentPiece, 0, 1)) {
+        currentPiece.y++;
+        render();
+      } else {
+        for (let i = 0; i < currentPiece.shape.length; i++) {
+          let x = currentPiece.x + currentPiece.shape[i][0];
+          let y = currentPiece.y + currentPiece.shape[i][1];
+          if (x >= 0 && x < 10 && y >= 0 && y < 20) {
+            grid[y][x] = pieces.findIndex(p => p.color === currentPiece.color) + 1;
+          }
+        }
+
+        let clearedRows = 0;
+        const rowIndices = [];
+        for (let y = 19; y >= 0; y--) {
+          if (grid[y].every(cell => cell !== 0)) {
+            rowIndices.push(y);
+          }
+        }
+
+        for (let index of rowIndices) {
+          for (let y = index; y > 0; y--) {
+            grid[y] = grid[y-1].slice();
+          }
+          grid[0] = Array(10).fill(0);
+        }
+        clearedRows = rowIndices.length;
+
+        score += clearedRows * 100;
+        document.getElementById('score').textContent = `Score: ${score}`;
+
+        currentPiece = generatePiece();
+      }
+    };
+
+    const generatePiece = () => {
+      const randomPiece = pieces[Math.floor(Math.random() * pieces.length)];
+      const newPiece = {
+        x: 4,
+        y: 0,
+        shape: randomPiece.shapes[0],
+        rotation: 0,
+        color: randomPiece.color
+      };
+
+      if (!canMove(newPiece, 0, 0)) {
+        clearInterval(gameInterval);
+        alert('Game Over');
+        return;
+      }
+
+      return newPiece;
+    };
+
+    const startGame = () => {
+      createGrid();
+      currentPiece = generatePiece();
+      gameInterval = setInterval(gravity, 500);
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowLeft') {
+          if (canMove(currentPiece, -1, 0)) {
+            currentPiece.x--;
+            render();
+          }
+        } else if (e.key === 'ArrowRight') {
+          if (canMove(currentPiece, 1, 0)) {
+            currentPiece.x++;
+            render();
+          }
+        } else if (e.key === 'ArrowDown') {
+          if (canMove(currentPiece, 0, 1)) {
+            currentPiece.y++;
+            render();
+          }
+        } else if (e.key === 'ArrowUp') {
+          rotate();
+          render();
+        }
+      });
+    };
+
+    startGame();
+  </script>
+</body>
+</html>

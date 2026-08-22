@@ -41,7 +41,7 @@ emit_invalid() {
 
 [ -d "$WORKDIR" ] || emit_fail "no workdir"
 
-LOOP="$RESULTS/agentic-$SAFE.json"
+LOOP="$RESULTS/agentic-exercism-loop-$SAFE.json"
 if [ ! -s "$WORKDIR/bowling.py" ]; then
   if [ -s "$LOOP" ] && [ "$(jq -r '(.errors // []) | length' "$LOOP")" -gt 0 ]; then
     emit_invalid "driver error: $(jq -r '.errors[0]' "$LOOP")"

@@ -1,0 +1,128 @@
+21:49:18  START bugfix qwen3-coder:30b run 1/3
+21:56:12  DONE  bugfix qwen3-coder:30b run 1 — pass=false reason=suite-modified (1/6 tests present)
+21:56:12  START exercism qwen3-coder:30b run 1/3
+22:10:33  DONE  exercism qwen3-coder:30b run 1 — pass=false solved=24/31
+22:10:33  START greenfield qwen3-coder:30b run 1/3
+22:14:08  DONE  greenfield qwen3-coder:30b run 1 — pass=false score=4/8 vision=sidecar
+22:14:08  START bugfix qwen3-coder:30b run 2/3
+22:22:17  DONE  bugfix qwen3-coder:30b run 2 — pass=false tests=0/6
+22:22:17  START exercism qwen3-coder:30b run 2/3
+22:43:43  DONE  exercism qwen3-coder:30b run 2 — pass=false solved=20/31
+22:43:43  START greenfield qwen3-coder:30b run 2/3
+22:46:03  DONE  greenfield qwen3-coder:30b run 2 — pass=true score=7/8 vision=sidecar
+22:46:03  START bugfix qwen3-coder:30b run 3/3
+22:59:34  DONE  bugfix qwen3-coder:30b run 3 — pass=true tests=6/6
+22:59:34  START exercism qwen3-coder:30b run 3/3
+23:06:24  DONE  exercism qwen3-coder:30b run 3 — pass=false solved=23/31
+23:06:24  START greenfield qwen3-coder:30b run 3/3
+23:10:20  DONE  greenfield qwen3-coder:30b run 3 — pass=true score=7/8 vision=sidecar
+23:10:25  START bugfix qwen3.5:35b-a3b-coding-nvfp4 run 1/3
+23:11:10  DONE  bugfix qwen3.5:35b-a3b-coding-nvfp4 run 1 — pass=true tests=6/6
+23:11:10  START exercism qwen3.5:35b-a3b-coding-nvfp4 run 1/3
+23:14:31  DONE  exercism qwen3.5:35b-a3b-coding-nvfp4 run 1 — pass=true solved=31/31
+23:14:31  START greenfield qwen3.5:35b-a3b-coding-nvfp4 run 1/3
+23:19:47  DONE  greenfield qwen3.5:35b-a3b-coding-nvfp4 run 1 — pass=false score=2/8 vision=native
+23:19:47  START bugfix qwen3.5:35b-a3b-coding-nvfp4 run 2/3
+23:20:17  DONE  bugfix qwen3.5:35b-a3b-coding-nvfp4 run 2 — pass=true tests=6/6
+23:20:17  START exercism qwen3.5:35b-a3b-coding-nvfp4 run 2/3
+02:47:23  DONE  exercism qwen3.5:35b-a3b-coding-nvfp4 run 2 — pass=false solved=5/31
+02:47:23  START greenfield qwen3.5:35b-a3b-coding-nvfp4 run 2/3
+02:51:24  DONE  greenfield qwen3.5:35b-a3b-coding-nvfp4 run 2 — pass=false score=7/8 vision=native
+02:51:24  START bugfix qwen3.5:35b-a3b-coding-nvfp4 run 3/3
+02:51:59  DONE  bugfix qwen3.5:35b-a3b-coding-nvfp4 run 3 — pass=true tests=6/6
+02:51:59  START exercism qwen3.5:35b-a3b-coding-nvfp4 run 3/3
+02:52:36  DONE  exercism qwen3.5:35b-a3b-coding-nvfp4 run 3 — pass=true solved=31/31
+02:52:36  START greenfield qwen3.5:35b-a3b-coding-nvfp4 run 3/3
+02:54:48  DONE  greenfield qwen3.5:35b-a3b-coding-nvfp4 run 3 — pass=false score=6/8 vision=native
+02:54:53  START bugfix qwen3-vl:30b run 1/3
+03:12:57  DONE  bugfix qwen3-vl:30b run 1 — pass=false tests=0/6
+03:12:57  START exercism qwen3-vl:30b run 1/3
+03:25:22  DONE  exercism qwen3-vl:30b run 1 — pass=false solved=25/31
+03:25:22  START greenfield qwen3-vl:30b run 1/3
+03:35:34  DONE  greenfield qwen3-vl:30b run 1 — pass=true score=8/8 vision=native
+03:35:34  START bugfix qwen3-vl:30b run 2/3
+03:46:54  DONE  bugfix qwen3-vl:30b run 2 — pass=false reason=suite-modified (1/6 tests present)
+03:46:54  START exercism qwen3-vl:30b run 2/3
+04:12:15  DONE  exercism qwen3-vl:30b run 2 — pass=false solved=20/31
+04:12:15  START greenfield qwen3-vl:30b run 2/3
+04:22:53  DONE  greenfield qwen3-vl:30b run 2 — pass=true score=8/8 vision=native
+04:22:53  START bugfix qwen3-vl:30b run 3/3
+04:38:43  DONE  bugfix qwen3-vl:30b run 3 — pass=false tests=0/6
+04:38:43  START exercism qwen3-vl:30b run 3/3
+05:03:48  DONE  exercism qwen3-vl:30b run 3 — pass=false solved=22/31
+05:03:48  START greenfield qwen3-vl:30b run 3/3
+05:14:32  DONE  greenfield qwen3-vl:30b run 3 — pass=true score=7/8 vision=native
+05:14:38  START bugfix gemma4:26b-mlx-bf16 run 1/3
+06:12:03  DONE  bugfix gemma4:26b-mlx-bf16 run 1 — pass=false tests=11/11
+06:12:03  START exercism gemma4:26b-mlx-bf16 run 1/3
+06:19:32  DONE  exercism gemma4:26b-mlx-bf16 run 1 — pass=true solved=31/31
+06:19:32  START greenfield gemma4:26b-mlx-bf16 run 1/3
+06:25:44  DONE  greenfield gemma4:26b-mlx-bf16 run 1 — pass=true score=7/8 vision=sidecar
+06:25:44  START bugfix gemma4:26b-mlx-bf16 run 2/3
+06:35:22  DONE  bugfix gemma4:26b-mlx-bf16 run 2 — pass=true tests=6/6
+06:35:22  START exercism gemma4:26b-mlx-bf16 run 2/3
+06:43:29  DONE  exercism gemma4:26b-mlx-bf16 run 2 — pass=true solved=31/31
+06:43:29  START greenfield gemma4:26b-mlx-bf16 run 2/3
+06:50:33  DONE  greenfield gemma4:26b-mlx-bf16 run 2 — pass=true score=8/8 vision=sidecar
+06:50:33  START bugfix gemma4:26b-mlx-bf16 run 3/3
+07:03:04  DONE  bugfix gemma4:26b-mlx-bf16 run 3 — pass=true tests=6/6
+07:03:04  START exercism gemma4:26b-mlx-bf16 run 3/3
+07:11:23  DONE  exercism gemma4:26b-mlx-bf16 run 3 — pass=true solved=31/31
+07:11:23  START greenfield gemma4:26b-mlx-bf16 run 3/3
+07:19:34  DONE  greenfield gemma4:26b-mlx-bf16 run 3 — pass=false score=3/8 vision=sidecar
+07:19:40  START bugfix gpt-oss:20b run 1/3
+07:24:59  DONE  bugfix gpt-oss:20b run 1 — pass=true tests=6/6
+07:24:59  START exercism gpt-oss:20b run 1/3
+07:31:32  DONE  exercism gpt-oss:20b run 1 — pass=false solved=26/31
+07:31:32  START greenfield gpt-oss:20b run 1/3
+07:50:12  DONE  greenfield gpt-oss:20b run 1 — pass=true score=8/8 vision=sidecar
+07:50:12  START bugfix gpt-oss:20b run 2/3
+07:55:33  DONE  bugfix gpt-oss:20b run 2 — pass=true tests=6/6
+07:55:33  START exercism gpt-oss:20b run 2/3
+08:00:51  DONE  exercism gpt-oss:20b run 2 — pass=false solved=4/31
+08:00:51  START greenfield gpt-oss:20b run 2/3
+08:18:05  DONE  greenfield gpt-oss:20b run 2 — pass=true score=8/8 vision=sidecar
+08:18:05  START bugfix gpt-oss:20b run 3/3
+08:29:52  DONE  bugfix gpt-oss:20b run 3 — pass=true tests=6/6
+08:29:52  START exercism gpt-oss:20b run 3/3
+08:34:14  DONE  exercism gpt-oss:20b run 3 — pass=false solved=29/31
+08:34:14  START greenfield gpt-oss:20b run 3/3
+08:39:51  DONE  greenfield gpt-oss:20b run 3 — pass=true score=8/8 vision=sidecar
+08:39:56  START bugfix muse-glimmer:30b-mlx run 1/3
+08:44:53  DONE  bugfix muse-glimmer:30b-mlx run 1 — pass=true tests=6/6
+08:44:53  START exercism muse-glimmer:30b-mlx run 1/3
+09:05:36  DONE  exercism muse-glimmer:30b-mlx run 1 — pass=true solved=31/31
+09:05:37  START greenfield muse-glimmer:30b-mlx run 1/3
+09:19:51  DONE  greenfield muse-glimmer:30b-mlx run 1 — pass=true score=8/8 vision=native
+09:19:51  START bugfix muse-glimmer:30b-mlx run 2/3
+09:23:07  DONE  bugfix muse-glimmer:30b-mlx run 2 — pass=true tests=6/6
+09:23:07  START exercism muse-glimmer:30b-mlx run 2/3
+09:39:55  DONE  exercism muse-glimmer:30b-mlx run 2 — pass=true solved=31/31
+09:39:55  START greenfield muse-glimmer:30b-mlx run 2/3
+09:44:37  DONE  greenfield muse-glimmer:30b-mlx run 2 — pass=true score=8/8 vision=native
+09:44:37  START bugfix muse-glimmer:30b-mlx run 3/3
+09:52:04  DONE  bugfix muse-glimmer:30b-mlx run 3 — pass=true tests=6/6
+09:52:04  START exercism muse-glimmer:30b-mlx run 3/3
+10:10:24  DONE  exercism muse-glimmer:30b-mlx run 3 — pass=true solved=31/31
+10:10:24  START greenfield muse-glimmer:30b-mlx run 3/3
+10:20:48  DONE  greenfield muse-glimmer:30b-mlx run 3 — pass=true score=8/8 vision=native
+10:20:54  START bugfix laguna-xs.2:nvfp4 run 1/3
+10:22:12  DONE  bugfix laguna-xs.2:nvfp4 run 1 — pass=true tests=6/6
+10:22:12  START exercism laguna-xs.2:nvfp4 run 1/3
+12:33:29  DONE  exercism laguna-xs.2:nvfp4 run 1 — pass=false reason=suite-modified (0/31 present)
+12:33:30  START greenfield laguna-xs.2:nvfp4 run 1/3
+12:56:32  DONE  greenfield laguna-xs.2:nvfp4 run 1 — pass=false score=2/8 vision=sidecar
+12:56:32  START bugfix laguna-xs.2:nvfp4 run 2/3
+12:57:53  DONE  bugfix laguna-xs.2:nvfp4 run 2 — pass=true tests=6/6
+12:57:53  START exercism laguna-xs.2:nvfp4 run 2/3
+13:13:09  DONE  exercism laguna-xs.2:nvfp4 run 2 — pass=false solved=0/31
+13:13:09  START greenfield laguna-xs.2:nvfp4 run 2/3
+14:23:24  DONE  greenfield laguna-xs.2:nvfp4 run 2 — pass=false score=3/8 vision=sidecar
+14:23:24  START bugfix laguna-xs.2:nvfp4 run 3/3
+14:25:44  DONE  bugfix laguna-xs.2:nvfp4 run 3 — pass=true tests=6/6
+14:25:44  START exercism laguna-xs.2:nvfp4 run 3/3
+16:32:24  DONE  exercism laguna-xs.2:nvfp4 run 3 — pass=false solved=28/31
+16:32:25  START greenfield laguna-xs.2:nvfp4 run 3/3
+18:01:18  DONE  greenfield laguna-xs.2:nvfp4 run 3 — pass=false score=2/8 vision=sidecar
+18:01:23  ALL DONE — results in /Users/sibagy/fileZ/projZ/local-llm-bench/caxi-results/agentic-*.json
+18:01:25  killed driver descendants and unloaded models on exit

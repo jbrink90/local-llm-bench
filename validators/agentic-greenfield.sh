@@ -37,7 +37,7 @@ emit_invalid() {
 # A missing artifact is a model failure ONLY when the loop actually ran. If the
 # driver recorded an error, the run never got a fair attempt and must not be
 # scored — check that before blaming the model.
-LOOP_PRECHECK="$RESULTS/agentic-$SAFE.json"
+LOOP_PRECHECK="$RESULTS/agentic-greenfield-loop-$SAFE.json"
 if [ ! -s "$ARTIFACT" ]; then
   if [ -s "$LOOP_PRECHECK" ] && [ "$(jq -r '(.errors // []) | length' "$LOOP_PRECHECK")" -gt 0 ]; then
     emit_invalid "driver error: $(jq -r '.errors[0]' "$LOOP_PRECHECK")"
@@ -55,7 +55,7 @@ SCORE=$(echo "$FUNC" | jq -r '.score')
 # Merge loop + vision metrics so one row carries the verdict, the loop stats, and
 # which vision configuration produced it. A paired (sidecar) run must be legible
 # as such and never silently compared against a native-vision one.
-LOOP="$RESULTS/agentic-$SAFE.json"
+LOOP="$RESULTS/agentic-greenfield-loop-$SAFE.json"
 if [ -s "$LOOP" ]; then
   jq -n --arg m "$MODEL" --argjson func "$FUNC" --slurpfile loop "$LOOP" \
     '{model:$m, benchmark:"agentic-greenfield",

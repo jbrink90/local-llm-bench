@@ -1,0 +1,16 @@
+Expression.prototype.toJSFunction = function (param, variables) {
+  var expr = this;
+  var f = new Function(param, 'with(this.functions) with (this.ternaryOps) with (this.binaryOps) with (this.unaryOps) { return ' + expressionToString(this.simplify(variables).tokens, true) + '; }'); // eslint-disable-line no-new-func
+  return function () {
+    return f.apply(expr, arguments);
+  };
+};
+
+var TEOF = 'TEOF';
+var TOP = 'TOP';
+var TNUMBER = 'TNUMBER';
+var TSTRING = 'TSTRING';
+var TPAREN = 'TPAREN';
+var TBRACKET = 'TBRACKET';
+var TCOMMA = 'TCOMMA';
+var TNAME = 'TNAME';

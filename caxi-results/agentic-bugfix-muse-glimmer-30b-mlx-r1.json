@@ -1,0 +1,9 @@
+{
+  "model": "muse-glimmer:30b-mlx",
+  "benchmark": "agentic-bugfix",
+  "pass": true,
+  "tests_passed": 6,
+  "tests_failed": 0,
+  "tests_added": 0,
+  "loop_metrics_unavailable": "collided with another leg before the per-leg fix"
+}

@@ -1,0 +1,9 @@
+{
+  "model": "qwen3-coder:30b",
+  "benchmark": "agentic-bugfix",
+  "pass": false,
+  "tests_passed": 0,
+  "tests_failed": 6,
+  "tests_added": 0,
+  "loop_metrics_unavailable": "collided with another leg before the per-leg fix"
+}

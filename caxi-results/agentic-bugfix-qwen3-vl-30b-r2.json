@@ -1,0 +1,9 @@
+{
+  "model": "qwen3-vl:30b",
+  "benchmark": "agentic-bugfix",
+  "pass": false,
+  "reason": "shipped suite was modified",
+  "tests_passed": 0,
+  "tests_failed": 1,
+  "tests_added": 0
+}

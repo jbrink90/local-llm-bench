@@ -1,0 +1,63 @@
+{
+  "benchmark": "agentic",
+  "model": "qwen3.5:35b-a3b-coding-nvfp4",
+  "turns": 3,
+  "tool_calls": 3,
+  "malformed_calls": 0,
+  "wasted_calls": 0,
+  "failed_commands": 0,
+  "repeated_failures": 0,
+  "recovered": null,
+  "declared_done": true,
+  "hit_guard": false,
+  "tokens": {
+    "prompt": 13490,
+    "completion": 5648
+  },
+  "durations_ns": {
+    "load": 117883333,
+    "prompt_eval": 5070755666,
+    "eval": 54157941625,
+    "total": 59427605416
+  },
+  "vision": {
+    "mode": "native",
+    "screenshots": 1,
+    "sidecar_tokens": {
+      "prompt": 0,
+      "completion": 0
+    }
+  },
+  "wall_ms": 60383,
+  "history_trimmed": false,
+  "errors": [],
+  "rates": {
+    "prefill_tok_s": 2660.4,
+    "generate_tok_s": 104.3,
+    "prefill_share": 0.085
+  },
+  "transcript": [
+    {
+      "turn": 1,
+      "tool": "write_file",
+      "args": {
+        "path": "tetris.html",
+        "bytes": 18415
+      },
+      "result": "wrote tetris.html (18415 bytes)"
+    },
+    {
+      "turn": 2,
+      "tool": "screenshot",
+      "args": {
+        "path": "tetris.html"
+      },
+      "result": "Screenshot captured."
+    },
+    {
+      "turn": 3,
+      "tool": "done",
+      "summary": "Created a complete, self-contained Tetris game in tetris.html with all required features: visible playing field, 7 standard Tetris pieces, rotation, left/right movement, gravity, line clearing, and score display. The game has a modern, polished look with gradient backgrounds, glowing effects, and clear UI panels for score, level, lines, and next piece preview. Includes controls panel and game over/pause overlays."
+    }
+  ]
+}

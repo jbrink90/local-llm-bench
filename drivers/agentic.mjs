@@ -22,6 +22,16 @@ const OLLAMA = process.env.OLLAMA_URL || 'http://localhost:11434';
 // files before editing is being careful; the spec is explicit that turns are
 // reported, never penalized. Only a true runaway should trip this.
 const MAX_TURNS = Number(process.env.AGENTIC_MAX_TURNS || 500);
+
+// A turn cap alone does not bound cost. One exercism leg ran 500 turns and
+// generated 741,621 tokens over 3h27m before the cap stopped it, scoring 5/31 —
+// 3.5 hours of a 20-hour sweep spent on a single runaway. Budgets bound the leg
+// where a step limit cannot.
+//
+// Tripping either is a guard hit, recorded with its reason, never scored as the
+// model failing the task.
+const MAX_LEG_MS = Number(process.env.AGENTIC_MAX_LEG_MS || 2_400_000);
+const MAX_LEG_TOKENS = Number(process.env.AGENTIC_MAX_LEG_TOKENS || 250_000);
 const CMD_TIMEOUT_MS = 120_000;
 
 // Ollama defaults these models to a 131,072-token context, and the loop filled it:
@@ -308,6 +318,13 @@ async function handleScreenshot(args) {
   return { text: `Screenshot description (via vision model):\n${text}${jsErr}` };
 }
 
+// All three legs of a run share one safeName, so a single agentic-<tag>.json let
+// each leg overwrite the previous one's loop metrics — greenfield's turns and
+// tokens ended up labelled as bugfix's. Derive the leg from the prompt filename so
+// each writes its own file.
+const LEG = (promptFile.match(/agentic-([a-z]+)\.txt$/) || [, 'unknown'])[1];
+const loopFile = `agentic-${LEG}-loop-${safeName}.json`;
+
 const prompt = readFileSync(resolve(promptFile), 'utf8');
 const messages = [{ role: 'user', content: prompt }];
 const transcript = [];
@@ -318,6 +335,16 @@ try {
   metrics.vision.mode = visionMode;
 
   while (metrics.turns < MAX_TURNS) {
+    if (Date.now() - started > MAX_LEG_MS) {
+      metrics.hit_guard = true;
+      metrics.guard_reason = `leg exceeded ${MAX_LEG_MS}ms wall clock`;
+      break;
+    }
+    if (metrics.tokens.completion > MAX_LEG_TOKENS) {
+      metrics.hit_guard = true;
+      metrics.guard_reason = `leg exceeded ${MAX_LEG_TOKENS} generated tokens`;
+      break;
+    }
     metrics.turns++;
     const res = await chat(messages);
     metrics.tokens.prompt += res.prompt_eval_count || 0;
@@ -386,7 +413,10 @@ try {
 
     if (metrics.declared_done) break;
   }
-  if (metrics.turns >= MAX_TURNS) metrics.hit_guard = true;
+  if (metrics.turns >= MAX_TURNS) {
+    metrics.hit_guard = true;
+    metrics.guard_reason = metrics.guard_reason || `hit ${MAX_TURNS}-turn cap`;
+  }
 } catch (e) {
   metrics.errors.push(e.message);
 }
@@ -423,7 +453,7 @@ if (metrics.failed_commands > 0) {
 
 mkdirSync(resultsDir, { recursive: true });
 writeFileSync(
-  join(resultsDir, `agentic-${safeName}.json`),
+  join(resultsDir, loopFile),
   JSON.stringify({ ...metrics, transcript }, null, 2),
 );
 console.log(JSON.stringify(metrics));

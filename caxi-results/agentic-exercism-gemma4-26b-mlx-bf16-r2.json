@@ -1,0 +1,47 @@
+{
+  "model": "gemma4:26b-mlx-bf16",
+  "benchmark": "agentic-exercism",
+  "pass": true,
+  "solved": 31,
+  "of": 31,
+  "loop": {
+    "benchmark": "agentic",
+    "model": "gemma4:26b-mlx-bf16",
+    "turns": 13,
+    "tool_calls": 13,
+    "malformed_calls": 0,
+    "wasted_calls": 0,
+    "failed_commands": 3,
+    "repeated_failures": 2,
+    "recovered": false,
+    "declared_done": true,
+    "hit_guard": false,
+    "tokens": {
+      "prompt": 153274,
+      "completion": 18347
+    },
+    "durations_ns": {
+      "load": 688641582,
+      "prompt_eval": 10763981875,
+      "eval": 472108795208,
+      "total": 484508365917
+    },
+    "vision": {
+      "mode": null,
+      "screenshots": 0,
+      "sidecar_tokens": {
+        "prompt": 0,
+        "completion": 0
+      }
+    },
+    "wall_ms": 486611,
+    "history_trimmed": false,
+    "errors": [],
+    "rates": {
+      "prefill_tok_s": 14239.5,
+      "generate_tok_s": 38.9,
+      "prefill_share": 0.022
+    },
+    "novel_failures": 1
+  }
+}

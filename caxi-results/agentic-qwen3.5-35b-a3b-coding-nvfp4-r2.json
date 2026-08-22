@@ -1,0 +1,72 @@
+{
+  "benchmark": "agentic",
+  "model": "qwen3.5:35b-a3b-coding-nvfp4",
+  "turns": 4,
+  "tool_calls": 4,
+  "malformed_calls": 0,
+  "wasted_calls": 0,
+  "failed_commands": 0,
+  "repeated_failures": 0,
+  "recovered": null,
+  "declared_done": true,
+  "hit_guard": false,
+  "tokens": {
+    "prompt": 21654,
+    "completion": 6233
+  },
+  "durations_ns": {
+    "load": 201303167,
+    "prompt_eval": 6604745791,
+    "eval": 70438336000,
+    "total": 77430372209
+  },
+  "vision": {
+    "mode": "native",
+    "screenshots": 1,
+    "sidecar_tokens": {
+      "prompt": 0,
+      "completion": 0
+    }
+  },
+  "wall_ms": 198552,
+  "history_trimmed": false,
+  "errors": [],
+  "timed_out_commands": 1,
+  "rates": {
+    "prefill_tok_s": 3278.6,
+    "generate_tok_s": 88.5,
+    "prefill_share": 0.085
+  },
+  "transcript": [
+    {
+      "turn": 1,
+      "tool": "write_file",
+      "args": {
+        "path": "tetris.html",
+        "bytes": 19439
+      },
+      "result": "wrote tetris.html (19439 bytes)"
+    },
+    {
+      "turn": 2,
+      "tool": "screenshot",
+      "args": {
+        "path": "tetris.html"
+      },
+      "result": "Screenshot captured."
+    },
+    {
+      "turn": 3,
+      "tool": "run_command",
+      "args": {
+        "command": "cd /tmp && python3 -m http.server 8080 &"
+      },
+      "result": "exit 0\n\n\ncommand timed out after 120000ms and its process group was killed"
+    },
+    {
+      "turn": 4,
+      "tool": "done",
+      "summary": "Created a complete, self-contained Tetris game in tetris.html with: a visible 10x20 playing field, all seven standard Tetris pieces (I, O, T, S, Z, J, L) with distinct colors, rotation (↑), left/right movement (←→), gravity with increasing speed by level, line clearing with scoring, score/lines/level display, next piece preview, pause functionality, hard drop, and game over detection. The UI features a modern gradient background, clean design with rounded corners, and professional styling."
+    }
+  ]
+}
