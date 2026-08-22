@@ -398,6 +398,8 @@ tbody tr:hover td{background:var(--panel2)}
 .pill-inv{color:var(--warn);background:rgba(227,168,58,.12)}
 .dim{color:var(--dim)}
 footer.foot{margin-top:3rem;color:var(--dim);font-size:.8rem;text-align:center;line-height:1.8}
+footer.foot a{color:#93c5fd;text-decoration:underline;text-underline-offset:2px}
+footer.foot a:hover{color:#bfdbfe}
 @media(min-width:780px){.grid{grid-template-columns:1fr 1fr}.card.champ{grid-column:1/-1}}
 </style></head><body><div class="wrap">
 
@@ -472,14 +474,23 @@ ${notes.map((n) => `<div class="note"><div class="ic">${n.icon}</div><h4>${n.tit
   <b>INVALID</b> means the harness failed, not the model.
   ${staleCount ? `${staleCount} row(s) from an earlier sweep excluded. ` : ''}
   Generated ${new Date().toISOString().slice(0, 16).replace('T', ' ')}<br>
-  <b>Harness</b> <a href="https://github.com/NightOwlCoder/local-llm-bench">local-llm-bench</a> — an agent loop, not a prompt.
-  Each model is handed a real working directory and a set of tools, then left to work: it reads files, writes files,
+  <b>Harness</b> not Aider, not OpenHands, not Claude Code — a purpose-built
+  <a href="https://github.com/NightOwlCoder/local-llm-bench/blob/main/drivers/agentic.mjs">459-line agent loop</a>
+  written for this benchmark. Off-the-shelf agents ship their own system prompts, tool descriptions and
+  context strategies, so comparing two models inside one of them measures the agent as much as the model.
+  Each model here is handed a real working directory and six tools, then left to work: it reads files, writes files,
   runs commands, looks at screenshots, and decides when it is done. Nothing is scored from what the model
   <em>says</em> — the verdict comes from running the project's own test suite in the directory the model edited.
+  These scores describe a <em>minimal</em> loop; a model may behave differently inside a forty-tool IDE agent.
   <br>Ollama <code>/api/chat</code> tool calling, non-streaming ·
-  32k context cap, sliding-window history · tools: list_dir, read_file, write_file, run_command, screenshot, done ·
+  tools: list_dir, read_file, write_file, run_command, screenshot, done ·
   each command in its own process group, 120s cap · 15-min per-request ceiling ·
-  40-min / 250k-token leg budget · fresh fixture copy per attempt, no network<br>
+  40-min / 250k-token leg budget · fresh fixture copy per attempt, no network
+  <br><b>Context</b> 32k ceiling. History is trimmed in whole 12-message blocks rather than one message per turn,
+  because Ollama's KV prefix cache only survives when the front of the prompt is byte-identical — a per-turn
+  slide cut cache reuse from 12,476 tokens to 693. Block trimming gave a median of 7 cache invalidations per leg,
+  and a median prefill share of 8.5% of wall time. No summarization of dropped turns: that would score the
+  summarizer too. <a href="https://github.com/NightOwlCoder/local-llm-bench/blob/main/docs/HARNESS.md">Full harness notes</a><br>
   <b>Machine</b> Apple M4 Max, 128 GB unified · macOS · Ollama 0.32.9 (MLX engine for safetensors, llama.cpp for GGUF)
 </footer>
 
