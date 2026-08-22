@@ -1,0 +1,9 @@
+13:25:57  START bugfix qwen3-coder-next run 1/1
+Terminated: 15             ( cd "$WORK" && AGENTIC_VISION=0 node "$REPO/drivers/agentic.mjs" "$WORK" "$MODEL" "$RESULTS" "$TAG" "$REPO/prompts/agentic-bugfix.txt" > /dev/null 2>&1 )
+14:24:23  unloaded models on exit
+14:24:23  DONE  bugfix qwen3-coder-next run 1 — pass=false tests=3/6
+14:24:23  START greenfield qwen3-coder-next run 1/1
+Terminated: 15             AGENTIC_VISION=1 node "$REPO/drivers/agentic.mjs" "$WORK" "$MODEL" "$RESULTS" "$TAG" "$REPO/prompts/agentic-greenfield.txt" > /dev/null 2>&1
+14:24:24  DONE  greenfield qwen3-coder-next run 1 — pass=false reason=no tetris.html produced
+14:24:29  ALL DONE — results in /Users/sibagy/fileZ/projZ/local-llm-bench/caxi-results/agentic-*.json
+14:24:29  unloaded models on exit

@@ -3,5 +3,6 @@
   "benchmark": "agentic-exercism",
   "pass": false,
   "solved": 0,
-  "reason": "test count shrank — suite was modified"
+  "reason": "test count shrank \u2014 suite was modified",
+  "wall_min_from_log": 131.3
 }

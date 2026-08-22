@@ -1,0 +1,13 @@
+22:54:27  START bugfix qwen3-coder:30b run 1/3
+23:01:52  DONE  bugfix qwen3-coder:30b run 1 — pass=false reason=suite-modified (1/6 tests present)
+23:01:52  START greenfield qwen3-coder:30b run 1/3
+23:08:29  DONE  greenfield qwen3-coder:30b run 1 — pass=false score=4/8 vision=sidecar
+23:08:29  START bugfix qwen3-coder:30b run 2/3
+23:18:45  DONE  bugfix qwen3-coder:30b run 2 — pass=false reason=suite-modified (1/6 tests present)
+23:18:45  START greenfield qwen3-coder:30b run 2/3
+23:22:46  DONE  greenfield qwen3-coder:30b run 2 — pass=false score=4/8 vision=sidecar
+23:22:46  START bugfix qwen3-coder:30b run 3/3
+00:20:05  DONE  bugfix qwen3-coder:30b run 3 — pass=false tests=0/6
+00:20:05  START greenfield qwen3-coder:30b run 3/3
+00:24:52  DONE  greenfield qwen3-coder:30b run 3 — pass=false score=5/8 vision=sidecar
+00:24:58  START bugfix qwen3-coder-next run 1/3
