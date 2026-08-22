@@ -1,143 +1,504 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8">
-<title>Agentic dimension — local model report</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Can a local model actually code? — agentic benchmark</title>
 <style>
-:root { color-scheme: dark; --bg:#0f1115; --fg:#e6e6e6; --dim:#8b93a1; --line:#262b35;
-        --ok:#3ba55d; --bad:#d64545; --warn:#d99b28; --accent:#5b9dd9; }
-* { box-sizing: border-box; }
-body { margin:0; padding:2rem; background:var(--bg); color:var(--fg);
-       font:14px/1.5 ui-sans-serif,-apple-system,"Segoe UI",sans-serif; }
-h1 { font-size:1.4rem; margin:0 0 .25rem; }
-p.sub { color:var(--dim); margin:0 0 1.5rem; }
-table { border-collapse:collapse; width:100%; margin-bottom:2.5rem; }
-th, td { text-align:left; padding:.45rem .6rem; border-bottom:1px solid var(--line); }
-th { position:sticky; top:0; background:#161a21; cursor:pointer; user-select:none;
-     font-weight:600; white-space:nowrap; }
-th:hover { color:var(--accent); }
-th::after { content:''; color:var(--dim); }
-th.asc::after { content:' ▲'; }
-th.desc::after { content:' ▼'; }
-td.num { text-align:right; font-variant-numeric:tabular-nums; }
-tr:hover td { background:#151922; }
-.pass { color:var(--ok); font-weight:600; }
-.fail { color:var(--bad); font-weight:600; }
-.inv  { color:var(--warn); font-weight:600; }
-.dim  { color:var(--dim); }
-.bar { display:inline-block; height:.55rem; border-radius:2px; background:var(--accent);
-       vertical-align:middle; margin-right:.4rem; }
-.controls { display:flex; gap:.75rem; align-items:center; margin-bottom:.75rem; flex-wrap:wrap; }
-input, select { background:#161a21; color:var(--fg); border:1px solid var(--line);
-                border-radius:4px; padding:.35rem .5rem; font:inherit; }
-.badge { font-size:.75rem; padding:.1rem .4rem; border:1px solid var(--line);
-         border-radius:3px; color:var(--dim); }
-.note { color:var(--dim); font-size:.85rem; border-left:2px solid var(--line);
-        padding-left:.75rem; margin:1rem 0 2rem; }
-</style></head><body>
+:root{
+  --bg:#0b0d12; --panel:#12151d; --panel2:#171b25; --fg:#eef1f6; --dim:#8f98a9;
+  --line:#232936; --line2:#39435a; --ok:#42c07a; --bad:#e8595b; --warn:#e3a83a;
+  --accent:#6aa9ff; --accent2:#b98cff;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);
+  font:15px/1.6 ui-sans-serif,-apple-system,"Segoe UI",Roboto,sans-serif;
+  -webkit-font-smoothing:antialiased}
+.wrap{max-width:1120px;margin:0 auto;padding:3rem 1.5rem 5rem}
+.hero{text-align:center;margin-bottom:3rem}
+.kicker{font-size:.8rem;letter-spacing:.18em;text-transform:uppercase;color:var(--dim)}
+h1{font-size:clamp(1.9rem,4.5vw,3rem);line-height:1.1;margin:.5rem 0 .75rem;
+  background:linear-gradient(100deg,var(--fg),var(--accent) 60%,var(--accent2));
+  -webkit-background-clip:text;background-clip:text;color:transparent}
+.lede{color:var(--dim);max-width:62ch;margin:0 auto 1.75rem}
+.stats{display:flex;gap:.6rem;justify-content:center;flex-wrap:wrap}
+.stat{background:var(--panel);border:1px solid var(--line);border-radius:10px;
+  padding:.6rem 1rem;min-width:92px}
+.stat b{display:block;font-size:1.35rem;line-height:1.2}
+.stat span{font-size:.72rem;color:var(--dim);text-transform:uppercase;letter-spacing:.08em}
 
-<h1>Agentic dimension — local coding agents</h1>
-<p class="sub">Generated 2026-08-22 02:57 ·
-63 legs · 7 models · localhost only, no network during runs</p>
+.winner{background:linear-gradient(150deg,rgba(106,169,255,.14),rgba(185,140,255,.08));
+  border:1px solid var(--line2);border-radius:16px;padding:1.5rem 1.75rem;margin:0 0 2.5rem;
+  display:flex;gap:1.25rem;align-items:center;flex-wrap:wrap}
+.winner .crown{font-size:2.5rem;line-height:1}
+.winner h2{margin:0 0 .2rem;font-size:1.25rem}
+.winner p{margin:0;color:var(--dim);font-size:.92rem}
 
-<div class="note">
-The artifact is the only gate. Loop metrics (turns, tokens, throughput) are reported
-and never used to pass or fail: on the first smoke run a model called <code>done()</code>
-reporting "operator precedence logic fixed" having written nothing at all.
-<strong>INVALID</strong> means the harness failed, not the model — recorded as
-<code>pass=null</code> so a timeout never reads as a zero.
-<br>1 row(s) from an earlier sweep excluded.
+h2.sec{font-size:1.05rem;letter-spacing:.02em;margin:2.75rem 0 .35rem}
+p.secsub{color:var(--dim);font-size:.88rem;margin:0 0 1.25rem}
+
+.legend{display:flex;gap:1.25rem;flex-wrap:wrap;color:var(--dim);font-size:.82rem;
+  border-left:2px solid var(--line2);padding:.35rem 0 .35rem .85rem;margin-bottom:1.5rem}
+.legend b{color:var(--fg);font-weight:600}
+
+.grid{display:grid;gap:1rem}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:1.1rem 1.25rem}
+.card.champ{border-color:var(--ok);box-shadow:0 0 0 1px rgba(66,192,122,.25),0 8px 30px -18px rgba(66,192,122,.6)}
+.card header{display:flex;gap:.9rem;align-items:flex-start;margin-bottom:.9rem}
+.rank{font-size:1.5rem;line-height:1.2;min-width:1.6rem;text-align:center;color:var(--dim)}
+.who{flex:1;min-width:0}
+.who h3{margin:0;font-size:1.02rem;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+.tags{display:flex;gap:.35rem;flex-wrap:wrap;margin-top:.35rem}
+.tag{font-size:.7rem;color:var(--dim);border:1px solid var(--line);border-radius:20px;
+  padding:.1rem .55rem;white-space:nowrap}
+.tag.mlx{color:var(--accent);border-color:rgba(106,169,255,.4)}
+.tag.gguf{color:var(--dim)}
+.tag.eye{color:var(--accent2);border-color:rgba(185,140,255,.4)}
+.tally{text-align:right;white-space:nowrap}
+.tally b{font-size:1.5rem}
+.tally span{color:var(--dim);font-size:.8rem}
+
+.legs{display:grid;gap:.45rem}
+.legrow{display:grid;grid-template-columns:5.6rem 1fr 6.2rem 54px;gap:.7rem;align-items:center;
+  font-size:.86rem}
+.legname{color:var(--dim)}
+.meter{display:block;height:.5rem;background:var(--panel2);border-radius:99px;overflow:hidden}
+.meter i{display:block;height:100%;border-radius:99px}
+.meter i.good{background:linear-gradient(90deg,var(--ok),#7fe0a8)}
+.meter i.mid{background:linear-gradient(90deg,var(--warn),#f0c777)}
+.meter i.bad{background:linear-gradient(90deg,var(--bad),#f08d8e)}
+.legscore{font-variant-numeric:tabular-nums;text-align:right;font-size:.82rem}
+.legscore em{color:var(--dim);font-style:normal;font-size:.74rem}
+.spark{display:block}
+.card footer{margin-top:.9rem;padding-top:.7rem;border-top:1px solid var(--line);
+  color:var(--dim);font-size:.78rem;display:flex;gap:.35rem;flex-wrap:wrap}
+
+.notes{display:grid;gap:.75rem;grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+.note{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:1rem 1.1rem}
+.note .ic{font-size:1.35rem}
+.note h4{margin:.35rem 0 .3rem;font-size:.95rem}
+.note p{margin:0;color:var(--dim);font-size:.85rem}
+
+details.raw{margin-top:2.5rem;background:var(--panel);border:1px solid var(--line);border-radius:12px}
+details.raw summary{cursor:pointer;padding:.9rem 1.1rem;font-weight:600;font-size:.92rem}
+details.raw summary:hover{color:var(--accent)}
+.rawbody{padding:0 1.1rem 1.1rem}
+.controls{display:flex;gap:.6rem;align-items:center;flex-wrap:wrap;margin:.5rem 0 .9rem}
+input,select{background:var(--panel2);color:var(--fg);border:1px solid var(--line);
+  border-radius:7px;padding:.4rem .6rem;font:inherit;font-size:.85rem}
+label.chk{font-size:.82rem;color:var(--dim);display:flex;align-items:center;gap:.3rem}
+table{border-collapse:collapse;width:100%;font-size:.83rem}
+th,td{text-align:left;padding:.4rem .55rem;border-bottom:1px solid var(--line);white-space:nowrap}
+th{position:sticky;top:0;background:var(--panel2);cursor:pointer;user-select:none;font-size:.76rem;
+  text-transform:uppercase;letter-spacing:.05em;color:var(--dim)}
+th:hover{color:var(--accent)}
+th.asc::after{content:' ▲'}th.desc::after{content:' ▼'}
+td.num{text-align:right;font-variant-numeric:tabular-nums}
+tbody tr:hover td{background:var(--panel2)}
+.pill{font-size:.72rem;padding:.1rem .45rem;border-radius:20px;font-weight:600}
+.pill-ok{color:var(--ok);background:rgba(66,192,122,.12)}
+.pill-bad{color:var(--bad);background:rgba(232,89,91,.12)}
+.pill-inv{color:var(--warn);background:rgba(227,168,58,.12)}
+.dim{color:var(--dim)}
+footer.foot{margin-top:3rem;color:var(--dim);font-size:.8rem;text-align:center;line-height:1.8}
+@media(min-width:780px){.grid{grid-template-columns:1fr 1fr}.card.champ{grid-column:1/-1}}
+</style></head><body><div class="wrap">
+
+<div class="hero">
+  <div class="kicker">local-llm-bench · agentic dimension</div>
+  <h1>Can a local model actually code<br>with the wifi off?</h1>
+  <p class="lede">Seven models on one laptop, no network, driving a real tool loop:
+  read files, run commands, read the failure, try again. Three tasks, three attempts each,
+  and the only thing that counts is whether the code works at the end.</p>
+  <div class="stats">
+    <div class="stat"><b>63</b><span>legs run</span></div>
+    <div class="stat"><b>7</b><span>models</span></div>
+    <div class="stat"><b>21.8<span style="font-size:.9rem">h</span></b><span>wall clock</span></div>
+    <div class="stat"><b>1.9M</b><span>tokens burned</span></div>
+    <div class="stat"><b>37</b><span>legs passed</span></div>
+  </div>
 </div>
 
-<h2>Per-leg results</h2>
-<div class="controls">
-  <input id="q" placeholder="filter model or leg…" size="28">
-  <select id="legf">
-    <option value="">all legs</option>
-    <option value="bugfix">bugfix</option>
-    <option value="exercism">exercism</option>
-    <option value="greenfield">greenfield</option>
-  </select>
-  <label class="badge"><input type="checkbox" id="onlyfail"> problems only</label>
-  <span class="dim" id="count"></span>
+<div class="winner">
+  <div class="crown">👑</div>
+  <div style="flex:1;min-width:220px">
+    <h2>muse-glimmer:30b-mlx takes it — 9/9 legs</h2>
+    <p>The only model that passed everything, and it did it looking at its own screenshots rather than borrowing a second model for eyes.
+    Slowest generator in the field at 19.9 tok/s — and it never once thrashed.</p>
+  </div>
 </div>
-<table id="t">
-<thead><tr>
-  <th data-k="model">model</th>
-  <th data-k="leg">leg</th>
-  <th data-k="run" class="num">run</th>
-  <th data-k="verdict">verdict</th>
-  <th data-k="score" class="num">score</th>
-  <th data-k="vision">vision</th>
-  <th data-k="turns" class="num">turns</th>
-  <th data-k="minutes" class="num">min</th>
-  <th data-k="gen_tok" class="num">gen tok</th>
-  <th data-k="gen_tok_s" class="num">tok/s</th>
-  <th data-k="prefill_share" class="num">prefill</th>
-  <th data-k="tests_added" class="num">+tests</th>
-  <th data-k="reason">note</th>
-</tr></thead>
-<tbody></tbody>
-</table>
+
+<h2 class="sec">The field</h2>
+<p class="secsub">Ranked by legs passed, then by how many tasks were clean on <em>every</em> attempt.
+Consistency separates these models far more than peak score does.</p>
+<div class="legend">
+  <span><b>Repair</b> Find one planted defect in an unfamiliar parser and fix it</span>
+  <span><b>Implement</b> Write a bowling scorer against 31 canonical cases</span>
+  <span><b>Build</b> Build a playable Tetris from nothing, and look at its own screenshot</span>
+</div>
+<div class="grid">
+<article class="card champ">
+  <header>
+    <span class="rank">🥇</span>
+    <div class="who">
+      <h3>muse-glimmer:30b-mlx</h3>
+      <div class="tags">
+        <span class="tag mlx">MLX · nvfp4</span>
+        <span class="tag">21 GB</span>
+        <span class="tag eye">👁 native vision</span>
+      </div>
+    </div>
+    <div class="tally"><b>9</b><span>/9 legs</span></div>
+  </header>
+  <div class="legs">
+    <div class="legrow">
+        <span class="legname">Repair</span>
+        <span class="meter"><i class="good" style="width:100%"></i></span>
+        <span class="legscore">6 · 6 · 6<em>/6</em></span>
+        <svg class="spark" viewBox="0 0 54 18" width="54" height="18"><polyline points="2.0,2.0 27.0,2.0 52.0,2.0" fill="none" stroke="var(--line2)" stroke-width="1.4"/><circle cx="2.0" cy="2.0" r="2.6" fill="var(--ok)"/><circle cx="27.0" cy="2.0" r="2.6" fill="var(--ok)"/><circle cx="52.0" cy="2.0" r="2.6" fill="var(--ok)"/></svg>
+      </div><div class="legrow">
+        <span class="legname">Implement</span>
+        <span class="meter"><i class="good" style="width:100%"></i></span>
+        <span class="legscore">31 · 31 · 31<em>/31</em></span>
+        <svg class="spark" viewBox="0 0 54 18" width="54" height="18"><polyline points="2.0,2.0 27.0,2.0 52.0,2.0" fill="none" stroke="var(--line2)" stroke-width="1.4"/><circle cx="2.0" cy="2.0" r="2.6" fill="var(--ok)"/><circle cx="27.0" cy="2.0" r="2.6" fill="var(--ok)"/><circle cx="52.0" cy="2.0" r="2.6" fill="var(--ok)"/></svg>
+      </div><div class="legrow">
+        <span class="legname">Build</span>
+        <span class="meter"><i class="good" style="width:100%"></i></span>
+        <span class="legscore">8 · 8 · 8<em>/8</em></span>
+        <svg class="spark" viewBox="0 0 54 18" width="54" height="18"><polyline points="2.0,2.0 27.0,2.0 52.0,2.0" fill="none" stroke="var(--line2)" stroke-width="1.4"/><circle cx="2.0" cy="2.0" r="2.6" fill="var(--ok)"/><circle cx="27.0" cy="2.0" r="2.6" fill="var(--ok)"/><circle cx="52.0" cy="2.0" r="2.6" fill="var(--ok)"/></svg>
+      </div>
+  </div>
+  <footer>
+    <span title="median leg duration">⏱ 16.8 min median</span>
+    <span title="worst single leg">· worst 21 min</span>
+    <span>· 19.9 tok/s</span>
+    <span>· 87k tokens spent</span>
+  </footer>
+</article>
+<article class="card">
+  <header>
+    <span class="rank">🥈</span>
+    <div class="who">
+      <h3>gemma4:26b-mlx-bf16</h3>
+      <div class="tags">
+        <span class="tag mlx">MLX · bf16</span>
+        <span class="tag">52 GB</span>
+        <span class="tag ">🤝 vision sidecar</span>
+      </div>
+    </div>
+    <div class="tally"><b>8</b><span>/9 legs</span></div>
+  </header>
+  <div class="legs">
+    <div class="legrow">
+        <span class="legname">Repair</span>
+        <span class="meter"><i class="good" style="width:100%"></i></span>
+        <span class="legscore">6 · 6 · 6<em>/6</em></span>
+        <svg class="spark" viewBox="0 0 54 18" width="54" height="18"><polyline points="2.0,2.0 27.0,2.0 52.0,2.0" fill="none" stroke="var(--line2)" stroke-width="1.4"/><circle cx="2.0" cy="2.0" r="2.6" fill="var(--ok)"/><circle cx="27.0" cy="2.0" r="2.6" fill="var(--ok)"/><circle cx="52.0" cy="2.0" r="2.6" fill="var(--ok)"/></svg>
+      </div><div class="legrow">
+        <span class="legname">Implement</span>
+        <span class="meter"><i class="good" style="width:100%"></i></span>
+        <span class="legscore">31 · 31 · 31<em>/31</em></span>
+        <svg class="spark" viewBox="0 0 54 18" width="54" height="18"><polyline points="2.0,2.0 27.0,2.0 52.0,2.0" fill="none" stroke="var(--line2)" stroke-width="1.4"/><circle cx="2.0" cy="2.0" r="2.6" fill="var(--ok)"/><circle cx="27.0" cy="2.0" r="2.6" fill="var(--ok)"/><circle cx="52.0" cy="2.0" r="2.6" fill="var(--ok)"/></svg>
+      </div><div class="legrow">
+        <span class="legname">Build</span>
+        <span class="meter"><i class="mid" style="width:88%"></i></span>
+        <span class="legscore">7 · 8 · 3<em>/8</em></span>
+        <svg class="spark" viewBox="0 0 54 18" width="54" height="18"><polyline points="2.0,3.8 27.0,2.0 52.0,10.8" fill="none" stroke="var(--line2)" stroke-width="1.4"/><circle cx="2.0" cy="3.8" r="2.6" fill="var(--ok)"/><circle cx="27.0" cy="2.0" r="2.6" fill="var(--ok)"/><circle cx="52.0" cy="10.8" r="2.6" fill="var(--bad)"/></svg>
+      </div>
+  </div>
+  <footer>
+    <span title="median leg duration">⏱ 7.5 min median</span>
+    <span title="worst single leg">· worst 8 min</span>
+    <span>· 40.7 tok/s</span>
+    <span>· 93k tokens spent</span>
+  </footer>
+</article>
+<article class="card">
+  <header>
+    <span class="rank">🥉</span>
+    <div class="who">
+      <h3>gpt-oss:20b</h3>
+      <div class="tags">
+        <span class="tag gguf">llama.cpp · MXFP4</span>
+        <span class="tag">14 GB</span>
+        <span class="tag ">🤝 vision sidecar</span>
+      </div>
+    </div>
+    <div class="tally"><b>6</b><span>/9 legs</span></div>
+  </header>
+  <div class="legs">
+    <div class="legrow">
+        <span class="legname">Repair</span>
+        <span class="meter"><i class="good" style="width:100%"></i></span>
+        <span class="legscore">6 · 6 · 6<em>/6</em></span>
+        <svg class="spark" viewBox="0 0 54 18" width="54" height="18"><polyline points="2.0,2.0 27.0,2.0 52.0,2.0" fill="none" stroke="var(--line2)" stroke-width="1.4"/><circle cx="2.0" cy="2.0" r="2.6" fill="var(--ok)"/><circle cx="27.0" cy="2.0" r="2.6" fill="var(--ok)"/><circle cx="52.0" cy="2.0" r="2.6" fill="var(--ok)"/></svg>
+      </div><div class="legrow">
+        <span class="legname">Implement</span>
+        <span class="meter"><i class="mid" style="width:84%"></i></span>
+        <span class="legscore">26 · 4 · 29<em>/31</em></span>
+        <svg class="spark" viewBox="0 0 54 18" width="54" height="18"><polyline points="2.0,4.3 27.0,14.2 52.0,2.9" fill="none" stroke="var(--line2)" stroke-width="1.4"/><circle cx="2.0" cy="4.3" r="2.6" fill="var(--bad)"/><circle cx="27.0" cy="14.2" r="2.6" fill="var(--bad)"/><circle cx="52.0" cy="2.9" r="2.6" fill="var(--bad)"/></svg>
+      </div><div class="legrow">
+        <span class="legname">Build</span>
+        <span class="meter"><i class="good" style="width:100%"></i></span>
+        <span class="legscore">8 · 8 · 8<em>/8</em></span>
+        <svg class="spark" viewBox="0 0 54 18" width="54" height="18"><polyline points="2.0,2.0 27.0,2.0 52.0,2.0" fill="none" stroke="var(--line2)" stroke-width="1.4"/><circle cx="2.0" cy="2.0" r="2.6" fill="var(--ok)"/><circle cx="27.0" cy="2.0" r="2.6" fill="var(--ok)"/><circle cx="52.0" cy="2.0" r="2.6" fill="var(--ok)"/></svg>
+      </div>
+  </div>
+  <footer>
+    <span title="median leg duration">⏱ 6.5 min median</span>
+    <span title="worst single leg">· worst 19 min</span>
+    <span>· 39.1 tok/s</span>
+    <span>· 113k tokens spent</span>
+  </footer>
+</article>
+<article class="card">
+  <header>
+    <span class="rank">4</span>
+    <div class="who">
+      <h3>qwen3.5:35b-a3b-coding-nvfp4</h3>
+      <div class="tags">
+        <span class="tag mlx">MLX · nvfp4</span>
+        <span class="tag">22 GB</span>
+        <span class="tag eye">👁 native vision</span>
+      </div>
+    </div>
+    <div class="tally"><b>5</b><span>/9 legs</span></div>
+  </header>
+  <div class="legs">
+    <div class="legrow">
+        <span class="legname">Repair</span>
+        <span class="meter"><i class="good" style="width:100%"></i></span>
+        <span class="legscore">6 · 6 · 6<em>/6</em></span>
+        <svg class="spark" viewBox="0 0 54 18" width="54" height="18"><polyline points="2.0,2.0 27.0,2.0 52.0,2.0" fill="none" stroke="var(--line2)" stroke-width="1.4"/><circle cx="2.0" cy="2.0" r="2.6" fill="var(--ok)"/><circle cx="27.0" cy="2.0" r="2.6" fill="var(--ok)"/><circle cx="52.0" cy="2.0" r="2.6" fill="var(--ok)"/></svg>
+      </div><div class="legrow">
+        <span class="legname">Implement</span>
+        <span class="meter"><i class="mid" style="width:100%"></i></span>
+        <span class="legscore">31 · 5 · 31<em>/31</em></span>
+        <svg class="spark" viewBox="0 0 54 18" width="54" height="18"><polyline points="2.0,2.0 27.0,13.7 52.0,2.0" fill="none" stroke="var(--line2)" stroke-width="1.4"/><circle cx="2.0" cy="2.0" r="2.6" fill="var(--ok)"/><circle cx="27.0" cy="13.7" r="2.6" fill="var(--bad)"/><circle cx="52.0" cy="2.0" r="2.6" fill="var(--ok)"/></svg>
+      </div><div class="legrow">
+        <span class="legname">Build</span>
+        <span class="meter"><i class="mid" style="width:75%"></i></span>
+        <span class="legscore">2 · 7 · 6<em>/8</em></span>
+        <svg class="spark" viewBox="0 0 54 18" width="54" height="18"><polyline points="2.0,12.5 27.0,3.8 52.0,5.5" fill="none" stroke="var(--line2)" stroke-width="1.4"/><circle cx="2.0" cy="12.5" r="2.6" fill="var(--bad)"/><circle cx="27.0" cy="3.8" r="2.6" fill="var(--bad)"/><circle cx="52.0" cy="5.5" r="2.6" fill="var(--bad)"/></svg>
+      </div>
+  </div>
+  <footer>
+    <span title="median leg duration">⏱ 3.3 min median</span>
+    <span title="worst single leg">· worst 207 min</span>
+    <span>· 88.5 tok/s</span>
+    <span>· 784k tokens spent</span>
+  </footer>
+</article>
+<article class="card">
+  <header>
+    <span class="rank">5</span>
+    <div class="who">
+      <h3>qwen3-vl:30b</h3>
+      <div class="tags">
+        <span class="tag gguf">llama.cpp · Q4_K_M</span>
+        <span class="tag">20 GB</span>
+        <span class="tag eye">👁 native vision</span>
+      </div>
+    </div>
+    <div class="tally"><b>3</b><span>/9 legs</span></div>
+  </header>
+  <div class="legs">
+    <div class="legrow">
+        <span class="legname">Repair</span>
+        <span class="meter"><i class="bad" style="width:3%"></i></span>
+        <span class="legscore">0 · 0 · 0<em>/6</em></span>
+        <svg class="spark" viewBox="0 0 54 18" width="54" height="18"><polyline points="2.0,16.0 27.0,16.0 52.0,16.0" fill="none" stroke="var(--line2)" stroke-width="1.4"/><circle cx="2.0" cy="16.0" r="2.6" fill="var(--bad)"/><circle cx="27.0" cy="16.0" r="2.6" fill="var(--bad)"/><circle cx="52.0" cy="16.0" r="2.6" fill="var(--bad)"/></svg>
+      </div><div class="legrow">
+        <span class="legname">Implement</span>
+        <span class="meter"><i class="mid" style="width:71%"></i></span>
+        <span class="legscore">25 · 20 · 22<em>/31</em></span>
+        <svg class="spark" viewBox="0 0 54 18" width="54" height="18"><polyline points="2.0,4.7 27.0,7.0 52.0,6.1" fill="none" stroke="var(--line2)" stroke-width="1.4"/><circle cx="2.0" cy="4.7" r="2.6" fill="var(--bad)"/><circle cx="27.0" cy="7.0" r="2.6" fill="var(--bad)"/><circle cx="52.0" cy="6.1" r="2.6" fill="var(--bad)"/></svg>
+      </div><div class="legrow">
+        <span class="legname">Build</span>
+        <span class="meter"><i class="good" style="width:100%"></i></span>
+        <span class="legscore">8 · 8 · 7<em>/8</em></span>
+        <svg class="spark" viewBox="0 0 54 18" width="54" height="18"><polyline points="2.0,2.0 27.0,2.0 52.0,3.8" fill="none" stroke="var(--line2)" stroke-width="1.4"/><circle cx="2.0" cy="2.0" r="2.6" fill="var(--ok)"/><circle cx="27.0" cy="2.0" r="2.6" fill="var(--ok)"/><circle cx="52.0" cy="3.8" r="2.6" fill="var(--ok)"/></svg>
+      </div>
+  </div>
+  <footer>
+    <span title="median leg duration">⏱ 12.4 min median</span>
+    <span title="worst single leg">· worst 25 min</span>
+    <span>· 39.5 tok/s</span>
+    <span>· 202k tokens spent</span>
+  </footer>
+</article>
+<article class="card">
+  <header>
+    <span class="rank">6</span>
+    <div class="who">
+      <h3>laguna-xs.2:nvfp4</h3>
+      <div class="tags">
+        <span class="tag mlx">MLX · nvfp4</span>
+        <span class="tag">19 GB</span>
+        <span class="tag ">🤝 vision sidecar</span>
+      </div>
+    </div>
+    <div class="tally"><b>3</b><span>/9 legs</span></div>
+  </header>
+  <div class="legs">
+    <div class="legrow">
+        <span class="legname">Repair</span>
+        <span class="meter"><i class="good" style="width:100%"></i></span>
+        <span class="legscore">6 · 6 · 6<em>/6</em></span>
+        <svg class="spark" viewBox="0 0 54 18" width="54" height="18"><polyline points="2.0,2.0 27.0,2.0 52.0,2.0" fill="none" stroke="var(--line2)" stroke-width="1.4"/><circle cx="2.0" cy="2.0" r="2.6" fill="var(--ok)"/><circle cx="27.0" cy="2.0" r="2.6" fill="var(--ok)"/><circle cx="52.0" cy="2.0" r="2.6" fill="var(--ok)"/></svg>
+      </div><div class="legrow">
+        <span class="legname">Implement</span>
+        <span class="meter"><i class="bad" style="width:3%"></i></span>
+        <span class="legscore">0 · 0 · 28<em>/31</em></span>
+        <svg class="spark" viewBox="0 0 54 18" width="54" height="18"><polyline points="2.0,16.0 27.0,16.0 52.0,3.4" fill="none" stroke="var(--line2)" stroke-width="1.4"/><circle cx="2.0" cy="16.0" r="2.6" fill="var(--bad)"/><circle cx="27.0" cy="16.0" r="2.6" fill="var(--bad)"/><circle cx="52.0" cy="3.4" r="2.6" fill="var(--bad)"/></svg>
+      </div><div class="legrow">
+        <span class="legname">Build</span>
+        <span class="meter"><i class="bad" style="width:25%"></i></span>
+        <span class="legscore">2 · 3 · 2<em>/8</em></span>
+        <svg class="spark" viewBox="0 0 54 18" width="54" height="18"><polyline points="2.0,12.5 27.0,10.8 52.0,12.5" fill="none" stroke="var(--line2)" stroke-width="1.4"/><circle cx="2.0" cy="12.5" r="2.6" fill="var(--bad)"/><circle cx="27.0" cy="10.8" r="2.6" fill="var(--bad)"/><circle cx="52.0" cy="12.5" r="2.6" fill="var(--bad)"/></svg>
+      </div>
+  </div>
+  <footer>
+    <span title="median leg duration">⏱ 70.1 min median</span>
+    <span title="worst single leg">· worst 127 min</span>
+    <span>· 48 tok/s</span>
+    <span>· 544k tokens spent</span>
+  </footer>
+</article>
+<article class="card">
+  <header>
+    <span class="rank">7</span>
+    <div class="who">
+      <h3>qwen3-coder:30b</h3>
+      <div class="tags">
+        <span class="tag gguf">llama.cpp · Q4_K_M</span>
+        <span class="tag">19 GB</span>
+        <span class="tag ">🤝 vision sidecar</span>
+      </div>
+    </div>
+    <div class="tally"><b>3</b><span>/9 legs</span></div>
+  </header>
+  <div class="legs">
+    <div class="legrow">
+        <span class="legname">Repair</span>
+        <span class="meter"><i class="bad" style="width:3%"></i></span>
+        <span class="legscore">0 · 0 · 6<em>/6</em></span>
+        <svg class="spark" viewBox="0 0 54 18" width="54" height="18"><polyline points="2.0,16.0 27.0,16.0 52.0,2.0" fill="none" stroke="var(--line2)" stroke-width="1.4"/><circle cx="2.0" cy="16.0" r="2.6" fill="var(--bad)"/><circle cx="27.0" cy="16.0" r="2.6" fill="var(--bad)"/><circle cx="52.0" cy="2.0" r="2.6" fill="var(--ok)"/></svg>
+      </div><div class="legrow">
+        <span class="legname">Implement</span>
+        <span class="meter"><i class="mid" style="width:74%"></i></span>
+        <span class="legscore">24 · 20 · 23<em>/31</em></span>
+        <svg class="spark" viewBox="0 0 54 18" width="54" height="18"><polyline points="2.0,5.2 27.0,7.0 52.0,5.6" fill="none" stroke="var(--line2)" stroke-width="1.4"/><circle cx="2.0" cy="5.2" r="2.6" fill="var(--bad)"/><circle cx="27.0" cy="7.0" r="2.6" fill="var(--bad)"/><circle cx="52.0" cy="5.6" r="2.6" fill="var(--bad)"/></svg>
+      </div><div class="legrow">
+        <span class="legname">Build</span>
+        <span class="meter"><i class="mid" style="width:88%"></i></span>
+        <span class="legscore">4 · 7 · 7<em>/8</em></span>
+        <svg class="spark" viewBox="0 0 54 18" width="54" height="18"><polyline points="2.0,9.0 27.0,3.8 52.0,3.8" fill="none" stroke="var(--line2)" stroke-width="1.4"/><circle cx="2.0" cy="9.0" r="2.6" fill="var(--bad)"/><circle cx="27.0" cy="3.8" r="2.6" fill="var(--ok)"/><circle cx="52.0" cy="3.8" r="2.6" fill="var(--ok)"/></svg>
+      </div>
+  </div>
+  <footer>
+    <span title="median leg duration">⏱ 6.8 min median</span>
+    <span title="worst single leg">· worst 21 min</span>
+    <span>· 54.5 tok/s</span>
+    <span>· 91k tokens spent</span>
+  </footer>
+</article>
+</div>
+
+<h2 class="sec">What actually happened out there</h2>
+<p class="secsub">Pulled from the run data, not the highlights reel.</p>
+<div class="notes">
+<div class="note"><div class="ic">🪓</div><h4>Deleted the tests instead of fixing the bug</h4><p>3 run(s) shipped a suite with assertions removed — qwen3-coder:30b, qwen3-vl:30b, laguna-xs.2:nvfp4. The gate scores the shipped file by name, so going green by deletion is not a pass.</p></div>
+<div class="note"><div class="ic">🔥</div><h4>The leg that ate three and a half hours</h4><p>qwen3.5:35b-a3b-coding-nvfp4 ran 500 turns and 741,621 tokens over 207.1 minutes on a single implement leg, scoring 5/31. Wall-clock and token budgets now stop this at 40 minutes.</p></div>
+<div class="note"><div class="ic">✍️</div><h4>One model wrote its own tests</h4><p>gemma4:26b-mlx-bf16 fixed the defect and added coverage for boolean operators, ternaries, equality and member access. An earlier version of the gate counted tests and failed it for that. Additions are now reported, never scored.</p></div>
+</div>
+
+<details class="raw">
+<summary>Every leg, sortable — 63 rows</summary>
+<div class="rawbody">
+  <div class="controls">
+    <input id="q" placeholder="filter model, task, note…" size="26">
+    <select id="legf"><option value="">all tasks</option>
+      <option value="bugfix">Repair</option><option value="exercism">Implement</option><option value="greenfield">Build</option></select>
+    <label class="chk"><input type="checkbox" id="onlyfail"> problems only</label>
+    <span class="dim" id="count"></span>
+  </div>
+  <table id="t"><thead><tr>
+    <th data-k="model">model</th><th data-k="leg">task</th><th data-k="run" class="num">try</th>
+    <th data-k="verdict">verdict</th><th data-k="score" class="num">score</th>
+    <th data-k="vision">vision</th><th data-k="turns" class="num">turns</th>
+    <th data-k="minutes" class="num">min</th><th data-k="genTok" class="num">tokens</th>
+    <th data-k="tokS" class="num">tok/s</th><th data-k="prefill" class="num">prefill</th>
+    <th data-k="testsAdded" class="num">+tests</th><th data-k="reason">note</th>
+  </tr></thead><tbody></tbody></table>
+</div>
+</details>
+
+<footer class="foot">
+  The artifact is the only gate — loop metrics are reported, never used to pass or fail.
+  On the first smoke run a model called <code>done()</code> claiming "operator precedence logic
+  fixed" having written nothing at all.<br>
+  <b>INVALID</b> means the harness failed, not the model.
+  1 row(s) from an earlier sweep excluded. 
+  Generated 2026-08-22 04:03 · Apple M4 Max, 128 GB · Ollama 0.32.9
+</footer>
 
 <script>
-const ROWS = [{"model":"gemma4:26b-mlx-bf16","leg":"bugfix","run":1,"pass":true,"invalid":false,"score":6,"of":6,"reason":null,"vision":null,"tests_added":1,"turns":null,"minutes":null,"gen_tok":null,"gen_tok_s":null,"prefill_share":null,"guard":null},{"model":"gemma4:26b-mlx-bf16","leg":"bugfix","run":2,"pass":true,"invalid":false,"score":6,"of":6,"reason":null,"vision":null,"tests_added":0,"turns":null,"minutes":null,"gen_tok":null,"gen_tok_s":null,"prefill_share":null,"guard":null},{"model":"gemma4:26b-mlx-bf16","leg":"bugfix","run":3,"pass":true,"invalid":false,"score":6,"of":6,"reason":null,"vision":null,"tests_added":0,"turns":null,"minutes":null,"gen_tok":null,"gen_tok_s":null,"prefill_share":null,"guard":null},{"model":"gemma4:26b-mlx-bf16","leg":"exercism","run":1,"pass":true,"invalid":false,"score":31,"of":31,"reason":null,"vision":null,"tests_added":null,"turns":15,"minutes":7.5,"gen_tok":16526,"gen_tok_s":38.4,"prefill_share":0.031,"guard":null},{"model":"gemma4:26b-mlx-bf16","leg":"exercism","run":2,"pass":true,"invalid":false,"score":31,"of":31,"reason":null,"vision":null,"tests_added":null,"turns":13,"minutes":8.1,"gen_tok":18347,"gen_tok_s":38.9,"prefill_share":0.022,"guard":null},{"model":"gemma4:26b-mlx-bf16","leg":"exercism","run":3,"pass":true,"invalid":false,"score":31,"of":31,"reason":null,"vision":null,"tests_added":null,"turns":10,"minutes":8.3,"gen_tok":17925,"gen_tok_s":38.4,"prefill_share":0.058,"guard":null},{"model":"gemma4:26b-mlx-bf16","leg":"greenfield","run":1,"pass":true,"invalid":false,"score":7,"of":8,"reason":null,"vision":"sidecar","tests_added":null,"turns":5,"minutes":5.6,"gen_tok":11129,"gen_tok_s":42.5,"prefill_share":0.075,"guard":null},{"model":"gemma4:26b-mlx-bf16","leg":"greenfield","run":2,"pass":true,"invalid":false,"score":8,"of":8,"reason":null,"vision":"sidecar","tests_added":null,"turns":7,"minutes":6.9,"gen_tok":13706,"gen_tok_s":40.7,"prefill_share":0.065,"guard":null},{"model":"gemma4:26b-mlx-bf16","leg":"greenfield","run":3,"pass":false,"invalid":false,"score":3,"of":8,"reason":null,"vision":"sidecar","tests_added":null,"turns":8,"minutes":7.5,"gen_tok":15064,"gen_tok_s":40.9,"prefill_share":0.062,"guard":null},{"model":"gpt-oss:20b","leg":"bugfix","run":1,"pass":true,"invalid":false,"score":6,"of":6,"reason":null,"vision":null,"tests_added":0,"turns":null,"minutes":null,"gen_tok":null,"gen_tok_s":null,"prefill_share":null,"guard":null},{"model":"gpt-oss:20b","leg":"bugfix","run":2,"pass":true,"invalid":false,"score":6,"of":6,"reason":null,"vision":null,"tests_added":0,"turns":null,"minutes":null,"gen_tok":null,"gen_tok_s":null,"prefill_share":null,"guard":null},{"model":"gpt-oss:20b","leg":"bugfix","run":3,"pass":true,"invalid":false,"score":6,"of":6,"reason":null,"vision":null,"tests_added":0,"turns":null,"minutes":null,"gen_tok":null,"gen_tok_s":null,"prefill_share":null,"guard":null},{"model":"gpt-oss:20b","leg":"exercism","run":1,"pass":false,"invalid":false,"score":26,"of":31,"reason":null,"vision":null,"tests_added":null,"turns":12,"minutes":6.5,"gen_tok":15104,"gen_tok_s":41.4,"prefill_share":0.056,"guard":null},{"model":"gpt-oss:20b","leg":"exercism","run":2,"pass":false,"invalid":false,"score":4,"of":31,"reason":null,"vision":null,"tests_added":null,"turns":13,"minutes":5.3,"gen_tok":9951,"gen_tok_s":36.5,"prefill_share":0.121,"guard":null},{"model":"gpt-oss:20b","leg":"exercism","run":3,"pass":false,"invalid":false,"score":29,"of":31,"reason":null,"vision":null,"tests_added":null,"turns":7,"minutes":4.3,"gen_tok":9099,"gen_tok_s":36.4,"prefill_share":0.03,"guard":null},{"model":"gpt-oss:20b","leg":"greenfield","run":1,"pass":true,"invalid":false,"score":8,"of":8,"reason":null,"vision":"sidecar","tests_added":null,"turns":45,"minutes":18.5,"gen_tok":36985,"gen_tok_s":44.9,"prefill_share":0.102,"guard":null},{"model":"gpt-oss:20b","leg":"greenfield","run":2,"pass":true,"invalid":false,"score":8,"of":8,"reason":null,"vision":"sidecar","tests_added":null,"turns":19,"minutes":16.6,"gen_tok":32137,"gen_tok_s":37.8,"prefill_share":0.077,"guard":null},{"model":"gpt-oss:20b","leg":"greenfield","run":3,"pass":true,"invalid":false,"score":8,"of":8,"reason":null,"vision":"sidecar","tests_added":null,"turns":7,"minutes":5.5,"gen_tok":9262,"gen_tok_s":39.1,"prefill_share":0.048,"guard":null},{"model":"laguna-xs.2:nvfp4","leg":"bugfix","run":1,"pass":true,"invalid":false,"score":6,"of":6,"reason":null,"vision":null,"tests_added":0,"turns":null,"minutes":null,"gen_tok":null,"gen_tok_s":null,"prefill_share":null,"guard":null},{"model":"laguna-xs.2:nvfp4","leg":"bugfix","run":2,"pass":true,"invalid":false,"score":6,"of":6,"reason":null,"vision":null,"tests_added":0,"turns":null,"minutes":null,"gen_tok":null,"gen_tok_s":null,"prefill_share":null,"guard":null},{"model":"laguna-xs.2:nvfp4","leg":"bugfix","run":3,"pass":true,"invalid":false,"score":6,"of":6,"reason":null,"vision":null,"tests_added":0,"turns":null,"minutes":null,"gen_tok":null,"gen_tok_s":null,"prefill_share":null,"guard":null},{"model":"laguna-xs.2:nvfp4","leg":"exercism","run":1,"pass":false,"invalid":false,"score":0,"of":31,"reason":"test count shrank — suite was modified","vision":null,"tests_added":null,"turns":null,"minutes":null,"gen_tok":null,"gen_tok_s":null,"prefill_share":null,"guard":null},{"model":"laguna-xs.2:nvfp4","leg":"exercism","run":2,"pass":false,"invalid":false,"score":0,"of":31,"reason":null,"vision":null,"tests_added":null,"turns":8,"minutes":15.2,"gen_tok":412,"gen_tok_s":98.8,"prefill_share":0.696,"guard":null},{"model":"laguna-xs.2:nvfp4","leg":"exercism","run":3,"pass":false,"invalid":false,"score":28,"of":31,"reason":null,"vision":null,"tests_added":null,"turns":200,"minutes":126.6,"gen_tok":243318,"gen_tok_s":48,"prefill_share":0.235,"guard":null},{"model":"laguna-xs.2:nvfp4","leg":"greenfield","run":1,"pass":false,"invalid":false,"score":2,"of":8,"reason":null,"vision":"sidecar","tests_added":null,"turns":12,"minutes":22.3,"gen_tok":20840,"gen_tok_s":63.5,"prefill_share":0.118,"guard":null},{"model":"laguna-xs.2:nvfp4","leg":"greenfield","run":2,"pass":false,"invalid":false,"score":3,"of":8,"reason":null,"vision":"sidecar","tests_added":null,"turns":61,"minutes":70.1,"gen_tok":123853,"gen_tok_s":46.4,"prefill_share":0.188,"guard":null},{"model":"laguna-xs.2:nvfp4","leg":"greenfield","run":3,"pass":false,"invalid":false,"score":2,"of":8,"reason":null,"vision":"sidecar","tests_added":null,"turns":60,"minutes":88.7,"gen_tok":155332,"gen_tok_s":46.6,"prefill_share":0.22,"guard":null},{"model":"muse-glimmer:30b-mlx","leg":"bugfix","run":1,"pass":true,"invalid":false,"score":6,"of":6,"reason":null,"vision":null,"tests_added":0,"turns":null,"minutes":null,"gen_tok":null,"gen_tok_s":null,"prefill_share":null,"guard":null},{"model":"muse-glimmer:30b-mlx","leg":"bugfix","run":2,"pass":true,"invalid":false,"score":6,"of":6,"reason":null,"vision":null,"tests_added":0,"turns":null,"minutes":null,"gen_tok":null,"gen_tok_s":null,"prefill_share":null,"guard":null},{"model":"muse-glimmer:30b-mlx","leg":"bugfix","run":3,"pass":true,"invalid":false,"score":6,"of":6,"reason":null,"vision":null,"tests_added":0,"turns":null,"minutes":null,"gen_tok":null,"gen_tok_s":null,"prefill_share":null,"guard":null},{"model":"muse-glimmer:30b-mlx","leg":"exercism","run":1,"pass":true,"invalid":false,"score":31,"of":31,"reason":null,"vision":null,"tests_added":null,"turns":21,"minutes":20.7,"gen_tok":19328,"gen_tok_s":19.3,"prefill_share":0.19,"guard":null},{"model":"muse-glimmer:30b-mlx","leg":"exercism","run":2,"pass":true,"invalid":false,"score":31,"of":31,"reason":null,"vision":null,"tests_added":null,"turns":11,"minutes":16.8,"gen_tok":19040,"gen_tok_s":19.9,"prefill_share":0.048,"guard":null},{"model":"muse-glimmer:30b-mlx","leg":"exercism","run":3,"pass":true,"invalid":false,"score":31,"of":31,"reason":null,"vision":null,"tests_added":null,"turns":14,"minutes":18.3,"gen_tok":19343,"gen_tok_s":18.8,"prefill_share":0.06,"guard":null},{"model":"muse-glimmer:30b-mlx","leg":"greenfield","run":1,"pass":true,"invalid":false,"score":8,"of":8,"reason":null,"vision":"native","tests_added":null,"turns":12,"minutes":13.6,"gen_tok":14616,"gen_tok_s":20.2,"prefill_share":0.105,"guard":null},{"model":"muse-glimmer:30b-mlx","leg":"greenfield","run":2,"pass":true,"invalid":false,"score":8,"of":8,"reason":null,"vision":"native","tests_added":null,"turns":5,"minutes":4.6,"gen_tok":4900,"gen_tok_s":22.3,"prefill_share":0.198,"guard":null},{"model":"muse-glimmer:30b-mlx","leg":"greenfield","run":3,"pass":true,"invalid":false,"score":8,"of":8,"reason":null,"vision":"native","tests_added":null,"turns":7,"minutes":9.8,"gen_tok":10107,"gen_tok_s":19,"prefill_share":0.09,"guard":null},{"model":"qwen3-coder:30b","leg":"bugfix","run":1,"pass":false,"invalid":false,"score":0,"of":6,"reason":"shipped suite was modified","vision":null,"tests_added":0,"turns":null,"minutes":null,"gen_tok":null,"gen_tok_s":null,"prefill_share":null,"guard":null},{"model":"qwen3-coder:30b","leg":"bugfix","run":2,"pass":false,"invalid":false,"score":0,"of":6,"reason":null,"vision":null,"tests_added":0,"turns":null,"minutes":null,"gen_tok":null,"gen_tok_s":null,"prefill_share":null,"guard":null},{"model":"qwen3-coder:30b","leg":"bugfix","run":3,"pass":true,"invalid":false,"score":6,"of":6,"reason":null,"vision":null,"tests_added":0,"turns":null,"minutes":null,"gen_tok":null,"gen_tok_s":null,"prefill_share":null,"guard":null},{"model":"qwen3-coder:30b","leg":"exercism","run":1,"pass":false,"invalid":false,"score":24,"of":31,"reason":null,"vision":null,"tests_added":null,"turns":76,"minutes":14.3,"gen_tok":23070,"gen_tok_s":41.3,"prefill_share":0.311,"guard":null},{"model":"qwen3-coder:30b","leg":"exercism","run":2,"pass":false,"invalid":false,"score":20,"of":31,"reason":null,"vision":null,"tests_added":null,"turns":96,"minutes":21.4,"gen_tok":35456,"gen_tok_s":42.7,"prefill_share":0.324,"guard":null},{"model":"qwen3-coder:30b","leg":"exercism","run":3,"pass":false,"invalid":false,"score":23,"of":31,"reason":null,"vision":null,"tests_added":null,"turns":41,"minutes":6.8,"gen_tok":13148,"gen_tok_s":48.2,"prefill_share":0.301,"guard":null},{"model":"qwen3-coder:30b","leg":"greenfield","run":1,"pass":false,"invalid":false,"score":4,"of":8,"reason":null,"vision":"sidecar","tests_added":null,"turns":7,"minutes":2.4,"gen_tok":4910,"gen_tok_s":55.1,"prefill_share":0.092,"guard":null},{"model":"qwen3-coder:30b","leg":"greenfield","run":2,"pass":true,"invalid":false,"score":7,"of":8,"reason":null,"vision":"sidecar","tests_added":null,"turns":5,"minutes":2.2,"gen_tok":5343,"gen_tok_s":54.5,"prefill_share":0.018,"guard":null},{"model":"qwen3-coder:30b","leg":"greenfield","run":3,"pass":true,"invalid":false,"score":7,"of":8,"reason":null,"vision":"sidecar","tests_added":null,"turns":8,"minutes":3.3,"gen_tok":9098,"gen_tok_s":60.9,"prefill_share":0.026,"guard":null},{"model":"qwen3-vl:30b","leg":"bugfix","run":1,"pass":false,"invalid":false,"score":0,"of":6,"reason":null,"vision":null,"tests_added":0,"turns":null,"minutes":null,"gen_tok":null,"gen_tok_s":null,"prefill_share":null,"guard":null},{"model":"qwen3-vl:30b","leg":"bugfix","run":2,"pass":false,"invalid":false,"score":0,"of":6,"reason":"shipped suite was modified","vision":null,"tests_added":0,"turns":null,"minutes":null,"gen_tok":null,"gen_tok_s":null,"prefill_share":null,"guard":null},{"model":"qwen3-vl:30b","leg":"bugfix","run":3,"pass":false,"invalid":false,"score":0,"of":6,"reason":null,"vision":null,"tests_added":0,"turns":null,"minutes":null,"gen_tok":null,"gen_tok_s":null,"prefill_share":null,"guard":null},{"model":"qwen3-vl:30b","leg":"exercism","run":1,"pass":false,"invalid":false,"score":25,"of":31,"reason":null,"vision":null,"tests_added":null,"turns":11,"minutes":12.4,"gen_tok":26040,"gen_tok_s":36.6,"prefill_share":0.035,"guard":null},{"model":"qwen3-vl:30b","leg":"exercism","run":2,"pass":false,"invalid":false,"score":20,"of":31,"reason":null,"vision":null,"tests_added":null,"turns":11,"minutes":25.3,"gen_tok":54974,"gen_tok_s":37.1,"prefill_share":0.021,"guard":null},{"model":"qwen3-vl:30b","leg":"exercism","run":3,"pass":false,"invalid":false,"score":22,"of":31,"reason":null,"vision":null,"tests_added":null,"turns":16,"minutes":25.1,"gen_tok":50129,"gen_tok_s":36.8,"prefill_share":0.089,"guard":null},{"model":"qwen3-vl:30b","leg":"greenfield","run":1,"pass":true,"invalid":false,"score":8,"of":8,"reason":null,"vision":"native","tests_added":null,"turns":5,"minutes":10.1,"gen_tok":22508,"gen_tok_s":39.5,"prefill_share":0.052,"guard":null},{"model":"qwen3-vl:30b","leg":"greenfield","run":2,"pass":true,"invalid":false,"score":8,"of":8,"reason":null,"vision":"native","tests_added":null,"turns":5,"minutes":10.5,"gen_tok":24069,"gen_tok_s":40.4,"prefill_share":0.048,"guard":null},{"model":"qwen3-vl:30b","leg":"greenfield","run":3,"pass":true,"invalid":false,"score":7,"of":8,"reason":null,"vision":"native","tests_added":null,"turns":4,"minutes":10.6,"gen_tok":23805,"gen_tok_s":39.9,"prefill_share":0.059,"guard":null},{"model":"qwen3.5:35b-a3b-coding-nvfp4","leg":"bugfix","run":1,"pass":true,"invalid":false,"score":6,"of":6,"reason":null,"vision":null,"tests_added":0,"turns":null,"minutes":null,"gen_tok":null,"gen_tok_s":null,"prefill_share":null,"guard":null},{"model":"qwen3.5:35b-a3b-coding-nvfp4","leg":"bugfix","run":2,"pass":true,"invalid":false,"score":6,"of":6,"reason":null,"vision":null,"tests_added":0,"turns":null,"minutes":null,"gen_tok":null,"gen_tok_s":null,"prefill_share":null,"guard":null},{"model":"qwen3.5:35b-a3b-coding-nvfp4","leg":"bugfix","run":3,"pass":true,"invalid":false,"score":6,"of":6,"reason":null,"vision":null,"tests_added":0,"turns":null,"minutes":null,"gen_tok":null,"gen_tok_s":null,"prefill_share":null,"guard":null},{"model":"qwen3.5:35b-a3b-coding-nvfp4","leg":"exercism","run":1,"pass":true,"invalid":false,"score":31,"of":31,"reason":null,"vision":null,"tests_added":null,"turns":18,"minutes":3.3,"gen_tok":12454,"gen_tok_s":73.1,"prefill_share":0.136,"guard":null},{"model":"qwen3.5:35b-a3b-coding-nvfp4","leg":"exercism","run":2,"pass":false,"invalid":false,"score":5,"of":31,"reason":null,"vision":null,"tests_added":null,"turns":500,"minutes":207.1,"gen_tok":741621,"gen_tok_s":69,"prefill_share":0.13,"guard":"guard hit"},{"model":"qwen3.5:35b-a3b-coding-nvfp4","leg":"exercism","run":3,"pass":true,"invalid":false,"score":31,"of":31,"reason":null,"vision":null,"tests_added":null,"turns":11,"minutes":0.6,"gen_tok":2566,"gen_tok_s":99.1,"prefill_share":0.248,"guard":null},{"model":"qwen3.5:35b-a3b-coding-nvfp4","leg":"greenfield","run":1,"pass":false,"invalid":false,"score":2,"of":8,"reason":null,"vision":"native","tests_added":null,"turns":8,"minutes":4,"gen_tok":15496,"gen_tok_s":73,"prefill_share":0.105,"guard":null},{"model":"qwen3.5:35b-a3b-coding-nvfp4","leg":"greenfield","run":2,"pass":false,"invalid":false,"score":7,"of":8,"reason":null,"vision":"native","tests_added":null,"turns":4,"minutes":3.3,"gen_tok":6233,"gen_tok_s":88.5,"prefill_share":0.085,"guard":null},{"model":"qwen3.5:35b-a3b-coding-nvfp4","leg":"greenfield","run":3,"pass":false,"invalid":false,"score":6,"of":8,"reason":null,"vision":"native","tests_added":null,"turns":3,"minutes":1,"gen_tok":5648,"gen_tok_s":104.3,"prefill_share":0.085,"guard":null}];
-const LEGS = {"bugfix":6,"exercism":31,"greenfield":8};
-let sortKey = 'model', sortDir = 1;
+const ROWS = [{"model":"gemma4:26b-mlx-bf16","leg":"bugfix","run":1,"pass":true,"invalid":false,"score":6,"of":6,"reason":null,"vision":null,"testsAdded":1,"turns":null,"minutes":null,"genTok":null,"tokS":null,"prefill":null,"guard":null},{"model":"gemma4:26b-mlx-bf16","leg":"bugfix","run":2,"pass":true,"invalid":false,"score":6,"of":6,"reason":null,"vision":null,"testsAdded":0,"turns":null,"minutes":null,"genTok":null,"tokS":null,"prefill":null,"guard":null},{"model":"gemma4:26b-mlx-bf16","leg":"bugfix","run":3,"pass":true,"invalid":false,"score":6,"of":6,"reason":null,"vision":null,"testsAdded":0,"turns":null,"minutes":null,"genTok":null,"tokS":null,"prefill":null,"guard":null},{"model":"gpt-oss:20b","leg":"bugfix","run":1,"pass":true,"invalid":false,"score":6,"of":6,"reason":null,"vision":null,"testsAdded":0,"turns":null,"minutes":null,"genTok":null,"tokS":null,"prefill":null,"guard":null},{"model":"gpt-oss:20b","leg":"bugfix","run":2,"pass":true,"invalid":false,"score":6,"of":6,"reason":null,"vision":null,"testsAdded":0,"turns":null,"minutes":null,"genTok":null,"tokS":null,"prefill":null,"guard":null},{"model":"gpt-oss:20b","leg":"bugfix","run":3,"pass":true,"invalid":false,"score":6,"of":6,"reason":null,"vision":null,"testsAdded":0,"turns":null,"minutes":null,"genTok":null,"tokS":null,"prefill":null,"guard":null},{"model":"laguna-xs.2:nvfp4","leg":"bugfix","run":1,"pass":true,"invalid":false,"score":6,"of":6,"reason":null,"vision":null,"testsAdded":0,"turns":null,"minutes":null,"genTok":null,"tokS":null,"prefill":null,"guard":null},{"model":"laguna-xs.2:nvfp4","leg":"bugfix","run":2,"pass":true,"invalid":false,"score":6,"of":6,"reason":null,"vision":null,"testsAdded":0,"turns":null,"minutes":null,"genTok":null,"tokS":null,"prefill":null,"guard":null},{"model":"laguna-xs.2:nvfp4","leg":"bugfix","run":3,"pass":true,"invalid":false,"score":6,"of":6,"reason":null,"vision":null,"testsAdded":0,"turns":null,"minutes":null,"genTok":null,"tokS":null,"prefill":null,"guard":null},{"model":"muse-glimmer:30b-mlx","leg":"bugfix","run":1,"pass":true,"invalid":false,"score":6,"of":6,"reason":null,"vision":null,"testsAdded":0,"turns":null,"minutes":null,"genTok":null,"tokS":null,"prefill":null,"guard":null},{"model":"muse-glimmer:30b-mlx","leg":"bugfix","run":2,"pass":true,"invalid":false,"score":6,"of":6,"reason":null,"vision":null,"testsAdded":0,"turns":null,"minutes":null,"genTok":null,"tokS":null,"prefill":null,"guard":null},{"model":"muse-glimmer:30b-mlx","leg":"bugfix","run":3,"pass":true,"invalid":false,"score":6,"of":6,"reason":null,"vision":null,"testsAdded":0,"turns":null,"minutes":null,"genTok":null,"tokS":null,"prefill":null,"guard":null},{"model":"qwen3-coder:30b","leg":"bugfix","run":1,"pass":false,"invalid":false,"score":0,"of":6,"reason":"shipped suite was modified","vision":null,"testsAdded":0,"turns":null,"minutes":null,"genTok":null,"tokS":null,"prefill":null,"guard":null},{"model":"qwen3-coder:30b","leg":"bugfix","run":2,"pass":false,"invalid":false,"score":0,"of":6,"reason":null,"vision":null,"testsAdded":0,"turns":null,"minutes":null,"genTok":null,"tokS":null,"prefill":null,"guard":null},{"model":"qwen3-coder:30b","leg":"bugfix","run":3,"pass":true,"invalid":false,"score":6,"of":6,"reason":null,"vision":null,"testsAdded":0,"turns":null,"minutes":null,"genTok":null,"tokS":null,"prefill":null,"guard":null},{"model":"qwen3-vl:30b","leg":"bugfix","run":1,"pass":false,"invalid":false,"score":0,"of":6,"reason":null,"vision":null,"testsAdded":0,"turns":null,"minutes":null,"genTok":null,"tokS":null,"prefill":null,"guard":null},{"model":"qwen3-vl:30b","leg":"bugfix","run":2,"pass":false,"invalid":false,"score":0,"of":6,"reason":"shipped suite was modified","vision":null,"testsAdded":0,"turns":null,"minutes":null,"genTok":null,"tokS":null,"prefill":null,"guard":null},{"model":"qwen3-vl:30b","leg":"bugfix","run":3,"pass":false,"invalid":false,"score":0,"of":6,"reason":null,"vision":null,"testsAdded":0,"turns":null,"minutes":null,"genTok":null,"tokS":null,"prefill":null,"guard":null},{"model":"qwen3.5:35b-a3b-coding-nvfp4","leg":"bugfix","run":1,"pass":true,"invalid":false,"score":6,"of":6,"reason":null,"vision":null,"testsAdded":0,"turns":null,"minutes":null,"genTok":null,"tokS":null,"prefill":null,"guard":null},{"model":"qwen3.5:35b-a3b-coding-nvfp4","leg":"bugfix","run":2,"pass":true,"invalid":false,"score":6,"of":6,"reason":null,"vision":null,"testsAdded":0,"turns":null,"minutes":null,"genTok":null,"tokS":null,"prefill":null,"guard":null},{"model":"qwen3.5:35b-a3b-coding-nvfp4","leg":"bugfix","run":3,"pass":true,"invalid":false,"score":6,"of":6,"reason":null,"vision":null,"testsAdded":0,"turns":null,"minutes":null,"genTok":null,"tokS":null,"prefill":null,"guard":null},{"model":"gemma4:26b-mlx-bf16","leg":"exercism","run":1,"pass":true,"invalid":false,"score":31,"of":31,"reason":null,"vision":null,"testsAdded":null,"turns":15,"minutes":7.5,"genTok":16526,"tokS":38.4,"prefill":0.031,"guard":null},{"model":"gemma4:26b-mlx-bf16","leg":"exercism","run":2,"pass":true,"invalid":false,"score":31,"of":31,"reason":null,"vision":null,"testsAdded":null,"turns":13,"minutes":8.1,"genTok":18347,"tokS":38.9,"prefill":0.022,"guard":null},{"model":"gemma4:26b-mlx-bf16","leg":"exercism","run":3,"pass":true,"invalid":false,"score":31,"of":31,"reason":null,"vision":null,"testsAdded":null,"turns":10,"minutes":8.3,"genTok":17925,"tokS":38.4,"prefill":0.058,"guard":null},{"model":"gpt-oss:20b","leg":"exercism","run":1,"pass":false,"invalid":false,"score":26,"of":31,"reason":null,"vision":null,"testsAdded":null,"turns":12,"minutes":6.5,"genTok":15104,"tokS":41.4,"prefill":0.056,"guard":null},{"model":"gpt-oss:20b","leg":"exercism","run":2,"pass":false,"invalid":false,"score":4,"of":31,"reason":null,"vision":null,"testsAdded":null,"turns":13,"minutes":5.3,"genTok":9951,"tokS":36.5,"prefill":0.121,"guard":null},{"model":"gpt-oss:20b","leg":"exercism","run":3,"pass":false,"invalid":false,"score":29,"of":31,"reason":null,"vision":null,"testsAdded":null,"turns":7,"minutes":4.3,"genTok":9099,"tokS":36.4,"prefill":0.03,"guard":null},{"model":"laguna-xs.2:nvfp4","leg":"exercism","run":1,"pass":false,"invalid":false,"score":0,"of":31,"reason":"test count shrank — suite was modified","vision":null,"testsAdded":null,"turns":null,"minutes":null,"genTok":null,"tokS":null,"prefill":null,"guard":null},{"model":"laguna-xs.2:nvfp4","leg":"exercism","run":2,"pass":false,"invalid":false,"score":0,"of":31,"reason":null,"vision":null,"testsAdded":null,"turns":8,"minutes":15.2,"genTok":412,"tokS":98.8,"prefill":0.696,"guard":null},{"model":"laguna-xs.2:nvfp4","leg":"exercism","run":3,"pass":false,"invalid":false,"score":28,"of":31,"reason":null,"vision":null,"testsAdded":null,"turns":200,"minutes":126.6,"genTok":243318,"tokS":48,"prefill":0.235,"guard":null},{"model":"muse-glimmer:30b-mlx","leg":"exercism","run":1,"pass":true,"invalid":false,"score":31,"of":31,"reason":null,"vision":null,"testsAdded":null,"turns":21,"minutes":20.7,"genTok":19328,"tokS":19.3,"prefill":0.19,"guard":null},{"model":"muse-glimmer:30b-mlx","leg":"exercism","run":2,"pass":true,"invalid":false,"score":31,"of":31,"reason":null,"vision":null,"testsAdded":null,"turns":11,"minutes":16.8,"genTok":19040,"tokS":19.9,"prefill":0.048,"guard":null},{"model":"muse-glimmer:30b-mlx","leg":"exercism","run":3,"pass":true,"invalid":false,"score":31,"of":31,"reason":null,"vision":null,"testsAdded":null,"turns":14,"minutes":18.3,"genTok":19343,"tokS":18.8,"prefill":0.06,"guard":null},{"model":"qwen3-coder:30b","leg":"exercism","run":1,"pass":false,"invalid":false,"score":24,"of":31,"reason":null,"vision":null,"testsAdded":null,"turns":76,"minutes":14.3,"genTok":23070,"tokS":41.3,"prefill":0.311,"guard":null},{"model":"qwen3-coder:30b","leg":"exercism","run":2,"pass":false,"invalid":false,"score":20,"of":31,"reason":null,"vision":null,"testsAdded":null,"turns":96,"minutes":21.4,"genTok":35456,"tokS":42.7,"prefill":0.324,"guard":null},{"model":"qwen3-coder:30b","leg":"exercism","run":3,"pass":false,"invalid":false,"score":23,"of":31,"reason":null,"vision":null,"testsAdded":null,"turns":41,"minutes":6.8,"genTok":13148,"tokS":48.2,"prefill":0.301,"guard":null},{"model":"qwen3-vl:30b","leg":"exercism","run":1,"pass":false,"invalid":false,"score":25,"of":31,"reason":null,"vision":null,"testsAdded":null,"turns":11,"minutes":12.4,"genTok":26040,"tokS":36.6,"prefill":0.035,"guard":null},{"model":"qwen3-vl:30b","leg":"exercism","run":2,"pass":false,"invalid":false,"score":20,"of":31,"reason":null,"vision":null,"testsAdded":null,"turns":11,"minutes":25.3,"genTok":54974,"tokS":37.1,"prefill":0.021,"guard":null},{"model":"qwen3-vl:30b","leg":"exercism","run":3,"pass":false,"invalid":false,"score":22,"of":31,"reason":null,"vision":null,"testsAdded":null,"turns":16,"minutes":25.1,"genTok":50129,"tokS":36.8,"prefill":0.089,"guard":null},{"model":"qwen3.5:35b-a3b-coding-nvfp4","leg":"exercism","run":1,"pass":true,"invalid":false,"score":31,"of":31,"reason":null,"vision":null,"testsAdded":null,"turns":18,"minutes":3.3,"genTok":12454,"tokS":73.1,"prefill":0.136,"guard":null},{"model":"qwen3.5:35b-a3b-coding-nvfp4","leg":"exercism","run":2,"pass":false,"invalid":false,"score":5,"of":31,"reason":null,"vision":null,"testsAdded":null,"turns":500,"minutes":207.1,"genTok":741621,"tokS":69,"prefill":0.13,"guard":"guard hit"},{"model":"qwen3.5:35b-a3b-coding-nvfp4","leg":"exercism","run":3,"pass":true,"invalid":false,"score":31,"of":31,"reason":null,"vision":null,"testsAdded":null,"turns":11,"minutes":0.6,"genTok":2566,"tokS":99.1,"prefill":0.248,"guard":null},{"model":"gemma4:26b-mlx-bf16","leg":"greenfield","run":1,"pass":true,"invalid":false,"score":7,"of":8,"reason":null,"vision":"sidecar","testsAdded":null,"turns":5,"minutes":5.6,"genTok":11129,"tokS":42.5,"prefill":0.075,"guard":null},{"model":"gemma4:26b-mlx-bf16","leg":"greenfield","run":2,"pass":true,"invalid":false,"score":8,"of":8,"reason":null,"vision":"sidecar","testsAdded":null,"turns":7,"minutes":6.9,"genTok":13706,"tokS":40.7,"prefill":0.065,"guard":null},{"model":"gemma4:26b-mlx-bf16","leg":"greenfield","run":3,"pass":false,"invalid":false,"score":3,"of":8,"reason":null,"vision":"sidecar","testsAdded":null,"turns":8,"minutes":7.5,"genTok":15064,"tokS":40.9,"prefill":0.062,"guard":null},{"model":"gpt-oss:20b","leg":"greenfield","run":1,"pass":true,"invalid":false,"score":8,"of":8,"reason":null,"vision":"sidecar","testsAdded":null,"turns":45,"minutes":18.5,"genTok":36985,"tokS":44.9,"prefill":0.102,"guard":null},{"model":"gpt-oss:20b","leg":"greenfield","run":2,"pass":true,"invalid":false,"score":8,"of":8,"reason":null,"vision":"sidecar","testsAdded":null,"turns":19,"minutes":16.6,"genTok":32137,"tokS":37.8,"prefill":0.077,"guard":null},{"model":"gpt-oss:20b","leg":"greenfield","run":3,"pass":true,"invalid":false,"score":8,"of":8,"reason":null,"vision":"sidecar","testsAdded":null,"turns":7,"minutes":5.5,"genTok":9262,"tokS":39.1,"prefill":0.048,"guard":null},{"model":"laguna-xs.2:nvfp4","leg":"greenfield","run":1,"pass":false,"invalid":false,"score":2,"of":8,"reason":null,"vision":"sidecar","testsAdded":null,"turns":12,"minutes":22.3,"genTok":20840,"tokS":63.5,"prefill":0.118,"guard":null},{"model":"laguna-xs.2:nvfp4","leg":"greenfield","run":2,"pass":false,"invalid":false,"score":3,"of":8,"reason":null,"vision":"sidecar","testsAdded":null,"turns":61,"minutes":70.1,"genTok":123853,"tokS":46.4,"prefill":0.188,"guard":null},{"model":"laguna-xs.2:nvfp4","leg":"greenfield","run":3,"pass":false,"invalid":false,"score":2,"of":8,"reason":null,"vision":"sidecar","testsAdded":null,"turns":60,"minutes":88.7,"genTok":155332,"tokS":46.6,"prefill":0.22,"guard":null},{"model":"muse-glimmer:30b-mlx","leg":"greenfield","run":1,"pass":true,"invalid":false,"score":8,"of":8,"reason":null,"vision":"native","testsAdded":null,"turns":12,"minutes":13.6,"genTok":14616,"tokS":20.2,"prefill":0.105,"guard":null},{"model":"muse-glimmer:30b-mlx","leg":"greenfield","run":2,"pass":true,"invalid":false,"score":8,"of":8,"reason":null,"vision":"native","testsAdded":null,"turns":5,"minutes":4.6,"genTok":4900,"tokS":22.3,"prefill":0.198,"guard":null},{"model":"muse-glimmer:30b-mlx","leg":"greenfield","run":3,"pass":true,"invalid":false,"score":8,"of":8,"reason":null,"vision":"native","testsAdded":null,"turns":7,"minutes":9.8,"genTok":10107,"tokS":19,"prefill":0.09,"guard":null},{"model":"qwen3-coder:30b","leg":"greenfield","run":1,"pass":false,"invalid":false,"score":4,"of":8,"reason":null,"vision":"sidecar","testsAdded":null,"turns":7,"minutes":2.4,"genTok":4910,"tokS":55.1,"prefill":0.092,"guard":null},{"model":"qwen3-coder:30b","leg":"greenfield","run":2,"pass":true,"invalid":false,"score":7,"of":8,"reason":null,"vision":"sidecar","testsAdded":null,"turns":5,"minutes":2.2,"genTok":5343,"tokS":54.5,"prefill":0.018,"guard":null},{"model":"qwen3-coder:30b","leg":"greenfield","run":3,"pass":true,"invalid":false,"score":7,"of":8,"reason":null,"vision":"sidecar","testsAdded":null,"turns":8,"minutes":3.3,"genTok":9098,"tokS":60.9,"prefill":0.026,"guard":null},{"model":"qwen3-vl:30b","leg":"greenfield","run":1,"pass":true,"invalid":false,"score":8,"of":8,"reason":null,"vision":"native","testsAdded":null,"turns":5,"minutes":10.1,"genTok":22508,"tokS":39.5,"prefill":0.052,"guard":null},{"model":"qwen3-vl:30b","leg":"greenfield","run":2,"pass":true,"invalid":false,"score":8,"of":8,"reason":null,"vision":"native","testsAdded":null,"turns":5,"minutes":10.5,"genTok":24069,"tokS":40.4,"prefill":0.048,"guard":null},{"model":"qwen3-vl:30b","leg":"greenfield","run":3,"pass":true,"invalid":false,"score":7,"of":8,"reason":null,"vision":"native","testsAdded":null,"turns":4,"minutes":10.6,"genTok":23805,"tokS":39.9,"prefill":0.059,"guard":null},{"model":"qwen3.5:35b-a3b-coding-nvfp4","leg":"greenfield","run":1,"pass":false,"invalid":false,"score":2,"of":8,"reason":null,"vision":"native","testsAdded":null,"turns":8,"minutes":4,"genTok":15496,"tokS":73,"prefill":0.105,"guard":null},{"model":"qwen3.5:35b-a3b-coding-nvfp4","leg":"greenfield","run":2,"pass":false,"invalid":false,"score":7,"of":8,"reason":null,"vision":"native","testsAdded":null,"turns":4,"minutes":3.3,"genTok":6233,"tokS":88.5,"prefill":0.085,"guard":null},{"model":"qwen3.5:35b-a3b-coding-nvfp4","leg":"greenfield","run":3,"pass":false,"invalid":false,"score":6,"of":8,"reason":null,"vision":"native","testsAdded":null,"turns":3,"minutes":1,"genTok":5648,"tokS":104.3,"prefill":0.085,"guard":null}];
+const LABEL = {"bugfix":"Repair","exercism":"Implement","greenfield":"Build"};
+let key = 'model', dir = 1;
 
-const verdict = (r) =>
-  r.invalid ? '<span class="inv">INVALID</span>'
-  : r.pass ? '<span class="pass">pass</span>'
-  : '<span class="fail">fail</span>';
-
-// Score cell doubles as a bar so the eye finds the spread without reading numbers.
-const scoreCell = (r) => {
+function verdict(r){
+  if (r.invalid) return '<span class="pill pill-inv">invalid</span>';
+  return r.pass ? '<span class="pill pill-ok">pass</span>' : '<span class="pill pill-bad">fail</span>';
+}
+function scoreCell(r){
   if (r.score == null) return '<span class="dim">—</span>';
-  const pct = Math.round((r.score / r.of) * 100);
-  return '<span class="bar" style="width:' + Math.max(2, pct * 0.42) + 'px"></span>' +
-         r.score + '/' + r.of;
-};
-
-function render() {
+  return r.score + '<span class="dim">/' + r.of + '</span>';
+}
+function render(){
   const q = document.getElementById('q').value.toLowerCase();
   const leg = document.getElementById('legf').value;
   const onlyfail = document.getElementById('onlyfail').checked;
-  let view = ROWS.filter((r) =>
-    (!leg || r.leg === leg) &&
-    (!onlyfail || r.pass !== true) &&
-    (!q || (r.model + ' ' + r.leg + ' ' + (r.reason || '')).toLowerCase().includes(q)));
-
-  view.sort((a, b) => {
-    let x = a[sortKey], y = b[sortKey];
-    if (sortKey === 'verdict') { x = a.invalid ? 2 : a.pass ? 0 : 1; y = b.invalid ? 2 : b.pass ? 0 : 1; }
-    // Raw score is not comparable across legs with different maxima; sort the ratio.
-    if (sortKey === 'score') { x = a.score == null ? -1 : a.score / a.of; y = b.score == null ? -1 : b.score / b.of; }
+  const view = ROWS.filter(function(r){
+    return (!leg || r.leg === leg)
+      && (!onlyfail || r.pass !== true)
+      && (!q || (r.model + ' ' + LABEL[r.leg] + ' ' + (r.reason||'') + ' ' + (r.guard||'')).toLowerCase().indexOf(q) >= 0);
+  });
+  view.sort(function(a,b){
+    var x = a[key], y = b[key];
+    if (key === 'verdict'){ x = a.invalid?2:a.pass?0:1; y = b.invalid?2:b.pass?0:1; }
+    // Raw score is not comparable across tasks with different maxima; sort the ratio.
+    if (key === 'score'){ x = a.score==null?-1:a.score/a.of; y = b.score==null?-1:b.score/b.of; }
     if (x == null) return 1;
     if (y == null) return -1;
-    return (typeof x === 'number' ? x - y : String(x).localeCompare(String(y))) * sortDir;
+    return (typeof x === 'number' ? x - y : String(x).localeCompare(String(y))) * dir;
   });
-
-  document.querySelector('#t tbody').innerHTML = view.map((r) => `<tr>
-    <td>${r.model}</td><td>${r.leg}</td><td class="num">${r.run}</td>
-    <td>${verdict(r)}</td><td class="num">${scoreCell(r)}</td>
-    <td>${r.vision || '<span class="dim">—</span>'}</td>
-    <td class="num">${r.turns ?? ''}</td><td class="num">${r.minutes ?? ''}</td>
-    <td class="num">${r.gen_tok ? r.gen_tok.toLocaleString() : ''}</td>
-    <td class="num">${r.gen_tok_s ?? ''}</td>
-    <td class="num">${r.prefill_share ?? ''}</td>
-    <td class="num">${r.tests_added || ''}</td>
-    <td class="dim">${r.guard || r.reason || ''}</td></tr>`).join('');
-  document.getElementById('count').textContent = view.length + ' of ' + ROWS.length + ' shown';
+  document.querySelector('#t tbody').innerHTML = view.map(function(r){
+    return '<tr><td>' + r.model + '</td><td>' + LABEL[r.leg] + '</td>'
+      + '<td class="num">' + r.run + '</td><td>' + verdict(r) + '</td>'
+      + '<td class="num">' + scoreCell(r) + '</td>'
+      + '<td>' + (r.vision || '<span class="dim">—</span>') + '</td>'
+      + '<td class="num">' + (r.turns == null ? '' : r.turns) + '</td>'
+      + '<td class="num">' + (r.minutes == null ? '' : r.minutes) + '</td>'
+      + '<td class="num">' + (r.genTok ? r.genTok.toLocaleString() : '') + '</td>'
+      + '<td class="num">' + (r.tokS == null ? '' : r.tokS) + '</td>'
+      + '<td class="num">' + (r.prefill == null ? '' : r.prefill) + '</td>'
+      + '<td class="num">' + (r.testsAdded || '') + '</td>'
+      + '<td class="dim">' + (r.guard || r.reason || '') + '</td></tr>';
+  }).join('');
+  document.getElementById('count').textContent = view.length + ' of ' + ROWS.length;
 }
-
-document.querySelectorAll('th').forEach((th) => th.addEventListener('click', () => {
-  const k = th.dataset.k;
-  sortDir = (k === sortKey) ? -sortDir : 1;
-  sortKey = k;
-  document.querySelectorAll('th').forEach((o) => o.classList.remove('asc', 'desc'));
-  th.classList.add(sortDir === 1 ? 'asc' : 'desc');
-  render();
-}));
-['q', 'legf', 'onlyfail'].forEach((id) =>
-  document.getElementById(id).addEventListener('input', render));
+document.querySelectorAll('th').forEach(function(th){
+  th.addEventListener('click', function(){
+    dir = (th.dataset.k === key) ? -dir : 1;
+    key = th.dataset.k;
+    document.querySelectorAll('th').forEach(function(o){ o.classList.remove('asc','desc'); });
+    th.classList.add(dir === 1 ? 'asc' : 'desc');
+    render();
+  });
+});
+['q','legf','onlyfail'].forEach(function(id){
+  document.getElementById(id).addEventListener('input', render);
+});
 render();
 </script>
-</body></html>
+</div></body></html>
