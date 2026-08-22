@@ -140,6 +140,7 @@ footer.foot{margin-top:3rem;color:var(--dim);font-size:.8rem;text-align:center;l
 <p class="secsub">Ranked by legs passed, then by how many tasks were clean on <em>every</em> attempt.
 Consistency separates these models far more than peak score does.</p>
 <div class="legend">
+  <span><b>cost ×</b> time and tokens relative to <b>muse-glimmer:30b-mlx</b> — the cheapest model that scored 9/9. Anchoring to the outright cheapest would reward failing fast.</span>
   <span><b>Repair</b> Find one planted defect in an unfamiliar parser and fix it</span>
   <span><b>Implement</b> Write a bowling scorer against 31 canonical cases</span>
   <span><b>Build</b> Build a playable Tetris from nothing, and look at its own screenshot</span>
@@ -180,7 +181,7 @@ Consistency separates these models far more than peak score does.</p>
     <div class="cost">
       <span class="clabel">time</span>
       <span class="cbar"><i class="t" style="width:22%"></i></span>
-      <span class="cval">1.7h <em>1.3×</em></span>
+      <span class="cval">1.7h</span>
     </div>
     <div class="cost">
       <span class="clabel">tokens</span>
@@ -225,7 +226,7 @@ Consistency separates these models far more than peak score does.</p>
     <div class="cost">
       <span class="clabel">time</span>
       <span class="cbar"><i class="t" style="width:27%"></i></span>
-      <span class="cval">2.1h <em>1.6×</em></span>
+      <span class="cval">2.1h <em>1.2×</em></span>
     </div>
     <div class="cost">
       <span class="clabel">tokens</span>
@@ -315,7 +316,7 @@ Consistency separates these models far more than peak score does.</p>
     <div class="cost">
       <span class="clabel">time</span>
       <span class="cbar"><i class="t" style="width:48%"></i></span>
-      <span class="cval">3.7h <em>2.8×</em></span>
+      <span class="cval">3.7h <em>2.2×</em></span>
     </div>
     <div class="cost">
       <span class="clabel">tokens</span>
@@ -360,7 +361,7 @@ Consistency separates these models far more than peak score does.</p>
     <div class="cost">
       <span class="clabel">time</span>
       <span class="cbar"><i class="t" style="width:30%"></i></span>
-      <span class="cval">2.3h <em>1.8×</em></span>
+      <span class="cval">2.3h <em>1.4×</em></span>
     </div>
     <div class="cost">
       <span class="clabel">tokens</span>
@@ -405,7 +406,7 @@ Consistency separates these models far more than peak score does.</p>
     <div class="cost">
       <span class="clabel">time</span>
       <span class="cbar"><i class="t" style="width:100%"></i></span>
-      <span class="cval">7.7h <em>5.8×</em></span>
+      <span class="cval">7.7h <em>4.6×</em></span>
     </div>
     <div class="cost">
       <span class="clabel">tokens</span>
@@ -497,8 +498,12 @@ Consistency separates these models far more than peak score does.</p>
   fixed" having written nothing at all.<br>
   <b>INVALID</b> means the harness failed, not the model.
   1 row(s) from an earlier sweep excluded. 
-  Generated 2026-08-22 22:40<br>
-  <b>Harness</b> local-llm-bench agentic driver · Ollama <code>/api/chat</code> tool calling, non-streaming ·
+  Generated 2026-08-22 23:05<br>
+  <b>Harness</b> <a href="https://github.com/NightOwlCoder/local-llm-bench">local-llm-bench</a> — an agent loop, not a prompt.
+  Each model is handed a real working directory and a set of tools, then left to work: it reads files, writes files,
+  runs commands, looks at screenshots, and decides when it is done. Nothing is scored from what the model
+  <em>says</em> — the verdict comes from running the project's own test suite in the directory the model edited.
+  <br>Ollama <code>/api/chat</code> tool calling, non-streaming ·
   32k context cap, sliding-window history · tools: list_dir, read_file, write_file, run_command, screenshot, done ·
   each command in its own process group, 120s cap · 15-min per-request ceiling ·
   40-min / 250k-token leg budget · fresh fixture copy per attempt, no network<br>

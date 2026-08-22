@@ -159,8 +159,11 @@ const models = [...new Set(rows.map((r) => r.model))].map((name) => {
 // What a model costs to get its result is half the airplane question: a laptop on
 // battery pays for every minute and every token. Scale each against the cheapest
 // model in the field so the bars mean "relative to the best case here".
-const minTime = Math.min(...models.map((m) => m.totalMin).filter((x) => x > 0));
-const minTok = Math.min(...models.map((m) => m.totalTok).filter((x) => x > 0));
+const bestRate = Math.max(...models.map((m) => m.passed / m.total));
+const baseCandidates = models.filter((m) => m.passed / m.total === bestRate && m.totalMin > 0);
+const baseline = baseCandidates.reduce((a, b) => (a.totalMin <= b.totalMin ? a : b));
+const minTime = baseline.totalMin;
+const minTok = baseline.totalTok;
 for (const m of models) {
   m.timeVsBest = m.totalMin && minTime ? m.totalMin / minTime : null;
   m.tokVsBest = m.totalTok && minTok ? m.totalTok / minTok : null;
@@ -426,6 +429,7 @@ footer.foot{margin-top:3rem;color:var(--dim);font-size:.8rem;text-align:center;l
 <p class="secsub">Ranked by legs passed, then by how many tasks were clean on <em>every</em> attempt.
 Consistency separates these models far more than peak score does.</p>
 <div class="legend">
+  <span><b>cost ×</b> time and tokens relative to <b>${baseline.name}</b> — the cheapest model that scored ${baseline.passed}/${baseline.total}. Anchoring to the outright cheapest would reward failing fast.</span>
   <span><b>Repair</b> ${LEG_BLURB.bugfix}</span>
   <span><b>Implement</b> ${LEG_BLURB.exercism}</span>
   <span><b>Build</b> ${LEG_BLURB.greenfield}</span>
@@ -468,7 +472,11 @@ ${notes.map((n) => `<div class="note"><div class="ic">${n.icon}</div><h4>${n.tit
   <b>INVALID</b> means the harness failed, not the model.
   ${staleCount ? `${staleCount} row(s) from an earlier sweep excluded. ` : ''}
   Generated ${new Date().toISOString().slice(0, 16).replace('T', ' ')}<br>
-  <b>Harness</b> local-llm-bench agentic driver · Ollama <code>/api/chat</code> tool calling, non-streaming ·
+  <b>Harness</b> <a href="https://github.com/NightOwlCoder/local-llm-bench">local-llm-bench</a> — an agent loop, not a prompt.
+  Each model is handed a real working directory and a set of tools, then left to work: it reads files, writes files,
+  runs commands, looks at screenshots, and decides when it is done. Nothing is scored from what the model
+  <em>says</em> — the verdict comes from running the project's own test suite in the directory the model edited.
+  <br>Ollama <code>/api/chat</code> tool calling, non-streaming ·
   32k context cap, sliding-window history · tools: list_dir, read_file, write_file, run_command, screenshot, done ·
   each command in its own process group, 120s cap · 15-min per-request ceiling ·
   40-min / 250k-token leg budget · fresh fixture copy per attempt, no network<br>
