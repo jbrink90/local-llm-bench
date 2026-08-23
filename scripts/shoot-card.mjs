@@ -1,0 +1,10 @@
+import { chromium } from 'playwright';
+const b = await chromium.launch();
+const p = await (await b.newContext({ viewport: { width: 1200, height: 630 }, deviceScaleFactor: 2 })).newPage();
+const errs = [];
+p.on('pageerror', e => errs.push(e.message));
+await p.goto('file:///tmp/bench-card.html', { waitUntil: 'load' });
+await p.evaluate(() => new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r))));
+await p.screenshot({ path: '${BLOG_ASSETS:-../blog}/assets/2026-08-22-agentic-benchmark-card.png' });
+console.log('errors:', errs.length ? errs : 'none');
+await b.close();
