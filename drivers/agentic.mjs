@@ -156,9 +156,15 @@ if (VISION_ENABLED) {
 // or it gets the sidecar. Guessing here would silently mislabel a whole run.
 let visionMode = null; // 'native' | 'sidecar' | null when the variant has no vision
 
+const REMOTE_BASE = process.env.AGENTIC_REMOTE_BASE || null;
+const REMOTE_KEY = process.env.AGENTIC_REMOTE_KEY || null;
+
+const TOOLS_OPENAI = TOOLS;
+
 const metrics = {
   benchmark: 'agentic',
   model,
+  remote: !!REMOTE_BASE,
   turns: 0,
   tool_calls: 0,
   malformed_calls: 0,      // unknown tool, or missing required args
@@ -256,7 +262,41 @@ function dispatch(name, args) {
   }
 }
 
+// A remote OpenAI-compatible endpoint is NOT a peer of the local models: its speed
+// is someone else's datacenter and it needs a network. It exists here as a reference
+// ceiling — what a frontier model scores on the same three legs — and every result
+// it produces is stamped `remote: true` so no table can quietly rank it as local.
+
+async function chatRemote(messages) {
+  const res = await ollamaPost(
+    REMOTE_BASE.replace(/\/+$/, '') + '/',
+    'chat/completions',
+    { model, messages: trimHistory(messages), tools: TOOLS_OPENAI, max_tokens: 8192 },
+    undefined,
+    { Authorization: `Bearer ${REMOTE_KEY}` },
+  );
+  const msg = res.choices?.[0]?.message || {};
+  // OpenAI sends tool arguments as a JSON string, Ollama sends a parsed object.
+  // Normalize to Ollama's shape so the loop below stays provider-agnostic.
+  const calls = (msg.tool_calls || []).map((c) => ({
+    id: c.id,
+    type: c.type || 'function',
+    function: {
+      name: c.function?.name,
+      arguments: typeof c.function?.arguments === 'string'
+        ? JSON.parse(c.function.arguments || '{}')
+        : (c.function?.arguments || {}),
+    },
+  }));
+  return {
+    message: { role: 'assistant', content: msg.content || '', tool_calls: calls },
+    prompt_eval_count: res.usage?.prompt_tokens || 0,
+    eval_count: res.usage?.completion_tokens || 0,
+  };
+}
+
 async function chat(messages) {
+  if (REMOTE_BASE) return chatRemote(messages);
   return ollamaPost(OLLAMA, '/api/chat', {
     model,
     stream: false,
@@ -355,7 +395,21 @@ try {
     metrics.durations_ns.total += res.total_duration || 0;
 
     const msg = res.message || {};
-    messages.push(msg);
+    if (REMOTE_BASE && msg.tool_calls?.length) {
+      // Echo the assistant turn in the shape the provider sent it: arguments as a
+      // JSON string, id and type intact. A parsed object here is rejected upstream.
+      messages.push({
+        role: 'assistant',
+        content: msg.content || '',
+        tool_calls: msg.tool_calls.map((c) => ({
+          id: c.id,
+          type: 'function',
+          function: { name: c.function.name, arguments: JSON.stringify(c.function.arguments ?? {}) },
+        })),
+      });
+    } else {
+      messages.push(msg);
+    }
     const calls = msg.tool_calls || [];
 
     if (calls.length === 0) {
@@ -406,6 +460,7 @@ try {
         result: String(result).slice(0, 4000),
       });
       const toolMsg = { role: 'tool', content: String(result).slice(0, MAX_TOOL_RESULT_CHARS) };
+      if (REMOTE_BASE && call.id) toolMsg.tool_call_id = call.id;
       // A native-vision model receives the pixels, not a description of them.
       if (image) toolMsg.images = [image];
       messages.push(toolMsg);

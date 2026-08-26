@@ -9,6 +9,7 @@
 // node:http has no such cap, so the only limit is the one we choose.
 
 import http from 'node:http';
+import https from 'node:https';
 import { URL } from 'node:url';
 
 // A slow model is not a broken model. This exists to catch a genuinely wedged
@@ -21,20 +22,22 @@ const DEFAULT_TIMEOUT_MS = Number(process.env.OLLAMA_TIMEOUT_MS || 1_800_000);
 // ceiling catches that, so it exists IN ADDITION to the idle timeout, not instead.
 const HARD_LIMIT_MS = Number(process.env.OLLAMA_HARD_LIMIT_MS || 900_000);
 
-export function ollamaPost(baseUrl, path, payload, timeoutMs = DEFAULT_TIMEOUT_MS) {
+export function ollamaPost(baseUrl, path, payload, timeoutMs = DEFAULT_TIMEOUT_MS, headers = {}) {
   const url = new URL(path, baseUrl);
   const body = JSON.stringify(payload);
+  const mod = url.protocol === 'https:' ? https : http;
 
   return new Promise((resolve, reject) => {
-    const req = http.request(
+    const req = mod.request(
       {
         hostname: url.hostname,
-        port: url.port || 80,
-        path: url.pathname,
+        port: url.port || (url.protocol === 'https:' ? 443 : 80),
+        path: url.pathname + url.search,
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Content-Length': Buffer.byteLength(body),
+          ...headers,
         },
       },
       (res) => {
