@@ -78,8 +78,11 @@ curl -sf --max-time 5 "$OLLAMA/api/version" > /dev/null || {
 for MODEL in "${MODELS[@]}"; do
   SAFE=$(echo "$MODEL" | tr ':/' '--')
 
+  # A remote reference model has no local weights, so the pull check does not apply.
+  if [ -n "${AGENTIC_REMOTE_BASE:-}" ]; then
+    :
   # Fail loud on a model that is not pulled, rather than silently substituting one.
-  if ! curl -sf --max-time 10 "$OLLAMA/api/show" -d "{\"model\":\"$MODEL\"}" > /dev/null; then
+  elif ! curl -sf --max-time 10 "$OLLAMA/api/show" -d "{\"model\":\"$MODEL\"}" > /dev/null; then
     log "SKIP $MODEL — not pulled locally"
     continue
   fi

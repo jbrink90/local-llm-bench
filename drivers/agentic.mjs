@@ -334,6 +334,10 @@ function trimHistory(messages) {
 // that silently rots when a tag is repulled.
 async function resolveVisionMode() {
   if (!VISION_ENABLED) return null;
+  // A remote model has no local manifest to interrogate, so /api/show 404s on it.
+  // The sidecar is the honest default: claiming native vision we never verified
+  // would mislabel the row, and the sidecar path is measured either way.
+  if (REMOTE_BASE) return process.env.AGENTIC_REMOTE_VISION === 'native' ? 'native' : 'sidecar';
   const caps = (await ollamaPost(OLLAMA, '/api/show', { model })).capabilities || [];
   return caps.includes('vision') ? 'native' : 'sidecar';
 }
