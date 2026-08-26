@@ -157,6 +157,9 @@ if (VISION_ENABLED) {
 let visionMode = null; // 'native' | 'sidecar' | null when the variant has no vision
 
 const REMOTE_BASE = process.env.AGENTIC_REMOTE_BASE || null;
+// A whole single-file game does not fit in 8k output tokens. When the cap bites, the
+// truncated tool_call is unparseable JSON and the leg dies for a harness reason.
+const REMOTE_MAX_TOKENS = Number(process.env.AGENTIC_REMOTE_MAX_TOKENS || 32768);
 const REMOTE_KEY = process.env.AGENTIC_REMOTE_KEY || null;
 
 const TOOLS_OPENAI = TOOLS;
@@ -271,12 +274,21 @@ async function chatRemote(messages) {
   const res = await ollamaPost(
     REMOTE_BASE.replace(/\/+$/, '') + '/',
     'chat/completions',
-    { model, messages: trimHistory(messages), tools: TOOLS_OPENAI, max_tokens: 8192 },
+    { model, messages: trimHistory(messages), tools: TOOLS_OPENAI, max_tokens: REMOTE_MAX_TOKENS },
     undefined,
     { Authorization: `Bearer ${REMOTE_KEY}` },
   );
   const msg = res.choices?.[0]?.message || {};
   // OpenAI sends tool arguments as a JSON string, Ollama sends a parsed object.
+  // A response cut off at the output cap arrives with a half-written arguments
+  // string. Name that for what it is instead of dying on a bare JSON error.
+  if (res.choices?.[0]?.finish_reason === 'length') {
+    throw new Error(
+      `remote response truncated at the output cap (${REMOTE_MAX_TOKENS} tokens) — ` +
+      'raise AGENTIC_REMOTE_MAX_TOKENS',
+    );
+  }
+
   // Normalize to Ollama's shape so the loop below stays provider-agnostic.
   const calls = (msg.tool_calls || []).map((c) => ({
     id: c.id,
