@@ -41,6 +41,9 @@ const ENGINE = {
   'gpt-oss:20b': { engine: 'llama.cpp', quant: 'MXFP4', gb: 14 },
   'qwen3-coder:30b': { engine: 'llama.cpp', quant: 'Q4_K_M', gb: 19 },
   'qwen3-vl:30b': { engine: 'llama.cpp', quant: 'Q4_K_M', gb: 20 },
+  // Remote reference row: served by the provider, so there is no local engine,
+  // no quant we chose, and no footprint on this machine.
+  'glm-5.3-flash': { engine: 'remote', quant: 'cloud', gb: null },
 };
 
 const read = (p) => { try { return JSON.parse(readFileSync(p, 'utf8')); } catch { return null; } };
@@ -88,6 +91,9 @@ for (const f of readdirSync(RESULTS)) {
     tokS: rates.generate_tok_s ?? null,
     prefill: rates.prefill_share ?? null,
     guard: loop.hit_guard ? (loop.guard_reason || 'guard hit') : null,
+    // Stamped by the driver when the model was served over a network instead of
+    // from local weights. It decides disclosure, so it is carried per-row.
+    remote: loop.remote === true,
   });
 }
 
@@ -137,6 +143,7 @@ const models = [...new Set(rows.map((r) => r.model))].map((name) => {
   // Perfect on every repeat of a leg is the interesting property, not peak score:
   // three of these models have one catastrophic run among strong ones.
   const flawless = Object.values(legs).filter((l) => l.runs.length && l.passed === l.runs.length).length;
+  const isRemote = mine.some((r) => r.remote === true || r.loop?.remote === true);
   return {
     name,
     ...(ENGINE[name] || { engine: '?', quant: '?', gb: null }),
@@ -145,6 +152,7 @@ const models = [...new Set(rows.map((r) => r.model))].map((name) => {
     total: mine.length,
     passed,
     flawless,
+    isRemote,
     medMin: med(mine.map((r) => r.minutes)),
     worstMin: Math.max(...mine.map((r) => r.minutes || 0)),
     tokS: med(mine.map((r) => r.tokS)),
@@ -214,7 +222,9 @@ if (inv.length) {
   });
 }
 
-const champ = models[0];
+const localModels = models.filter((m) => !m.isRemote);
+const remoteModels = models.filter((m) => m.isRemote);
+const champ = localModels[0];
 const legRows = Object.keys(LEG_MAX);
 
 // ---------- render ----------
@@ -318,6 +328,9 @@ h1{font-size:clamp(1.9rem,4.5vw,3rem);line-height:1.1;margin:.5rem 0 .75rem;
   border:1px solid var(--line2);border-radius:16px;padding:1.5rem 1.75rem;margin:0 0 2.5rem;
   display:flex;gap:1.25rem;align-items:center;flex-wrap:wrap}
 .winner .crown{font-size:2.5rem;line-height:1}
+.remote-note{margin:1rem 0 0;padding:.85rem 1rem;border-left:3px solid var(--warn,#e0a33e);
+  background:rgba(224,163,62,.07);border-radius:0 6px 6px 0;color:var(--dim);font-size:.88rem;line-height:1.65}
+.remote-note b{color:var(--warn,#e0a33e)}
 .winner h2{margin:0 0 .2rem;font-size:1.25rem}
 .winner p{margin:0;color:var(--dim);font-size:.92rem}
 
@@ -426,6 +439,14 @@ footer.foot a:hover{color:#bfdbfe}
     ${champ.tokS ? `Slowest generator in the field at ${champ.tokS} tok/s — and it never once thrashed.` : ''}</p>
   </div>
 </div>
+${remoteModels.length ? `<div class="remote-note">
+  <b>Not a local model:</b> ${remoteModels.map((m) => m.name).join(', ')} ran the same three legs
+  through a hosted API, so ${remoteModels.length > 1 ? 'they have' : 'it has'} no weights on this
+  machine and cannot run offline — the whole point of the local field above.
+  ${remoteModels.map((m) => `${m.name} passed ${m.passed}/${m.total}`).join('; ')}.
+  Read it as a capability ceiling to measure the local models against, not as a competitor:
+  its speed is someone else's datacenter, and its cost is tokens billed rather than watts on a laptop.
+</div>` : ''}
 
 <h2 class="sec">The field</h2>
 <p class="secsub">Ranked by legs passed, then by how many tasks were clean on <em>every</em> attempt.
@@ -558,4 +579,4 @@ render();
 
 writeFileSync(OUT, html);
 console.log(`Wrote ${OUT}`);
-console.log(`  ${rows.length} legs · ${models.length} models · winner ${champ.name} (${champ.passed}/${champ.total})`);
+console.log(`  ${rows.length} legs · ${localModels.length} local + ${remoteModels.length} remote · local winner ${champ.name} (${champ.passed}/${champ.total})`);
