@@ -1,0 +1,47 @@
+{
+  "model": "glm-5.3-flash",
+  "benchmark": "agentic-exercism",
+  "pass": true,
+  "solved": 31,
+  "of": 31,
+  "loop": {
+    "benchmark": "agentic",
+    "model": "glm-5.3-flash",
+    "remote": true,
+    "turns": 11,
+    "tool_calls": 12,
+    "malformed_calls": 0,
+    "wasted_calls": 1,
+    "failed_commands": 0,
+    "repeated_failures": 0,
+    "recovered": null,
+    "declared_done": true,
+    "hit_guard": false,
+    "tokens": {
+      "prompt": 61406,
+      "completion": 15755
+    },
+    "durations_ns": {
+      "load": 0,
+      "prompt_eval": 0,
+      "eval": 0,
+      "total": 0
+    },
+    "vision": {
+      "mode": null,
+      "screenshots": 0,
+      "sidecar_tokens": {
+        "prompt": 0,
+        "completion": 0
+      }
+    },
+    "wall_ms": 352364,
+    "history_trimmed": false,
+    "errors": [],
+    "rates": {
+      "prefill_tok_s": null,
+      "generate_tok_s": null,
+      "prefill_share": null
+    }
+  }
+}

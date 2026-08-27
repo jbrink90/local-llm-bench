@@ -1,0 +1,48 @@
+{
+  "model": "glm-5.3-flash",
+  "benchmark": "agentic-bugfix",
+  "pass": true,
+  "tests_passed": 6,
+  "tests_failed": 0,
+  "tests_added": 0,
+  "loop": {
+    "benchmark": "agentic",
+    "model": "glm-5.3-flash",
+    "remote": true,
+    "turns": 10,
+    "tool_calls": 13,
+    "malformed_calls": 0,
+    "wasted_calls": 1,
+    "failed_commands": 0,
+    "repeated_failures": 0,
+    "recovered": null,
+    "declared_done": true,
+    "hit_guard": false,
+    "tokens": {
+      "prompt": 46850,
+      "completion": 1076
+    },
+    "durations_ns": {
+      "load": 0,
+      "prompt_eval": 0,
+      "eval": 0,
+      "total": 0
+    },
+    "vision": {
+      "mode": null,
+      "screenshots": 0,
+      "sidecar_tokens": {
+        "prompt": 0,
+        "completion": 0
+      }
+    },
+    "wall_ms": 59715,
+    "history_trimmed": false,
+    "errors": [],
+    "rates": {
+      "prefill_tok_s": null,
+      "generate_tok_s": null,
+      "prefill_share": null
+    }
+  }
+}

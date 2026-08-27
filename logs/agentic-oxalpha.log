@@ -1,0 +1,20 @@
+15:51:58  START bugfix glm-5.3-flash run 1/3
+15:54:50  DONE  bugfix glm-5.3-flash run 1 — pass=true tests=6/6
+15:54:50  START exercism glm-5.3-flash run 1/3
+15:58:20  DONE  exercism glm-5.3-flash run 1 — pass=true solved=31/31
+15:58:20  START greenfield glm-5.3-flash run 1/3
+15:58:20  DONE  greenfield glm-5.3-flash run 1 — INVALID reason=driver error: ollama 404: {"error":"model 'glm-5.3-flash:latest' not found"}
+15:58:20  START bugfix glm-5.3-flash run 2/3
+15:59:40  DONE  bugfix glm-5.3-flash run 2 — pass=true tests=6/6
+15:59:40  START exercism glm-5.3-flash run 2/3
+16:01:41  DONE  exercism glm-5.3-flash run 2 — pass=true solved=31/31
+16:01:41  START greenfield glm-5.3-flash run 2/3
+16:01:41  DONE  greenfield glm-5.3-flash run 2 — INVALID reason=driver error: ollama 404: {"error":"model 'glm-5.3-flash:latest' not found"}
+16:01:41  START bugfix glm-5.3-flash run 3/3
+16:02:42  DONE  bugfix glm-5.3-flash run 3 — pass=true tests=6/6
+16:02:42  START exercism glm-5.3-flash run 3/3
+16:08:42  DONE  exercism glm-5.3-flash run 3 — pass=true solved=31/31
+16:08:42  START greenfield glm-5.3-flash run 3/3
+16:08:42  DONE  greenfield glm-5.3-flash run 3 — INVALID reason=driver error: ollama 404: {"error":"model 'glm-5.3-flash:latest' not found"}
+16:08:48  ALL DONE — results in /Users/sibagy/fileZ/projZ/local-llm-bench/caxi-results/agentic-*.json
+16:08:53  killed driver descendants and unloaded models on exit
