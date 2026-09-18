@@ -9,17 +9,46 @@
     "hf.co/LiquidAI/LFM2.5-8B-A1B-GGUF:Q6_K"
   ],
   "benchmarks": [
-    {"name": "oi", "ext": "txt"},
-    {"name": "snake-html", "ext": "html"},
-    {"name": "tetris", "ext": "html"},
-    {"name": "todo", "ext": "html"},
-    {"name": "calc", "ext": "html"},
-    {"name": "markdown", "ext": "html"}
+    {
+      "name": "oi",
+      "ext": "txt",
+      "notes": "Warm-up + greeting. Cold load captured here."
+    },
+    {
+      "name": "snake-pygame",
+      "ext": "py",
+      "notes": "Legacy pygame snake. Validator: syntax check only."
+    },
+    {
+      "name": "snake-html",
+      "ext": "html",
+      "notes": "HTML5 canvas snake. Caxi plays it."
+    },
+    {
+      "name": "tetris",
+      "ext": "html",
+      "notes": "Harder: piece rotation, collision, gravity."
+    },
+    {
+      "name": "todo",
+      "ext": "html",
+      "notes": "Modern todo app. Function + polish scored."
+    },
+    {
+      "name": "calc",
+      "ext": "html",
+      "notes": "Scientific calculator. Tests precedence, parens, float, clear. Deterministic."
+    },
+    {
+      "name": "markdown",
+      "ext": "html",
+      "notes": "Markdown previewer with live updates."
+    }
   ],
   "runtime": {
     "keep_alive": "10m",
     "timeout_secs": 7200,
-    "ollama_url": "http://192.168.1.69:11434",
+    "ollama_url": "http://localhost:11434",
     "skip_if_exists": true
   }
 }
