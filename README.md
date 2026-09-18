@@ -1,4 +1,4 @@
-````markdown
+
 # local-llm-bench
 
 An extensible benchmark framework for **local coding and agent models running through Ollama**.
@@ -580,8 +580,3 @@ Record the model, timing, generated artifact, raw response, and validator result
 ## License
 
 MIT
-
-```
-
-I kept the actual README in one writing block so you can copy the whole thing cleanly.
-```
