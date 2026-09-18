@@ -1,4 +1,4 @@
-#!/opt/homebrew/bin/bash
+#!/usr/bin/env bash
 # Validate snake-pygame: Python syntax check only (can't auto-play pygame).
 # Usage: ./snake-pygame.sh <artifact-file> <model> <results-dir>
 set -uo pipefail

@@ -1,4 +1,4 @@
-#!/opt/homebrew/bin/bash
+#!/usr/bin/env bash
 # Run all Opus-based judgments across every model × benchmark combination.
 # Assumes bench.sh has already generated artifacts.
 #

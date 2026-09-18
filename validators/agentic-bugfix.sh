@@ -1,4 +1,4 @@
-#!/opt/homebrew/bin/bash
+#!/usr/bin/env bash
 # Validate the agentic bug-fix variant: the artifact gate.
 #
 # The loop transcript is NOT evidence of success. A model can call tools tidily,
@@ -40,7 +40,7 @@ SHIPPED_TEST=test/precedence.test.mjs
 [ -s "$WORKDIR/$SHIPPED_TEST" ] || emit_fail "shipped test file missing"
 
 # Fully offline: node's built-in test runner, no install step.
-TEST_OUT=$(cd "$WORKDIR" && gtimeout 120 node --test "$SHIPPED_TEST" 2>&1)
+TEST_OUT=$(cd "$WORKDIR" && timeout 120 node --test "$SHIPPED_TEST" 2>&1)
 PASSED=$(echo "$TEST_OUT" | grep -oE '^ℹ pass [0-9]+' | grep -oE '[0-9]+' | head -1)
 FAILED=$(echo "$TEST_OUT" | grep -oE '^ℹ fail [0-9]+' | grep -oE '[0-9]+' | head -1)
 PASSED=${PASSED:-0}

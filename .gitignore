@@ -23,3 +23,7 @@ __pycache__/
 *.pyc
 .clinerules
 __pycache__/
+
+logs/
+output/
+caxi-results/

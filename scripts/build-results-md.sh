@@ -1,4 +1,4 @@
-#!/opt/homebrew/bin/bash
+#!/usr/bin/env bash
 # Build final RESULTS.md from LEADERBOARD.json + raw data.
 #
 # Reporting convention:

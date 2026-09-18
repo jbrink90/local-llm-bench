@@ -1,4 +1,4 @@
-#!/opt/homebrew/bin/bash
+#!/usr/bin/env bash
 # Overnight runner for the agentic dimension.
 #
 # Runs every offline-capable model through both variants, one model at a time so

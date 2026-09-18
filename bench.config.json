@@ -1,54 +1,25 @@
 {
-  "_comment": "Local LLM Benchmark config. Add models by appending to 'models'. Add benchmarks by appending to 'benchmarks' (also drop a matching prompts/<name>.txt and optional validators/<name>.sh).",
   "models": [
-    "laguna-xs.2",
-    "qwen3-coder:30b",
-    "qwen3-coder-next",
-    "gpt-oss:20b",
-    "gemma4:26b-mlx-bf16",
-    "qwen3.5:35b-a3b-coding-nvfp4"
+    "qwen2.5-coder:7b",
+    "qwen3:14b",
+    "qwen3:30b-a3b",
+    "qwen3.5:35b-a3b",
+    "hf.co/unsloth/Qwen3.5-9B-GGUF:Q5_K_M",
+    "hf.co/unsloth/gemma-4-12b-it-GGUF:Q5_K_M",
+    "hf.co/LiquidAI/LFM2.5-8B-A1B-GGUF:Q6_K"
   ],
   "benchmarks": [
-    {
-      "name": "oi",
-      "ext": "txt",
-      "notes": "Warm-up + greeting. Cold load captured here."
-    },
-    {
-      "name": "snake-pygame",
-      "ext": "py",
-      "notes": "Legacy pygame snake. Validator: syntax check only."
-    },
-    {
-      "name": "snake-html",
-      "ext": "html",
-      "notes": "HTML5 canvas snake. Caxi plays it."
-    },
-    {
-      "name": "tetris",
-      "ext": "html",
-      "notes": "Harder: piece rotation, collision, gravity."
-    },
-    {
-      "name": "todo",
-      "ext": "html",
-      "notes": "Modern todo app. Function + polish scored."
-    },
-    {
-      "name": "calc",
-      "ext": "html",
-      "notes": "Scientific calculator. Tests precedence, parens, float, clear. Deterministic."
-    },
-    {
-      "name": "markdown",
-      "ext": "html",
-      "notes": "Markdown previewer with live updates."
-    }
+    {"name": "oi", "ext": "txt"},
+    {"name": "snake-html", "ext": "html"},
+    {"name": "tetris", "ext": "html"},
+    {"name": "todo", "ext": "html"},
+    {"name": "calc", "ext": "html"},
+    {"name": "markdown", "ext": "html"}
   ],
   "runtime": {
     "keep_alive": "10m",
     "timeout_secs": 7200,
-    "ollama_url": "http://localhost:11434",
+    "ollama_url": "http://192.168.1.69:11434",
     "skip_if_exists": true
   }
 }

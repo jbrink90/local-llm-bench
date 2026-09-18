@@ -1,4 +1,4 @@
-#!/opt/homebrew/bin/bash
+#!/usr/bin/env bash
 # Validate the agentic greenfield variant: the artifact gate.
 #
 # Reuses the existing tetris driver (8 functional tiers, Playwright) rather than
@@ -46,7 +46,7 @@ if [ ! -s "$ARTIFACT" ]; then
 fi
 
 source "$HOME/.nvm/nvm.sh" >/dev/null 2>&1 || true
-FUNC=$(gtimeout 120 node "$DRIVER" "$ARTIFACT" "$RESULTS" "agentic-$SAFE" 2>/dev/null)
+FUNC=$(timeout 120 node "$DRIVER" "$ARTIFACT" "$RESULTS" "agentic-$SAFE" 2>/dev/null)
 [ -n "$FUNC" ] || emit_fail "tetris driver failed"
 
 PASS=$(echo "$FUNC" | jq -r '.pass')

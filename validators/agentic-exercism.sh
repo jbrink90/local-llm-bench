@@ -1,4 +1,4 @@
-#!/opt/homebrew/bin/bash
+#!/usr/bin/env bash
 # Validate the agentic exercism leg: a GRADED breadth gate.
 #
 # Unlike agentic-bugfix.sh, this does not collapse to pass/fail. The expr-eval
@@ -49,7 +49,7 @@ if [ ! -s "$WORKDIR/bowling.py" ]; then
   emit_fail "bowling.py missing"
 fi
 
-TEST_OUT=$(cd "$WORKDIR" && gtimeout 120 python3 -m pytest bowling_test.py -q 2>&1)
+TEST_OUT=$(cd "$WORKDIR" && timeout 120 python3 -m pytest bowling_test.py -q 2>&1)
 PASSED=$(echo "$TEST_OUT" | grep -oE '[0-9]+ passed' | grep -oE '[0-9]+' | head -1)
 FAILED=$(echo "$TEST_OUT" | grep -oE '[0-9]+ failed' | grep -oE '[0-9]+' | head -1)
 PASSED=${PASSED:-0}

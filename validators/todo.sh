@@ -1,4 +1,4 @@
-#!/opt/homebrew/bin/bash
+#!/usr/bin/env bash
 # Validate todo via Playwright (drivers/todo.mjs).
 # Usage: ./todo.sh <artifact-file> <model> <results-dir>
 set -uo pipefail
@@ -17,7 +17,7 @@ fi
 
 # Run driver, merge model name into result JSON
 source "$HOME/.nvm/nvm.sh" >/dev/null 2>&1 || true
-OUTPUT=$(gtimeout 90 node "$DRIVER" "$ARTIFACT" "$RESULTS" "$SAFE" 2>/dev/null)
+OUTPUT=$(timeout 90 node "$DRIVER" "$ARTIFACT" "$RESULTS" "$SAFE" 2>/dev/null)
 if [ -z "$OUTPUT" ]; then
   jq -n --arg m "$MODEL" '{model:$m, benchmark:"todo", pass:false, reason:"driver failed"}' \
     > "$RESULTS/todo-$SAFE.json"

@@ -1,4 +1,4 @@
-#!/opt/homebrew/bin/bash
+#!/usr/bin/env bash
 # Validate markdown via Playwright (drivers/markdown.mjs).
 set -uo pipefail
 ARTIFACT="$1"
@@ -14,7 +14,7 @@ if [ ! -s "$ARTIFACT" ]; then
 fi
 
 source "$HOME/.nvm/nvm.sh" >/dev/null 2>&1 || true
-OUTPUT=$(gtimeout 90 node "$DRIVER" "$ARTIFACT" "$RESULTS" "$SAFE" 2>/dev/null)
+OUTPUT=$(timeout 90 node "$DRIVER" "$ARTIFACT" "$RESULTS" "$SAFE" 2>/dev/null)
 if [ -z "$OUTPUT" ]; then
   jq -n --arg m "$MODEL" '{model:$m, benchmark:"markdown", pass:false, reason:"driver failed"}' \
     > "$RESULTS/markdown-$SAFE.json"

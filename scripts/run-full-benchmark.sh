@@ -1,4 +1,4 @@
-#!/opt/homebrew/bin/bash
+#!/usr/bin/env bash
 # Master orchestrator — clean scientific run end to end.
 #
 # 1. Clean stale artifacts/results (preserves screenshots/, output/snake-pygame/
